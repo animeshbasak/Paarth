@@ -197,7 +197,9 @@ bash install.sh                                # Claude Code (original)
 | Skill | When it fires |
 |---|---|
 | `superagent` | Master router — classifies, composes chain, picks backend |
-| `superagent-safety` | **NEW** Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
+| `superagent-learn-loop` | **v2.4** Self-improving classifier — `patterns.jsonl` learning loop with promote/decay/protect/prune (Stop hook runs every session) |
+| `cost-budget` | **v2.4** Per-day budget alerts at 50/75/90/100% + auto-downgrade.flag at 90% spend (4-dim Anthropic pricing) |
+| `superagent-safety` | Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
 | `auto-fallback` | Cost-aware switch to local LLM + 3-tier router |
 | `superagent-switch` | Manual model swap with canary preflight |
 | `free-llm` | Set up free-claude-code proxy + provider routing |
