@@ -224,4 +224,9 @@ rules:
     chain: [agent:tester]
     complexity: moderate
 
+  - name: autopilot
+    signal: "\\b(autopilot|run unattended|keep working|loop on (the |my )?(todo|task)|loop on the open|/loop)\\b"
+    chain: [autopilot]
+    complexity: moderate
+
 build_archetypes: [bug, feature, ui, webgl, refactor, framer-motion]
