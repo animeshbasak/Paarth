@@ -389,6 +389,17 @@ ok "9 SuperAgent hooks wired in ~/.claude/settings.json"
 # Marker for Wave 1 completion
 mkdir -p "$HOME/.superagent" 2>/dev/null || true
 date -Iseconds > "$HOME/.superagent/.wave-1.installed" 2>/dev/null || true
+
+# ── Wave 2: copy specialist dispatch agents ─────────────────────────────────
+AGENTS_SRC="$SCRIPT_DIR/agents"
+AGENTS_DST="$CLAUDE_DIR/agents"
+if [[ -d "$AGENTS_SRC" ]]; then
+  mkdir -p "$AGENTS_DST"
+  for f in "$AGENTS_SRC"/*.md; do
+    [[ -f "$f" ]] && cp "$f" "$AGENTS_DST/"
+  done
+  ok "Specialist agents copied to $AGENTS_DST"
+fi
 echo ""
 
 # ── Step 9c: Install .mcp.json baseline ──────────────────────────────────────
