@@ -1,0 +1,29 @@
+{
+  "total": {
+    "lines":      {"total": 1200, "covered":  900, "skipped": 0, "pct": 75.0},
+    "statements": {"total": 1300, "covered":  975, "skipped": 0, "pct": 75.0},
+    "functions":  {"total":  200, "covered":  150, "skipped": 0, "pct": 75.0},
+    "branches":   {"total":  300, "covered":  210, "skipped": 0, "pct": 70.0}
+  },
+  "src/auth.ts": {
+    "lines":      {"total": 80, "covered": 50, "skipped": 0, "pct": 62.5},
+    "statements": {"total": 90, "covered": 56, "skipped": 0, "pct": 62.2},
+    "functions":  {"total": 12, "covered":  8, "skipped": 0, "pct": 66.7},
+    "branches":   {"total": 20, "covered": 11, "skipped": 0, "pct": 55.0},
+    "uncoveredLines": [42, 43, 44, 45, 46, 47, 48, 49, 50, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 124]
+  },
+  "src/billing.ts": {
+    "lines":      {"total": 200, "covered": 120, "skipped": 0, "pct": 60.0},
+    "statements": {"total": 220, "covered": 132, "skipped": 0, "pct": 60.0},
+    "functions":  {"total":  35, "covered":  21, "skipped": 0, "pct": 60.0},
+    "branches":   {"total":  60, "covered":  30, "skipped": 0, "pct": 50.0},
+    "uncoveredLines": [12, 13, 14, 88, 89, 90, 145, 146, 147, 148, 149, 150]
+  },
+  "src/util.ts": {
+    "lines":      {"total": 40, "covered": 38, "skipped": 0, "pct": 95.0},
+    "statements": {"total": 42, "covered": 40, "skipped": 0, "pct": 95.2},
+    "functions":  {"total":  8, "covered":  8, "skipped": 0, "pct": 100.0},
+    "branches":   {"total": 10, "covered":  9, "skipped": 0, "pct": 90.0},
+    "uncoveredLines": [23, 24]
+  }
+}

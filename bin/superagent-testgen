@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+# superagent-testgen — coverage adapter, gap detection, scaffolding (Wave 3 §8.2).
+# Subcommands: scan [--fixture <path>] | gap [--top N] | suggest <file> | status [--json]
+set -euo pipefail
+
+ROOT="$HOME/.superagent/testgen"
+LAST="$ROOT/last-report.json"
+THRESHOLD_FILE="$ROOT/min-coverage.txt"
+COV_CMD_FILE="$ROOT/cov-cmd.txt"
+
+mkdir -p "$ROOT" 2>/dev/null || true
+[[ -f "$THRESHOLD_FILE" ]] || echo 70 > "$THRESHOLD_FILE"
+
+usage() {
+  cat <<EOF
+Usage: superagent-testgen <subcommand> [args]
+
+Subcommands:
+  scan [--fixture <path>]   Run/parse coverage. With --fixture: parse the given
+                            jest summary or pytest cov json without spawning a tool.
+  gap [--top N]             Rank files by gap × LOC (default top 10).
+  suggest <file>            Markdown skeleton: uncovered ranges + named symbols.
+                            Never writes test bodies.
+  status [--json]           Print current coverage vs threshold; --json for machine output.
+
+Files:
+  $LAST   (cached normalized report)
+  $THRESHOLD_FILE   (per-project min coverage, default 70)
+  $COV_CMD_FILE     (optional user override coverage command)
+EOF
+}
+
+cmd="${1:-}"
+case "$cmd" in
+  -h|--help|"") usage; exit 0 ;;
+
+  scan)
+    FIXTURE=""
+    if [[ "${2:-}" == "--fixture" ]]; then
+      FIXTURE="${3:?--fixture requires a path}"
+    fi
+    if [[ -z "$FIXTURE" ]]; then
+      # Auto-detect (best effort): jest summary -> pytest cov -> error
+      if [[ -f "$PWD/coverage/coverage-summary.json" ]]; then
+        FIXTURE="$PWD/coverage/coverage-summary.json"
+      elif [[ -f "$PWD/coverage.json" ]]; then
+        FIXTURE="$PWD/coverage.json"
+      else
+        echo "no coverage file found; pass --fixture <path> or run the coverage tool first" >&2
+        exit 1
+      fi
+    fi
+    [[ -f "$FIXTURE" ]] || { echo "fixture not found: $FIXTURE" >&2; exit 1; }
+
+    FIXTURE="$FIXTURE" LAST="$LAST" python3 <<'PY'
+import json, os, sys
+src = os.environ["FIXTURE"]
+dst = os.environ["LAST"]
+raw = json.load(open(src))
+
+# Detect format
+def is_jest(d):
+    return isinstance(d.get("total"), dict) and "lines" in d.get("total", {})
+def is_pytest(d):
+    return isinstance(d.get("totals"), dict) and "percent_covered" in d.get("totals", {})
+
+normalized = {"format": "unknown", "total": {"coverage": 0}, "files": {}}
+
+if is_jest(raw):
+    normalized["format"] = "jest"
+    total_lines = raw["total"]["lines"]
+    normalized["total"] = {"coverage": float(total_lines.get("pct", 0)),
+                            "lines_total": int(total_lines.get("total", 0)),
+                            "lines_covered": int(total_lines.get("covered", 0))}
+    for path, entry in raw.items():
+        if path == "total" or not isinstance(entry, dict): continue
+        lines = entry.get("lines", {})
+        normalized["files"][path] = {
+            "coverage": float(lines.get("pct", 0)),
+            "loc": int(lines.get("total", 0)),
+            "covered": int(lines.get("covered", 0)),
+            "uncovered": entry.get("uncoveredLines", []),
+        }
+elif is_pytest(raw):
+    normalized["format"] = "pytest"
+    totals = raw["totals"]
+    normalized["total"] = {"coverage": float(totals.get("percent_covered", 0)),
+                            "lines_total": int(totals.get("num_statements", 0)),
+                            "lines_covered": int(totals.get("covered_lines", 0))}
+    for path, entry in raw.get("files", {}).items():
+        s = entry.get("summary", {})
+        normalized["files"][path] = {
+            "coverage": float(s.get("percent_covered", 0)),
+            "loc": int(s.get("num_statements", 0)),
+            "covered": int(s.get("covered_lines", 0)),
+            "uncovered": entry.get("missing_lines", []),
+        }
+else:
+    sys.stderr.write("unknown coverage format (need jest summary or pytest cov json)\n")
+    sys.exit(2)
+
+json.dump(normalized, open(dst, "w"), indent=2)
+print(f"format: {normalized['format']}  files: {len(normalized['files'])}  total: {normalized['total']['coverage']:.1f}%")
+PY
+    ;;
+
+  gap)
+    TOP=10
+    if [[ "${2:-}" == "--top" ]]; then
+      TOP="${3:-10}"
+    fi
+    [[ -f "$LAST" ]] || { echo "no cached report at $LAST — run scan first" >&2; exit 1; }
+    LAST="$LAST" THRESHOLD_FILE="$THRESHOLD_FILE" TOP="$TOP" python3 <<'PY'
+import json, os
+last = json.load(open(os.environ["LAST"]))
+threshold = int(open(os.environ["THRESHOLD_FILE"]).read().strip())
+top = int(os.environ["TOP"])
+
+ranked = []
+for path, f in last.get("files", {}).items():
+    gap = max(0.0, threshold - float(f.get("coverage", 0)))
+    if gap <= 0: continue
+    score = gap * float(f.get("loc", 0))
+    ranked.append((score, path, f))
+
+ranked.sort(reverse=True)
+
+print(f"# Coverage gaps (threshold {threshold}%)\n")
+print("| File | Coverage | LOC | Gap | Impact |")
+print("|---|---|---|---|---|")
+for score, path, f in ranked[:top]:
+    cov = f["coverage"]; loc = f["loc"]; gap = max(0.0, threshold - cov)
+    print(f"| {path} | {cov:.1f}% | {loc} | {gap:.1f} | {score:.1f} |")
+if not ranked:
+    print("| (no files below threshold) | — | — | — | — |")
+PY
+    ;;
+
+  suggest)
+    FILE="${2:-}"
+    [[ -z "$FILE" ]] && { echo "Usage: superagent-testgen suggest <file>" >&2; exit 1; }
+    [[ -f "$LAST" ]] || { echo "no cached report at $LAST — run scan first" >&2; exit 1; }
+    FILE="$FILE" LAST="$LAST" THRESHOLD_FILE="$THRESHOLD_FILE" python3 <<'PY'
+import json, os, re, sys
+file = os.environ["FILE"]
+last = json.load(open(os.environ["LAST"]))
+threshold = int(open(os.environ["THRESHOLD_FILE"]).read().strip())
+
+# Try key lookups: exact, basename, relative
+match_key = None
+for key in last.get("files", {}):
+    if key == file or key.endswith("/" + file) or key.endswith(file):
+        match_key = key; break
+if match_key is None:
+    sys.stderr.write(f"file '{file}' not in cached report\n")
+    sys.exit(2)
+
+entry = last["files"][match_key]
+cov = entry.get("coverage", 0); loc = entry.get("loc", 0)
+uncovered = entry.get("uncovered", [])
+
+# Symbols (best effort): read source if it exists
+symbols = []
+src_path = file if os.path.exists(file) else None
+if src_path is None:
+    for candidate in (
+        os.path.join(os.getcwd(), file),
+        os.path.join(os.path.dirname(__file__), "..", file),
+    ):
+        if os.path.exists(candidate):
+            src_path = candidate; break
+
+if src_path:
+    text = open(src_path).read()
+    # JS/TS exports
+    for m in re.finditer(r"^(?:export\s+)?(?:async\s+)?(?:function|const|class)\s+(\w+)", text, re.M):
+        symbols.append(m.group(1))
+    # Python defs
+    for m in re.finditer(r"^def\s+(\w+)", text, re.M):
+        symbols.append(m.group(1))
+
+# Collapse uncovered into runs
+def runs(nums):
+    if not nums: return []
+    out = []
+    s = e = nums[0]
+    for n in nums[1:]:
+        if n == e + 1: e = n
+        else: out.append((s, e)); s = e = n
+    out.append((s, e))
+    return out
+
+print(f"## Suggested tests for {match_key} ({cov:.0f}% → target {threshold}%)\n")
+if uncovered:
+    rngs = ", ".join(f"L{a}" if a == b else f"L{a}-{b}" for a, b in runs(sorted(uncovered)))
+    print(f"Uncovered lines: {rngs}\n")
+else:
+    print("Uncovered lines: (none flagged in report)\n")
+
+if symbols:
+    print("Named symbols to cover:\n")
+    for s in symbols[:20]:
+        print(f"- [ ] should_{s.lower().replace(' ', '_')}_happy_path")
+        print(f"- [ ] should_{s.lower().replace(' ', '_')}_reject_invalid_input")
+else:
+    print("Named symbols: (no exports detected — supply tests for the uncovered ranges directly)")
+
+print("\n> Note: testgen lists the tests to write; the `tester` agent and `agent-skills:test-driven-development` implement the bodies.")
+PY
+    ;;
+
+  status)
+    if [[ ! -f "$LAST" ]]; then
+      if [[ "${2:-}" == "--json" ]]; then
+        echo '{"hasReport":false}'
+      else
+        echo "no cached report at $LAST"
+      fi
+      exit 0
+    fi
+    THRESHOLD=$(cat "$THRESHOLD_FILE")
+    if [[ "${2:-}" == "--json" ]]; then
+      jq --argjson t "$THRESHOLD" '. + {"threshold": $t, "hasReport": true}' "$LAST"
+    else
+      LAST="$LAST" THRESHOLD="$THRESHOLD" python3 <<'PY'
+import json, os
+last = json.load(open(os.environ["LAST"]))
+threshold = int(os.environ["THRESHOLD"])
+cov = last.get("total", {}).get("coverage", 0)
+gap_files = sum(1 for f in last.get("files", {}).values() if f.get("coverage", 0) < threshold)
+print(f"format: {last.get('format', '?')}")
+print(f"coverage: {cov:.1f}%  (threshold {threshold}%)")
+print(f"files below threshold: {gap_files} / {len(last.get('files', {}))}")
+print(f"verdict: {'OK' if cov >= threshold else 'BELOW THRESHOLD'}")
+PY
+    fi
+    ;;
+
+  *)
+    echo "unknown subcommand: $cmd" >&2; usage >&2; exit 2
+    ;;
+esac

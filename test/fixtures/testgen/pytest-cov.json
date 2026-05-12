@@ -1,0 +1,27 @@
+{
+  "meta": {"version": "7.5.0", "timestamp": "2026-05-12T10:00:00", "show_contexts": false, "branch_coverage": false},
+  "totals": {
+    "covered_lines": 850,
+    "num_statements": 1200,
+    "percent_covered": 70.83,
+    "missing_lines": 350,
+    "excluded_lines": 0
+  },
+  "files": {
+    "app/auth.py": {
+      "executed_lines":   [1, 2, 3, 4, 5, 10, 11, 12, 30, 31, 32, 50, 51, 52, 80, 81],
+      "missing_lines":    [60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 100, 101, 102],
+      "summary": {"covered_lines": 16, "num_statements": 29, "percent_covered": 55.2, "missing_lines": 13, "excluded_lines": 0}
+    },
+    "app/billing.py": {
+      "executed_lines":   [1, 2, 3, 20, 21, 22, 23, 50, 51, 52, 80, 81, 82, 100, 101],
+      "missing_lines":    [30, 31, 32, 60, 61, 62, 110, 111, 112],
+      "summary": {"covered_lines": 15, "num_statements": 24, "percent_covered": 62.5, "missing_lines": 9, "excluded_lines": 0}
+    },
+    "app/util.py": {
+      "executed_lines":   [1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15],
+      "missing_lines":    [],
+      "summary": {"covered_lines": 11, "num_statements": 11, "percent_covered": 100.0, "missing_lines": 0, "excluded_lines": 0}
+    }
+  }
+}
