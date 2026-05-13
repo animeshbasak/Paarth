@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1920px; height: 1080px;
+        overflow: hidden; background: #000;
+        font-family: 'Inter','SF Pro Display',-apple-system,system-ui,sans-serif;
+        color: #f5f5f5;
+      }
+      .mono { font-family: 'JetBrains Mono','SF Mono',monospace; }
+      .pill { display:inline-flex; align-items:center; gap:10px; padding:8px 18px; border-radius:999px;
+              background:rgba(20,184,166,0.18); border:1px solid rgba(20,184,166,0.5);
+              color:#5eead4; font-size:18px; font-weight:600; letter-spacing:0.08em; }
+    </style>
+  </head>
+  <body>
+    <!--
+      SuperAgent Wave 3 Reel — 28s @ 30fps · 1920x1080
+       0.0 -  4.0   Brand + version reveal (v2.6 capstone)
+       4.0 - 10.0   Three pillars — SPARC, Testgen, Diff-risk
+      10.0 - 16.0   SPARC 5-phase pipeline with boolean gate visual
+      16.0 - 22.0   Diff-risk report — critical impact + reviewers
+      22.0 - 28.0   CTA — v3 trilogy shipped
+    -->
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="28"
+      data-width="1920"
+      data-height="1080"
+      style="
+        position:relative; width:1920px; height:1080px; overflow:hidden;
+        background:linear-gradient(135deg,#02080d 0%,#0a1828 45%,#0d2b2a 100%);
+      "
+    >
+
+      <div id="bg-glow" style="
+        position:absolute; inset:0;
+        background:radial-gradient(circle at 50% 55%, rgba(20,184,166,0.28), transparent 65%);
+        pointer-events:none; opacity:0.55;
+      "></div>
+      <div id="bg-grid" style="
+        position:absolute; inset:0; opacity:0.05;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px);
+        background-size:48px 48px;
+        pointer-events:none;
+      "></div>
+
+      <!-- ============== SCENE 1 — Brand + version reveal (0 - 4s) ============== -->
+      <div id="scene-brand" class="clip"
+           data-start="0" data-duration="4" data-track-index="1"
+           style="position:absolute; inset:0; display:flex; flex-direction:column;
+                  align-items:center; justify-content:center; gap:28px;">
+        <span class="pill" id="brand-pill">WAVE 3 · METHODOLOGY &amp; QUALITY</span>
+        <h1 id="brand-name" style="
+          margin:0; font-size:152px; font-weight:800; letter-spacing:-0.04em; line-height:1;
+          background:linear-gradient(135deg,#fff,#5eead4 50%,#0ea5e9);
+          -webkit-background-clip:text; background-clip:text; color:transparent;
+        ">SuperAgent v2.6</h1>
+        <p id="brand-tag" style="
+          margin:0; font-size:36px; font-weight:400; letter-spacing:-0.01em;
+          color:rgba(245,245,245,0.82); max-width:1300px; text-align:center;
+        ">The brain enforces methodology, hunts uncovered behavior, and rates every diff before push.</p>
+      </div>
+
+      <!-- ============== SCENE 2 — Three pillars (4 - 10s) ============== -->
+      <div id="scene-pillars" class="clip"
+           data-start="4" data-duration="6" data-track-index="1"
+           style="position:absolute; inset:0; padding:120px 100px;
+                  display:flex; flex-direction:column; gap:60px; opacity:0;">
+        <h2 style="font-size:64px; font-weight:700; letter-spacing:-0.03em; text-align:center;
+                   color:#fff;">v3 trilogy capstone</h2>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:40px;">
+          <div class="pillar" style="
+            padding:48px; border-radius:24px;
+            background:linear-gradient(180deg,rgba(20,184,166,0.20),rgba(20,184,166,0.05));
+            border:1px solid rgba(20,184,166,0.4);">
+            <div style="font-size:56px; margin-bottom:24px;">🎯</div>
+            <h3 style="font-size:36px; font-weight:700; margin-bottom:16px; color:#fff;">SPARC</h3>
+            <p style="font-size:22px; line-height:1.5; color:rgba(245,245,245,0.78);">
+              5 phases. Boolean gates. Traceability matrix. No 0.0-1.0 quality scores.
+            </p>
+          </div>
+          <div class="pillar" style="
+            padding:48px; border-radius:24px;
+            background:linear-gradient(180deg,rgba(14,165,233,0.20),rgba(14,165,233,0.05));
+            border:1px solid rgba(14,165,233,0.4);">
+            <div style="font-size:56px; margin-bottom:24px;">🧪</div>
+            <h3 style="font-size:36px; font-weight:700; margin-bottom:16px; color:#fff;">Testgen</h3>
+            <p style="font-size:22px; line-height:1.5; color:rgba(245,245,245,0.78);">
+              Coverage gap × LOC. Markdown skeleton. Never writes test bodies.
+            </p>
+          </div>
+          <div class="pillar" style="
+            padding:48px; border-radius:24px;
+            background:linear-gradient(180deg,rgba(244,114,182,0.20),rgba(244,114,182,0.05));
+            border:1px solid rgba(244,114,182,0.4);">
+            <div style="font-size:56px; margin-bottom:24px;">🛡</div>
+            <h3 style="font-size:36px; font-weight:700; margin-bottom:16px; color:#fff;">Diff-risk</h3>
+            <p style="font-size:22px; line-height:1.5; color:rgba(245,245,245,0.78);">
+              7-type classifier. Impact score. CODEOWNERS reviewers. No GitHub API.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== SCENE 3 — SPARC pipeline (10 - 16s) ============== -->
+      <div id="scene-sparc" class="clip"
+           data-start="10" data-duration="6" data-track-index="1"
+           style="position:absolute; inset:0; padding:120px 100px;
+                  display:flex; flex-direction:column; gap:48px; opacity:0;">
+        <h2 style="font-size:60px; font-weight:700; letter-spacing:-0.03em; text-align:center;
+                   color:#fff;">5 phases. Boolean gates. No fake precision.</h2>
+        <div style="display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;">
+          <div class="phase" style="padding:36px 24px; border-radius:16px;
+               background:rgba(20,184,166,0.15); border:1px solid rgba(20,184,166,0.4); min-width:240px; text-align:center;">
+            <div style="font-size:18px; color:#5eead4; letter-spacing:0.08em;">PHASE 1</div>
+            <div style="font-size:32px; font-weight:700; margin:8px 0; color:#fff;">Specification</div>
+            <div class="mono" style="font-size:16px; color:rgba(255,255,255,0.6);">≥3 ACs · constraints · edges</div>
+          </div>
+          <div class="arrow" style="font-size:40px; color:rgba(94,234,212,0.5);">→</div>
+          <div class="phase" style="padding:36px 24px; border-radius:16px;
+               background:rgba(20,184,166,0.15); border:1px solid rgba(20,184,166,0.4); min-width:220px; text-align:center;">
+            <div style="font-size:18px; color:#5eead4; letter-spacing:0.08em;">PHASE 2</div>
+            <div style="font-size:32px; font-weight:700; margin:8px 0; color:#fff;">Pseudocode</div>
+            <div class="mono" style="font-size:16px; color:rgba(255,255,255,0.6);">errors · O() notes</div>
+          </div>
+          <div class="arrow" style="font-size:40px; color:rgba(94,234,212,0.5);">→</div>
+          <div class="phase" style="padding:36px 24px; border-radius:16px;
+               background:rgba(20,184,166,0.15); border:1px solid rgba(20,184,166,0.4); min-width:220px; text-align:center;">
+            <div style="font-size:18px; color:#5eead4; letter-spacing:0.08em;">PHASE 3</div>
+            <div style="font-size:32px; font-weight:700; margin:8px 0; color:#fff;">Architecture</div>
+            <div class="mono" style="font-size:16px; color:rgba(255,255,255,0.6);">typed sigs · constraints</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:24px;">
+          <div class="phase" style="padding:36px 24px; border-radius:16px;
+               background:rgba(14,165,233,0.18); border:1px solid rgba(14,165,233,0.5); min-width:220px; text-align:center;">
+            <div style="font-size:18px; color:#7dd3fc; letter-spacing:0.08em;">PHASE 4</div>
+            <div style="font-size:32px; font-weight:700; margin:8px 0; color:#fff;">Refinement</div>
+            <div class="mono" style="font-size:16px; color:rgba(255,255,255,0.6);">AC → test · coverage ≥ threshold</div>
+          </div>
+          <div class="arrow" style="font-size:40px; color:rgba(125,211,252,0.5);">→</div>
+          <div class="phase" style="padding:36px 24px; border-radius:16px;
+               background:rgba(244,114,182,0.18); border:1px solid rgba(244,114,182,0.5); min-width:220px; text-align:center;">
+            <div style="font-size:18px; color:#f9a8d4; letter-spacing:0.08em;">PHASE 5</div>
+            <div style="font-size:32px; font-weight:700; margin:8px 0; color:#fff;">Completion</div>
+            <div class="mono" style="font-size:16px; color:rgba(255,255,255,0.6);">ADRs · deploy · ship</div>
+          </div>
+        </div>
+        <div style="text-align:center; font-size:22px; color:rgba(94,234,212,0.95); letter-spacing:0.12em;">
+          GATE_STATUS · pass | fail — refuses to advance until current gate passes
+        </div>
+      </div>
+
+      <!-- ============== SCENE 4 — Diff-risk report (16 - 22s) ============== -->
+      <div id="scene-diffrisk" class="clip"
+           data-start="16" data-duration="6" data-track-index="1"
+           style="position:absolute; inset:0; padding:120px 100px;
+                  display:flex; flex-direction:column; gap:36px; opacity:0;">
+        <h2 style="font-size:60px; font-weight:700; letter-spacing:-0.03em; text-align:center;
+                   color:#fff;">Every diff, rated before push</h2>
+        <div class="mono" style="
+          background:rgba(0,0,0,0.55); border:1px solid rgba(244,114,182,0.30);
+          border-radius:16px; padding:48px; font-size:26px; line-height:1.7;
+          color:#fbcfe8;">
+          <div><span style="color:#5eead4;">$</span> superagent-diff-risk report --base origin/main</div>
+          <div style="color:rgba(255,255,255,0.85); margin-top:24px;"># Diff Analysis: feature/auth-revamp</div>
+          <div>Primary: <span style="color:#5eead4;">feature</span>  (conf 0.84)   Impact: <span style="color:#fbbf24;">critical</span>   Score: <span style="color:#fbbf24;">7</span></div>
+          <div>Files: 12   diff lines: 1247</div>
+          <div style="color:rgba(255,255,255,0.6); margin-top:16px;">Risk factors:</div>
+          <div>  - security_paths: <span style="color:#f9a8d4;">api/auth/, api/permissions/</span></div>
+          <div>  - large_diff: <span style="color:#f9a8d4;">1247 lines</span></div>
+          <div>  - cross_module: <span style="color:#f9a8d4;">api/, db/, services/</span></div>
+          <div style="color:rgba(255,255,255,0.85); margin-top:16px;">Suggested reviewers: <span style="color:#7dd3fc;">@sec-team @api-leads</span></div>
+        </div>
+        <div style="text-align:center; font-size:22px; color:rgba(244,114,182,0.95); letter-spacing:0.12em;">
+          ship skill → force-confirm on high/critical · review skill → folds into 6-point verdict
+        </div>
+      </div>
+
+      <!-- ============== SCENE 5 — v3 trilogy capstone (22 - 28s) ============== -->
+      <div id="scene-cta" class="clip"
+           data-start="22" data-duration="6" data-track-index="1"
+           style="position:absolute; inset:0; display:flex; flex-direction:column;
+                  align-items:center; justify-content:center; gap:36px; opacity:0;">
+        <h1 style="margin:0; font-size:88px; font-weight:800; letter-spacing:-0.03em; text-align:center;
+                   background:linear-gradient(135deg,#fff,#5eead4);
+                   -webkit-background-clip:text; background-clip:text; color:transparent;">
+          v3 trilogy complete
+        </h1>
+        <div style="display:flex; gap:28px; align-items:center; font-size:22px; color:rgba(245,245,245,0.85);">
+          <span class="mono" style="padding:14px 24px; border-radius:10px; background:rgba(124,58,237,0.22); border:1px solid rgba(124,58,237,0.45);">v2.4 · Wave 1</span>
+          <span style="color:rgba(255,255,255,0.4);">→</span>
+          <span class="mono" style="padding:14px 24px; border-radius:10px; background:rgba(6,182,212,0.22); border:1px solid rgba(6,182,212,0.45);">v2.5 · Wave 2</span>
+          <span style="color:rgba(255,255,255,0.4);">→</span>
+          <span class="mono" style="padding:14px 24px; border-radius:10px; background:rgba(20,184,166,0.22); border:1px solid rgba(20,184,166,0.45);">v2.6 · Wave 3</span>
+        </div>
+        <p style="font-size:26px; color:rgba(245,245,245,0.8); letter-spacing:0.05em;">
+          github.com/animeshbasak/superagent · tag <span class="mono" style="color:#5eead4;">v2.6.0</span>
+        </p>
+      </div>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      // Scene 1 — brand fade-up
+      window.__timelines["scene-brand"] = (tl) => {
+        tl.from("#brand-pill",  {opacity:0, y:24, duration:0.6, ease:"power3.out"})
+          .from("#brand-name",  {opacity:0, y:60, duration:1.0, ease:"power3.out"}, "-=0.2")
+          .from("#brand-tag",   {opacity:0, y:30, duration:0.8, ease:"power3.out"}, "-=0.5");
+      };
+
+      // Scene 2 — three pillars
+      window.__timelines["scene-pillars"] = (tl) => {
+        tl.fromTo("#scene-pillars", {opacity:0}, {opacity:1, duration:0.4})
+          .from("#scene-pillars h2", {opacity:0, y:40, duration:0.6, ease:"power3.out"}, "-=0.2")
+          .from("#scene-pillars .pillar", {opacity:0, y:60, stagger:0.18, duration:0.7, ease:"power3.out"}, "-=0.3");
+      };
+
+      // Scene 3 — SPARC 5 phases
+      window.__timelines["scene-sparc"] = (tl) => {
+        tl.fromTo("#scene-sparc", {opacity:0}, {opacity:1, duration:0.4})
+          .from("#scene-sparc h2", {opacity:0, y:30, duration:0.7, ease:"power3.out"})
+          .from("#scene-sparc .phase", {opacity:0, scale:0.9, stagger:0.12, duration:0.5, ease:"back.out(1.4)"}, "-=0.2")
+          .from("#scene-sparc .arrow", {opacity:0, duration:0.3, stagger:0.05}, "-=0.5");
+      };
+
+      // Scene 4 — diff-risk report
+      window.__timelines["scene-diffrisk"] = (tl) => {
+        tl.fromTo("#scene-diffrisk", {opacity:0}, {opacity:1, duration:0.4})
+          .from("#scene-diffrisk h2", {opacity:0, y:30, duration:0.7, ease:"power3.out"})
+          .from("#scene-diffrisk .mono > div", {opacity:0, x:-20, stagger:0.10, duration:0.4, ease:"power2.out"}, "-=0.2");
+      };
+
+      // Scene 5 — CTA
+      window.__timelines["scene-cta"] = (tl) => {
+        tl.fromTo("#scene-cta", {opacity:0}, {opacity:1, duration:0.4})
+          .from("#scene-cta h1", {opacity:0, y:40, duration:0.7, ease:"power3.out"})
+          .from("#scene-cta div", {opacity:0, y:20, duration:0.6, ease:"power3.out"}, "-=0.3")
+          .from("#scene-cta p",   {opacity:0, duration:0.5}, "-=0.2");
+      };
+    </script>
+  </body>
+</html>
