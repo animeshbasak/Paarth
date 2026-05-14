@@ -496,18 +496,17 @@ echo ""
 # ── Step 12: Install SuperAgent CLIs into ~/.local/bin/ ───────────────────────
 info "Installing SuperAgent CLIs..."
 
-for tool in superagent-classify superagent-ship superagent-learn superagent-oneshot; do
-  src="$SCRIPT_DIR/bin/$tool"
+mkdir -p "$HOME/.local/bin"
+BIN_COUNT=0
+for src in "$SCRIPT_DIR"/bin/superagent-*; do
+  [[ -f "$src" ]] || continue
+  tool=$(basename "$src")
   dst="$HOME/.local/bin/$tool"
-  if [[ -f "$src" ]]; then
-    mkdir -p "$HOME/.local/bin"
-    cp "$src" "$dst"
-    chmod +x "$dst"
-    ok "bin installed: $tool -> $dst"
-  else
-    warn "bin not found: $tool"
-  fi
+  cp "$src" "$dst"
+  chmod +x "$dst"
+  BIN_COUNT=$((BIN_COUNT + 1))
 done
+ok "$BIN_COUNT SuperAgent CLIs installed to ~/.local/bin/"
 if ! echo "$PATH" | tr ':' '\n' | grep -Fxq "$HOME/.local/bin"; then
   warn "~/.local/bin is not on PATH — add: export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
