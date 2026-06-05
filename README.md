@@ -129,6 +129,35 @@ Suggested reviewers: @sec-team @api-leads
 
 7-category classifier + 5 risk-factor flags + CODEOWNERS-based reviewer suggestion. The `ship` skill force-confirms before push if impact is `high` or `critical`. **No GitHub API call** — pure git + file parsing.
 
+### 🧠 Memory that survives the conversation *(shipping now)*
+
+SuperAgent ships an MCP memory server (`superagent-memory-mcp`) so your AI remembers decisions across sessions instead of re-discovering them every conversation.
+
+```bash
+# Your AI writes a decision once…
+memory_write("We switched billing rounding to banker's rounding — finance signed off", kind="decision")
+
+# …and recalls it next week, in any tool
+memory_recall("how do we round billing amounts?")
+# → "banker's rounding — finance signed off (decision, 6 days ago)"
+```
+
+- **Multi-tier store** — FTS5 SQLite at `~/.superagent/memory-os/memory.db`, namespaced by git-root so projects never leak into each other.
+- **Sanitized on write** — prompt-injection and PII patterns are stripped before anything is persisted.
+- **Decay + consolidation** — stale facts lose confidence over time; duplicates merge. Memory stays small and true.
+- **Ground Truth Hierarchy** — recalled memory is injected *above* training data, so the model trusts "what we decided" over "what's generally true."
+- **One memory, every tool** — the same server registers into Claude Code, Cursor, Gemini CLI today (Copilot + Antigravity experimental). [Track the rollout →](docs/plans/2026-06-03-memory-os-integration.md)
+
+### 🧰 More tools already in the box
+
+| Tool | What it gives you |
+|---|---|
+| **agent-pool** (`superagent-pool`) | Spawn, tag, and track multiple Claude Code sessions working in parallel — fan a big task across agents without losing the thread. |
+| **dynamic-skills** (`superagent-reload`) | Add a skill to `skills/` and hot-reload it into your AI without restarting the session. |
+| **scraping** (`superagent-scrape`) | Pull data from Cloudflare/Turnstile-protected pages via Scrapling, with prompt-injection scrubbing on the way in. |
+| **observability** (`superagent-trace` / `-metrics`) | Every session writes JSONL spans + metrics. Read the trace tree, get p50/p95/p99, and surface anomalies at 2σ. |
+| **learn** (`superagent-learn`) | A per-project learnings diary the classifier and your future sessions read back — corrections compound instead of evaporating. |
+
 ---
 
 ## Install
@@ -231,6 +260,7 @@ TOTAL   770,000     $9.80
 | [**v2.5 Wave 2**](CHANGELOG.md#v250--2026-05-12-wave-2-autonomous--safe) | Optional prompt-injection scanner. Five named personas for parallel work. Full session observability. An autopilot for unattended runs. |
 | [**v2.6 Wave 3**](CHANGELOG.md#v260--2026-05-13-wave-3-methodology--quality) | 5-phase pipeline for big features. Coverage gap detection. Per-diff risk scoring. |
 | [**v3.0 Capstone**](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.0.0) | Three real upstream projects (Scrapling / Octogent / jcode) distilled into native skills you can use today. |
+| 🚧 **Next: Memory-OS** | A cross-platform persistent-memory MCP so your AI carries decisions between sessions and tools. MCP server + Claude Code / Cursor / Gemini adapters are in; vector recall + polish are in flight. [Plan →](docs/plans/2026-06-03-memory-os-integration.md) · [RFC →](docs/rfcs/) |
 
 ---
 
@@ -238,7 +268,7 @@ TOTAL   770,000     $9.80
 
 ```
 SuperAgent/
-├── bin/            22 command-line tools (installed to ~/.local/bin/)
+├── bin/            22 command-line tools + the memory MCP server (installed to ~/.local/bin/)
 ├── skills/         32 skills (the source of truth)
 ├── agents/         6 specialist agent personas
 ├── hooks/          9 Claude Code lifecycle hooks
@@ -256,6 +286,7 @@ After install:
 ├── cost/          per-tool token logs + budget config + alerts
 ├── learnings/     distilled corrections per project
 ├── obs/           span and metric logs
+├── memory.db      persistent cross-session memory (FTS5, namespaced per repo)
 └── …              one subdir per opt-in feature
 ```
 
