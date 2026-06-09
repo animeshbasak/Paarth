@@ -213,29 +213,32 @@ L1, L2, L4 already work. Plan focuses on **adding L3, L5, L6, L7** without break
 
 > Gate behind `SUPERAGENT_MEMORY_VECTOR=on`. Default install stays zero-dep.
 
-- [ ] **Task 5.1: Docker Compose for Qdrant + embedding worker**
-  - Single `docker-compose.yml` with Qdrant + a small Node worker for ingestion
+> **Note:** the server was built in Python (`memory_os/`), not TypeScript, so
+> the file paths below were adapted. Embeddings run **in-process** in the
+> Python server (Ollama → OpenRouter), so no separate Node ingestion worker is
+> needed — the Qdrant sidecar alone covers Task 5.1.
+
+- [x] **Task 5.1: Docker Compose for Qdrant** ✅
+  - Single `docker-compose.yml` with Qdrant (no Node worker — embeddings are in-process)
   - Use Ollama (local) for embeddings; OpenRouter as fallback
-  - **Acceptance:** `docker compose up -d` brings up healthy Qdrant on `127.0.0.1:6333`
-  - **Verification:** `curl localhost:6333/healthz` returns 200
-  - **Files:** `bin/superagent-memory-mcp/docker/{docker-compose.yml,worker/Dockerfile,worker/index.ts}`
-  - **Size:** M
+  - **Acceptance:** `docker compose up -d` brings up healthy Qdrant on `127.0.0.1:6333` ✅
+  - **Verification:** healthcheck via `/dev/tcp` probe; `curl localhost:6333/healthz`
+  - **Files:** `bin/superagent-memory-mcp/docker/docker-compose.yml`
 
-- [ ] **Task 5.2: Embedding pipeline**
-  - On every `memory_write`, enqueue an embed job; worker upserts into Qdrant
-  - **Acceptance:** Written memory becomes searchable via vector query within 5s
-  - **Verification:** Integration test: write → wait → vector_search → assert hit
-  - **Files:** `bin/superagent-memory-mcp/src/jobs/embed.ts` + test
-  - **Size:** M
+- [x] **Task 5.2: Embedding pipeline** ✅
+  - On every `memory_write`, embed + upsert into the vector store (gated, best-effort)
+  - Local-first provider chain Ollama → OpenRouter; failures never break a write (`indexed` flag)
+  - **Verification:** `test_vector.py::test_write_indexes_when_enabled`, `test_embed_*` (provider chain), `test_hybrid_falls_back_to_fts_when_embed_fails`
+  - **Files:** `memory_os/vector/{embed.py,service.py,store.py}`, wired into `tools.memory_write`
 
-- [ ] **Task 5.3: Hybrid recall in `memory_recall`**
-  - When `SUPERAGENT_MEMORY_VECTOR=on`, blend FTS results with Qdrant cosine results (reciprocal rank fusion)
-  - **Acceptance:** Synonym queries return relevant hits that pure FTS misses
-  - **Verification:** Test corpus with synonym pairs ("auth bug" vs "login fix")
-  - **Files:** `bin/superagent-memory-mcp/src/recall.ts` + test
-  - **Size:** M
+- [x] **Task 5.3: Hybrid recall in `memory_recall`** ✅
+  - When `SUPERAGENT_MEMORY_VECTOR=on`, blend FTS results with vector cosine results (reciprocal rank fusion)
+  - `memory_recall` returns `mode: "fts" | "hybrid"`; degrades to FTS if vector backend is down
+  - **Acceptance:** Synonym queries return relevant hits that pure FTS misses ✅
+  - **Verification:** `test_vector.py::test_hybrid_recall_finds_synonym_miss` ("auth bug" vs "login fix")
+  - **Files:** `memory_os/vector/recall.py` (RRF), `db.get_entries_by_ids`, wired into `tools.memory_recall`
 
-**Checkpoint 5:** Vector recall measurably outperforms FTS-only on synonym/semantic queries. Document the win in `docs/agent-memory.md`.
+**Checkpoint 5:** ✅ Hybrid recall surfaces a stored `auth bug` doc for a `login fix` query that FTS-only returns nothing for (`test_hybrid_recall_finds_synonym_miss` asserts the FTS miss then the hybrid hit). 89 tests pass (was 66). The win is documented in `bin/superagent-memory-mcp/README.md` → "Vector recall".
 
 ---
 

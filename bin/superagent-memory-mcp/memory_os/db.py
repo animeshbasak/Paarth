@@ -234,6 +234,32 @@ def recall(
     return [_row_to_entry(row, score=-row["rank"]) for row in rows]
 
 
+def get_entries_by_ids(
+    conn: sqlite3.Connection,
+    *,
+    namespace: str,
+    ids: Iterable[str],
+) -> dict[str, Entry]:
+    """Fetch live (non-forgotten) entries by id within a namespace.
+
+    Returns a ``{id: Entry}`` map (missing/forgotten ids are simply absent).
+    Used by hybrid recall to hydrate vector-only hits that FTS didn't surface.
+    """
+    id_list = [i for i in ids]
+    if not id_list:
+        return {}
+    rows = conn.execute(
+        f"""
+        SELECT id, namespace, kind, content, ts, access_count, pinned, forgotten, tags_json
+        FROM entries
+        WHERE namespace = ? AND forgotten = 0
+          AND id IN ({','.join('?' * len(id_list))})
+        """,
+        [namespace, *id_list],
+    ).fetchall()
+    return {row["id"]: _row_to_entry(row) for row in rows}
+
+
 def list_entries(
     conn: sqlite3.Connection,
     *,

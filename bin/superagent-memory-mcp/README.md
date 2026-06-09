@@ -70,7 +70,37 @@ deferred until vector recall (Phase 5) lands.
 - `~/.superagent/memory-os/pinned/` — promoted entries (markdown)
 - Override the root via `SUPERAGENT_MEMORY_HOME`.
 
-Default install is zero-dep (FTS only). Vector recall (Qdrant sidecar) is opt-in via `SUPERAGENT_MEMORY_VECTOR=on` — see Phase 5 in the plan doc.
+Default install is zero-dep (FTS only). Vector recall (Qdrant sidecar) is opt-in.
+
+## Vector recall (opt-in, Phase 5)
+
+FTS5 is keyword-only: a query for `login fix` will never match a stored
+`auth bug in the middleware`. Vector recall closes that gap by blending the
+BM25 ranking with embedding cosine similarity via **reciprocal rank fusion**,
+so semantic/synonym hits surface that pure keyword search misses.
+
+It is fully gated — the default install imports neither `qdrant-client` nor
+`httpx` and makes no network call. Turn it on:
+
+```bash
+uv pip install -e ".[vector]"
+docker compose -f docker/docker-compose.yml up -d   # Qdrant on 127.0.0.1:6333
+curl -s localhost:6333/healthz                       # health check
+export SUPERAGENT_MEMORY_VECTOR=on
+```
+
+- **Embeddings:** local-first — Ollama (`nomic-embed-text`, 768-dim) by
+  default, falling back to OpenRouter only if `OPENROUTER_API_KEY` is set and
+  Ollama is unreachable. A failed embed never fails a write (best-effort
+  indexing); recall transparently degrades to FTS-only if the vector backend
+  is down.
+- **Store backend** (`SUPERAGENT_MEMORY_VECTOR_BACKEND`): `auto` (default —
+  Qdrant, else in-memory), `qdrant` (required), or `memory` (zero-dep, in-process).
+- `memory_recall` reports `mode: "fts" | "hybrid"` so callers can tell which
+  path served the query.
+
+Relevant env: `SUPERAGENT_MEMORY_QDRANT_URL`, `SUPERAGENT_MEMORY_OLLAMA_URL`,
+`SUPERAGENT_MEMORY_EMBED_MODEL`.
 
 ## Tests
 
