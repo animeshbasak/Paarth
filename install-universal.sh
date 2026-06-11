@@ -143,8 +143,13 @@ install_platform() {
   fi
 
   echo -e "\n${BOLD}── Installing for $platform ──${NC}"
-  bash "$adapter"
+  if ! bash "$adapter"; then
+    warn "$platform adapter failed — continuing with remaining platforms"
+    FAILED_PLATFORMS="$FAILED_PLATFORMS $platform"
+  fi
 }
+
+FAILED_PLATFORMS=""
 
 if [[ -n "$SPECIFIC_PLATFORM" ]]; then
   install_platform "$SPECIFIC_PLATFORM"
@@ -153,6 +158,10 @@ else
   for p in "${DETECTED[@]}"; do
     install_platform "$p"
   done
+fi
+
+if [[ -n "$FAILED_PLATFORMS" ]]; then
+  warn "Adapters that failed:$FAILED_PLATFORMS — rerun with --platform <name> after fixing"
 fi
 
 # ── Python Tools (shared across all platforms) ────────────────────────────────
