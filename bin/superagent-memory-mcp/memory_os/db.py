@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 import time
 import uuid
@@ -26,6 +27,20 @@ DEFAULT_DB_DIR = Path(os.environ.get("SUPERAGENT_MEMORY_HOME", "~/.superagent/me
 DEFAULT_DB_PATH = DEFAULT_DB_DIR / "memory.db"
 
 KINDS = ("fact", "decision", "feedback", "snippet", "session")
+
+# Namespaces become filename components (pin files) and SQL parameters, so the
+# alphabet is locked down: no path separators, no traversal, no control chars.
+# Covers the 16-hex git-root hashes, `__global__`, and readable custom names.
+_NAMESPACE_RE = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+
+
+def validate_namespace(namespace: str) -> str:
+    """Return ``namespace`` if it is safe to store; raise ValueError otherwise."""
+    if not _NAMESPACE_RE.match(namespace) or ".." in namespace:
+        raise ValueError(
+            f"invalid namespace {namespace!r}: must match [A-Za-z0-9_.-]{{1,64}} without '..'"
+        )
+    return namespace
 
 
 @dataclass(frozen=True)
@@ -124,6 +139,13 @@ def _init_schema(conn: sqlite3.Connection) -> None:
             ts          REAL NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS counters (
+            name        TEXT NOT NULL,
+            namespace   TEXT NOT NULL DEFAULT '',
+            count       INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (name, namespace)
+        );
+
         CREATE TABLE IF NOT EXISTS schema_version (version INTEGER PRIMARY KEY);
         INSERT OR IGNORE INTO schema_version (version) VALUES (1);
         """
@@ -157,6 +179,7 @@ def write_entry(
 ) -> Entry:
     if kind not in KINDS:
         raise ValueError(f"unknown kind {kind!r}; expected one of {KINDS}")
+    validate_namespace(namespace)
 
     entry_id = uuid.uuid4().hex[:16]
     ts = time.time()
@@ -301,6 +324,10 @@ def pin_entry(conn: sqlite3.Connection, entry_id: str, pin_dir: Path) -> Path:
 
     pin_dir.mkdir(parents=True, exist_ok=True)
     pin_path = pin_dir / f"{row['namespace']}__{entry_id}.md"
+    # Belt-and-braces: write_entry validates namespaces, but never write a pin
+    # outside the pin dir even if a hostile row predates validation.
+    if pin_path.resolve().parent != pin_dir.resolve():
+        raise ValueError(f"pin path escapes pin dir: {pin_path}")
     pin_path.write_text(
         f"<!-- pinned from superagent-memory entry {entry_id} ({row['kind']}) -->\n{row['content']}\n",
         encoding="utf-8",
@@ -333,6 +360,12 @@ def forget_entries(
     if direct:
         ids = [row["id"] for row in direct]
     elif any(ch in id_or_pattern for ch in "%_"):
+        # Guard against mass-forget: a pattern must carry at least 3 literal
+        # characters ("%", "_%_", etc. would soft-wipe the whole namespace —
+        # a cheap prompt-injection target).
+        literal = id_or_pattern.replace("%", "").replace("_", "").strip()
+        if len(literal) < 3:
+            return []
         rows = conn.execute(
             "SELECT id FROM entries WHERE namespace = ? AND content LIKE ? AND forgotten = 0",
             (namespace, id_or_pattern),
@@ -351,6 +384,64 @@ def forget_entries(
     for entry_id in ids:
         _audit(conn, "forget", entry_id, namespace, {"by": "pattern" if id_or_pattern != entry_id else "id"})
     return ids
+
+
+def telemetry_enabled() -> bool:
+    """Local-only counters; on by default, opt out with SUPERAGENT_MEMORY_TELEMETRY=off."""
+    return os.environ.get("SUPERAGENT_MEMORY_TELEMETRY", "on").strip().lower() not in (
+        "off", "0", "false", "no",
+    )
+
+
+def bump_counter(conn: sqlite3.Connection, name: str, namespace: str = "", by: int = 1) -> None:
+    """Increment a local usage counter. No-op when telemetry is off or by <= 0.
+
+    Counters never leave the SQLite file — they exist so `superagent-memory
+    stats` can show usage without any network call.
+    """
+    if by <= 0 or not telemetry_enabled():
+        return
+    conn.execute(
+        "INSERT INTO counters (name, namespace, count) VALUES (?, ?, ?) "
+        "ON CONFLICT(name, namespace) DO UPDATE SET count = count + excluded.count",
+        (name, namespace, by),
+    )
+
+
+def stats(conn: sqlite3.Connection) -> dict:
+    """Aggregate store stats + usage counters for `superagent-memory stats`."""
+    entries = conn.execute(
+        """
+        SELECT
+            COUNT(*)                                        AS total,
+            SUM(CASE WHEN forgotten = 0 THEN 1 ELSE 0 END)  AS live,
+            SUM(CASE WHEN forgotten = 1 THEN 1 ELSE 0 END)  AS archived,
+            SUM(CASE WHEN pinned = 1 THEN 1 ELSE 0 END)     AS pinned,
+            COUNT(DISTINCT namespace)                       AS namespaces
+        FROM entries
+        """
+    ).fetchone()
+    by_kind = {
+        row["kind"]: row["n"]
+        for row in conn.execute(
+            "SELECT kind, COUNT(*) AS n FROM entries WHERE forgotten = 0 GROUP BY kind ORDER BY n DESC"
+        )
+    }
+    counters = {}
+    for row in conn.execute("SELECT name, SUM(count) AS n FROM counters GROUP BY name ORDER BY name"):
+        counters[row["name"]] = row["n"]
+    return {
+        "entries": {
+            "total": entries["total"] or 0,
+            "live": entries["live"] or 0,
+            "archived": entries["archived"] or 0,
+            "pinned": entries["pinned"] or 0,
+            "namespaces": entries["namespaces"] or 0,
+            "by_kind": by_kind,
+        },
+        "counters": counters,
+        "telemetry": "on" if telemetry_enabled() else "off",
+    }
 
 
 def _audit(conn: sqlite3.Connection, action: str, entry_id: str | None, namespace: str | None, payload: dict) -> None:

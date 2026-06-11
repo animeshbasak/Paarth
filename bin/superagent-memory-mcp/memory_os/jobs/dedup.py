@@ -166,6 +166,7 @@ def _apply_merges(conn: sqlite3.Connection, merges: list[Merge]) -> None:
             (m.duplicate_id, m.canonical_id),
         )
         conn.execute("UPDATE entries SET forgotten = 1 WHERE id = ?", (m.duplicate_id,))
+        db.bump_counter(conn, "dedup_merge", m.namespace)
         db._audit(
             conn,
             "dedup",

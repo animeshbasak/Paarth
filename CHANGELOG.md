@@ -4,6 +4,31 @@ All notable changes to SuperAgent are documented here.
 
 ---
 
+## v3.1.0 — 2026-06-11 (Memory-OS — one memory, every tool)
+
+Cross-platform persistent memory served over MCP. What you teach Claude Code on Monday, Cursor knows on Tuesday. Phases 0–6 of the [Memory-OS plan](docs/plans/2026-06-03-memory-os-integration.md), complete.
+
+### Added
+
+- **`superagent-memory-mcp` v0.2.0** — Python MCP server: 5 tools (`memory_recall` / `memory_write` / `memory_list` / `memory_pin` / `memory_forget`), SQLite + FTS5, namespaced per git-root. Zero-dep default install.
+- **Hybrid vector recall (opt-in)** — `SUPERAGENT_MEMORY_VECTOR=on` blends BM25 with embedding cosine via reciprocal rank fusion. Local-first embeddings (Ollama `nomic-embed-text` → OpenRouter explicit fallback); Qdrant sidecar via `docker/docker-compose.yml`, in-memory store fallback. Failed embeds never fail writes; recall degrades to FTS when the vector backend is down.
+- **Lifecycle automation** — weekly decay (`90d old + 30d idle`, pinned exempt, launchd/crontab installer), semantic dedup (`cosine ≥0.92`, namespace-scoped, access-count folding), all soft-delete + audited.
+- **`superagent-memory stats`** — local-only usage counters (recall/write/dedup/decay) + store aggregates. `SUPERAGENT_MEMORY_TELEMETRY=off` to disable. Nothing leaves the SQLite file.
+- **`superagent-memory bench`** — rediscovery harness, keyword vs paraphrase probes, FTS-only vs hybrid. **Measured: paraphrase rediscovery 0% → 100% (+100 pts; ship gate was ≥30), keyword split unregressed.** `--real` benches against live Ollama.
+- **Per-platform adapters** — Claude Code, Cursor, Gemini CLI (stable); Copilot, Antigravity (experimental). Ground Truth Hierarchy block injected so recalled memory outranks training data.
+- **Docs** — `docs/memory-os-quickstart.md` (per-platform setup + env reference), `docs/agent-memory.md` Memory-OS section (3-tier memory model + bench results).
+
+### Security
+
+- **Pin path traversal fixed** — namespaces locked to `[A-Za-z0-9_.-]{1,64}` (no `..`) at the storage entry point; pin writes verify containment in the pin dir.
+- **Mass-forget guard** — LIKE-pattern forgets require ≥3 literal characters; `memory_forget("%")` can no longer soft-wipe a namespace.
+- **Write sanitization** — 12 prompt-injection pattern classes redacted on write; high-density payloads rejected. Residual risks documented in the MCP README "Security model".
+- 23 security regression tests.
+
+### Tests
+
+- Memory-OS suite: **134 pytest tests** (schema, migration, decay, dedup, vector recall, RRF, embedder chain, telemetry, bench, security).
+
 ## v3.0.0 — 2026-05-14 (References Integration Pack — v3 capstone)
 
 The v3 capstone release. Closes the trilogy (v2.4 Wave 1 / v2.5 Wave 2 / v2.6 Wave 3) by absorbing best-of from three upstream projects in `references/`.

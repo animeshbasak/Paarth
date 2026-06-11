@@ -110,6 +110,31 @@ export SUPERAGENT_MEMORY_VECTOR=on
 Relevant env: `SUPERAGENT_MEMORY_QDRANT_URL`, `SUPERAGENT_MEMORY_OLLAMA_URL`,
 `SUPERAGENT_MEMORY_EMBED_MODEL`.
 
+## Security model
+
+The MCP boundary assumes a **prompt-injectable caller** — the agent invoking
+the tools may itself be compromised by content it read. Defenses, in layers:
+
+- **Write sanitization** — 12 injection-pattern classes redacted on
+  `memory_write`; high-density payloads (≥3 distinct patterns) are rejected
+  outright, so attacks can't persist and replay via later recall.
+- **Namespace lockdown** — namespaces must match `[A-Za-z0-9_.-]{1,64}` (no
+  `..`), validated at the storage entry point. Pin-file writes additionally
+  verify the resolved path stays inside the pin directory, so a hostile
+  namespace can never become a path traversal.
+- **Mass-forget guard** — LIKE-pattern forgets require ≥3 literal characters;
+  `memory_forget("%")` cannot soft-wipe a namespace. All forgets are
+  soft-deletes with an audit trail, so recovery is a SQL UPDATE away.
+- **Cross-project isolation** — namespaces are git-root hashes; recall, decay,
+  and dedup never cross them.
+
+Residual risks you opt into explicitly (never on by default):
+
+- **Cloud embeddings** — memory content is sent to OpenRouter *only if* you
+  set `OPENROUTER_API_KEY` *and* local Ollama is unreachable.
+- **Remote Qdrant** — pointing `SUPERAGENT_MEMORY_QDRANT_URL` off-localhost
+  sends vectors + entry ids there (raw content never leaves the SQLite DB).
+
 ## Tests
 
 ```bash

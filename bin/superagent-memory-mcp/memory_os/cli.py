@@ -2,6 +2,8 @@
 
     superagent-memory decay [--dry-run] [--max-age-days N] [--idle-days N] [--namespace NS]
     superagent-memory dedup [--dry-run] [--threshold T] [--namespace NS]
+    superagent-memory stats
+    superagent-memory bench [--k N] [--real]
     superagent-memory cron  {install|uninstall|status}
 
 The MCP server itself is a separate console script (``superagent-memory-mcp``);
@@ -50,6 +52,22 @@ def _cmd_dedup(args: argparse.Namespace) -> dict:
     return {"ok": True, **result.to_dict()}
 
 
+def _cmd_stats(args: argparse.Namespace) -> dict:
+    conn = db.connect()
+    return db.stats(conn)
+
+
+def _cmd_bench(args: argparse.Namespace) -> dict:
+    from . import bench
+
+    embed_fn = None
+    if args.real:
+        from .vector import embed as embed_mod
+
+        embed_fn = embed_mod.embed
+    return bench.run_bench(k=args.k, embed_fn=embed_fn)
+
+
 def _cmd_cron(args: argparse.Namespace) -> dict:
     if args.action == "install":
         return cron_install.install()
@@ -74,6 +92,14 @@ def build_parser() -> argparse.ArgumentParser:
     dd.add_argument("--threshold", type=float, default=dedup_job.DEFAULT_THRESHOLD, help="cosine similarity to merge (0,1]")
     dd.add_argument("--namespace", default=None, help="limit to one namespace (default: all)")
     dd.set_defaults(func=_cmd_dedup)
+
+    s = sub.add_parser("stats", help="local usage counters + store aggregates (never leaves this machine)")
+    s.set_defaults(func=_cmd_stats)
+
+    b = sub.add_parser("bench", help="rediscovery bench: FTS-only vs hybrid recall on a fixture corpus")
+    b.add_argument("--k", type=int, default=5, help="top-k cutoff for a hit (default 5)")
+    b.add_argument("--real", action="store_true", help="use the real Ollama/OpenRouter embedder instead of the simulated one")
+    b.set_defaults(func=_cmd_bench)
 
     c = sub.add_parser("cron", help="schedule weekly decay (launchd/crontab)")
     c.add_argument("action", choices=["install", "uninstall", "status"])

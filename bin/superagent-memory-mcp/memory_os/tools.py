@@ -38,6 +38,7 @@ def memory_recall(
     surface hits that pure keyword search misses. ``embed_fn`` is injectable
     for tests; production uses the Ollama→OpenRouter chain.
     """
+    db.bump_counter(conn, "recall", namespace)
     if not vector.is_enabled():
         entries = db.recall(conn, namespace=namespace, query=query, limit=limit)
         return {
@@ -108,6 +109,7 @@ def memory_write(
         tags=tags,
     )
 
+    db.bump_counter(conn, "write", namespace)
     out = {
         "ok": True,
         "id": entry.id,
