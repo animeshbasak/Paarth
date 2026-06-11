@@ -65,7 +65,11 @@ stage_plugin() {
   local tmp="${dst}.tmp.$$"
   rm -rf "$tmp"
   mkdir -p "$tmp"
-  cp -R "$REPO_ROOT/.codex-plugin" "$tmp/.codex-plugin"
+  if [[ -d "$REPO_ROOT/.codex-plugin" ]]; then
+    cp -R "$REPO_ROOT/.codex-plugin" "$tmp/.codex-plugin"
+  else
+    warn ".codex-plugin/ not in repo — staging plugin without manifest (AGENTS.md still installs)"
+  fi
   cp -R "$REPO_ROOT/commands" "$tmp/commands"
   cp -R "$REPO_ROOT/skills" "$tmp/skills"
   [[ -d "$REPO_ROOT/agents" ]] && cp -R "$REPO_ROOT/agents" "$tmp/agents"
