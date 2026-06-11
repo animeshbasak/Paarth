@@ -244,10 +244,16 @@ L1, L2, L4 already work. Plan focuses on **adding L3, L5, L6, L7** without break
 
 ### Phase 6 — Polish & Ship
 
-- [ ] **Task 6.1: Telemetry (opt-in)** — local-only counters for recall calls, write calls, dedup hits. Surface via `superagent-memory stats`.
-- [ ] **Task 6.2: Bench harness** — extend existing `bench/` with memory-tagged tasks; measure rediscovery-rate delta vs baseline.
-- [ ] **Task 6.3: Docs** — update `README.md`, `docs/agent-memory.md`, write per-platform quickstarts.
+- [x] **Task 6.1: Telemetry** ✅ — local-only counters (recall/write/dedup_merge/decay_archive) in a `counters` table; `superagent-memory stats` reports them + store aggregates. `SUPERAGENT_MEMORY_TELEMETRY=off` to disable. Nothing ever leaves the SQLite file. (`test_stats.py`, 6 tests)
+- [x] **Task 6.2: Bench harness** ✅ — `superagent-memory bench [--k N] [--real]`: 12-fact fixture corpus, keyword + paraphrase probes, FTS-only vs hybrid. **Measured: semantic rediscovery 0% → 100% (+100 pts, gate was ≥30), keyword split unregressed.** (`memory_os/bench.py`, `test_bench.py`, 5 tests)
+- [x] **Task 6.3: Docs** ✅ — `docs/agent-memory.md` Memory-OS section (3-tier model + bench win), `docs/memory-os-quickstart.md` per-platform quickstarts + env reference.
 - [ ] **Task 6.4: Version bump + release** — semver bump, CHANGELOG entry, GitHub release.
+
+**Security review (2026-06-11, unplanned addition):** pin path traversal via
+unvalidated namespace (fixed: `[A-Za-z0-9_.-]{1,64}` lockdown + pin-path
+containment) and mass-forget via bare LIKE wildcard (fixed: ≥3 literal chars).
+23 regression tests in `test_security.py`; residual risks documented in the
+MCP README "Security model" section.
 
 **Checkpoint 6 (Ship Gate):** All adapters pass smoke tests. Bench shows measurable win. Docs complete. Ground Truth block live in 5 platforms.
 

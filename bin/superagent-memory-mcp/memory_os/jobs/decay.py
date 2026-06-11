@@ -99,6 +99,7 @@ def decay(
             f"UPDATE entries SET forgotten = 1 WHERE id IN ({','.join('?' * len(ids))})",
             ids,
         )
+        db.bump_counter(conn, "decay_archive", namespace or "", by=len(ids))
         for r in rows:
             db._audit(
                 conn,

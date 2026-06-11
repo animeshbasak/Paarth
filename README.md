@@ -4,13 +4,14 @@
 
 # One AI config. Every coding tool you use.
 
-**Write your AI instructions once. SuperAgent compiles them to Cursor, Codex, Copilot, Continue.dev, Windsurf, Aider, Gemini, and Claude Code in their native formats. Then it routes every task to the right skill, watches the shell for scary commands, tracks your spend, remembers decisions across sessions, and falls back to a free local model when you hit the rate limit.**
+**Write your AI instructions once. SuperAgent compiles them to Cursor, Codex, Copilot, Continue.dev, Windsurf, Aider, Gemini, and Claude Code in their native formats. Then it routes every task to the right skill, watches the shell for scary commands, tracks your spend, and falls back to a free local model when you hit the rate limit. And with Memory-OS, every one of those tools shares a single persistent memory — what you teach Claude Code on Monday, Cursor knows on Tuesday.**
 
 [![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
-[![Version](https://img.shields.io/badge/v3.0.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.0.0)
+[![Version](https://img.shields.io/badge/v3.1.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.1.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-62%2F62%20green-brightgreen)](#receipts)
+[![Tests](https://img.shields.io/badge/tests-196%20green-brightgreen)](#receipts)
 [![Bench](https://img.shields.io/badge/routing-45%2F45-brightgreen)](#receipts)
+[![Memory bench](https://img.shields.io/badge/semantic%20rediscovery-0%25%E2%86%92100%25-brightgreen)](docs/agent-memory.md)
 
 ```bash
 git clone https://github.com/animeshbasak/SuperAgent
@@ -26,7 +27,7 @@ bash SuperAgent/install.sh
 You bought your AI coding tool. You like it. Then you started paying four hidden taxes:
 
 1. **You wrote the same rules four times.** `CLAUDE.md`, `.cursorrules`, `.continue/rules/*.md`, `.github/copilot-instructions.md`. Four files, drifting apart, all saying almost the same thing.
-2. **Your AI re-reads the codebase every conversation.** Tokens get burned re-discovering files and decisions it already saw an hour ago.
+2. **Your AI re-reads the codebase every conversation.** Tokens get burned re-discovering files and decisions it already saw an hour ago. Worse: ask about last month's work in different words and keyword search finds *nothing* — our bench measures 0% rediscovery on paraphrased queries without semantic recall (100% with it).
 3. **At 4 PM, you hit the rate limit.** Your free local model sits idle on your laptop while you stare at "please wait 5 hours."
 4. **Your AI runs `git push --force` because you said "fix it and push."** Or `rm -rf` on a directory it misread. Or commits to `main` because nobody told it `main` was sacred.
 
@@ -177,7 +178,9 @@ memory_recall("how do we round billing amounts?")
 - **Hybrid vector recall** — opt-in semantic search via `SUPERAGENT_MEMORY_VECTOR=on` blends FTS keyword ranking with embedding cosine via reciprocal rank fusion, so synonym queries (`login fix` → a stored `auth bug`) surface hits pure keyword search misses. Local-first embeddings (Ollama → OpenRouter), with an in-memory fallback when no Qdrant sidecar is running.
 - **One memory, every tool** — registers into Claude Code, Cursor, and Gemini CLI today; Copilot + Antigravity experimental. [Track the rollout →](docs/plans/2026-06-03-memory-os-integration.md)
 
-Storage lives at `~/.superagent/memory-os/memory.db` (SQLite + FTS5), overridable via `SUPERAGENT_MEMORY_HOME`. 100 pytest tests cover the schema, decay, semantic dedup, migration, and hybrid vector recall.
+Storage lives at `~/.superagent/memory-os/memory.db` (SQLite + FTS5), overridable via `SUPERAGENT_MEMORY_HOME`. 134 pytest tests cover the schema, decay, semantic dedup, migration, hybrid vector recall, telemetry, the bench harness, and security regressions (path-traversal + mass-forget guards).
+
+**Proof, not promises:** `superagent-memory bench` replays a fixture corpus with keyword and paraphrase probes. Paraphrase rediscovery: **0% FTS-only → 100% hybrid** (keyword split unregressed). `superagent-memory stats` shows your own usage — counters never leave the local SQLite file. Setup: [docs/memory-os-quickstart.md](docs/memory-os-quickstart.md).
 
 ---
 
@@ -310,7 +313,20 @@ AIDefence tested on a 100-prompt corpus: **86% of attack prompts caught, 2% fals
 | [**v2.5 Wave 2**](CHANGELOG.md#v250--2026-05-12-wave-2-autonomous--safe) | Prompt-injection scanner, five named personas, full session observability, autopilot. |
 | [**v2.6 Wave 3**](CHANGELOG.md#v260--2026-05-13-wave-3-methodology--quality) | SPARC 5-phase pipeline, coverage gap detection, per-diff risk scoring. |
 | [**v3.0 Capstone**](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.0.0) | Three upstream projects (Scrapling / Octogent / jcode) distilled into native skills. |
-| 🚧 **Next: Memory-OS** | Cross-platform persistent-memory MCP. Server, Claude Code / Cursor / Gemini adapters, and opt-in hybrid vector recall are in; Phase 6 polish + ship in flight. [Plan →](docs/plans/2026-06-03-memory-os-integration.md) |
+| [**v3.1 Memory-OS**](CHANGELOG.md) (Jun 2026) | One persistent memory across every coding tool. Hybrid semantic recall (paraphrase rediscovery 0%→100% on bench), decay + semantic dedup lifecycle, security-hardened MCP boundary, local-first embeddings. [Plan →](docs/plans/2026-06-03-memory-os-integration.md) |
+
+---
+
+## What's next
+
+The honest roadmap — gaps we know about, in priority order:
+
+1. **Session auto-capture** — a Stop-hook that distills each session into memory entries automatically, so memory grows without anyone calling `memory_write`. The single highest-leverage missing piece.
+2. **CI matrix** — GitHub Actions running the 134 memory tests + 45-prompt routing bench + fresh-box adapter installs on macOS and Linux per PR. (Today the gates run locally; the receipts should be public.)
+3. **Team memory** — an opt-in shared namespace synced through git (encrypted), so a team's decisions compound the way an individual's do.
+4. **Vector-on-by-default decision** — once `bench --real` data accumulates across machines, decide whether semantic recall ships enabled (today: opt-in, zero-dep default).
+5. **Copilot/Antigravity graduation** — both adapters are experimental pending upstream MCP support; revisit quarterly.
+6. **Windows support** — `cron_install` and the shell adapters assume POSIX; the Python server itself is already portable.
 
 ---
 
