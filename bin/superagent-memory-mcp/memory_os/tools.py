@@ -14,6 +14,7 @@ from typing import Iterable
 
 from . import db, vector
 from .ccr import CCRStore
+from .graph import GraphStore
 from .sanitize import sanitize
 
 PIN_DIR_DEFAULT = db.DEFAULT_DB_DIR / "pinned"
@@ -191,6 +192,104 @@ def memory_retrieve(
     if result is None:
         return {"ok": False, "reason": "not-found-or-expired", "token": token}
     return {"ok": True, **result}
+
+
+def graph_ingest(
+    conn: sqlite3.Connection,
+    *,
+    path: str,
+    namespace: str,
+) -> dict:
+    """Ingest a graphify node-link JSON into the persistent knowledge graph.
+
+    Parses the JSON at ``path``, upserts entities + triples into the namespace,
+    runs entity dedup, and returns ``{ok, entities, triples, skipped}``.
+    """
+    from .jobs.graph_ingest import ingest
+
+    try:
+        counts = ingest(conn, namespace, path)
+        return {"ok": True, "namespace": namespace, "path": path, **counts}
+    except Exception as exc:
+        return {"ok": False, "reason": str(exc), "path": path}
+
+
+def graph_query(
+    conn: sqlite3.Connection,
+    *,
+    text: str,
+    limit: int = 10,
+    namespace: str,
+) -> dict:
+    """Search entities by label and return matching entities + their immediate neighbors.
+
+    Fusion strategy: entity label match (substring) is always performed.
+    If the vector/FTS backend is available, text-entry recall results are
+    fused with the entity list via RRF (reciprocal rank fusion) so that the
+    caller gets a unified ranked view of both the graph tier and the text tier.
+    When recall is unavailable, returns entities-only (degrades gracefully).
+    """
+    store = GraphStore(conn, namespace)
+    entities = store.query(text, limit=limit)
+
+    # Augment each entity with its immediate neighbors
+    for entity in entities:
+        entity["neighbors"] = store.neighbors(entity["id"], depth=1, valid_only=True)
+
+    # Optional: fuse with text-entry recall via RRF
+    fused_text_hits: list[dict] = []
+    try:
+        from .vector.recall import reciprocal_rank_fusion
+
+        text_result = memory_recall(conn, query=text, limit=limit, namespace=namespace)
+        text_hits = text_result.get("hits", [])
+
+        entity_ids = [e["id"] for e in entities]
+        text_ids = [h["id"] for h in text_hits]
+
+        if entity_ids or text_ids:
+            fused_ids = reciprocal_rank_fusion(entity_ids, text_ids)[:limit]
+            # Build a unified list: entities first (enriched), then text-only hits
+            entity_map = {e["id"]: e for e in entities}
+            text_map = {h["id"]: h for h in text_hits}
+            seen: set[str] = set()
+            ordered_entities = []
+            for fid in fused_ids:
+                if fid in entity_map and fid not in seen:
+                    ordered_entities.append(entity_map[fid])
+                    seen.add(fid)
+            entities = ordered_entities
+            fused_text_hits = [text_map[fid] for fid in fused_ids if fid in text_map and fid not in seen]
+    except Exception:
+        pass  # fuse not available — entities-only
+
+    return {
+        "namespace": namespace,
+        "query": text,
+        "count": len(entities),
+        "entities": entities,
+        "text_hits": fused_text_hits,
+        "fusion": "rrf(entities,text)" if fused_text_hits else "entities",
+    }
+
+
+def graph_neighbors(
+    conn: sqlite3.Connection,
+    *,
+    entity_id: str,
+    depth: int = 1,
+    namespace: str,
+) -> dict:
+    """Return incident triples for ``entity_id`` up to ``depth`` hops."""
+    store = GraphStore(conn, namespace)
+    neighbors = store.neighbors(entity_id, depth=depth, valid_only=True)
+    return {
+        "namespace": namespace,
+        "entity_id": entity_id,
+        "depth": depth,
+        "count": len(neighbors),
+        "neighbors": neighbors,
+    }
 
 
 # Helpers for the MCP server layer ---------------------------------------------
