@@ -148,6 +148,47 @@ def _init_schema(conn: sqlite3.Connection) -> None:
 
         CREATE TABLE IF NOT EXISTS schema_version (version INTEGER PRIMARY KEY);
         INSERT OR IGNORE INTO schema_version (version) VALUES (1);
+
+        CREATE TABLE IF NOT EXISTS ccr_cache (
+            hash              TEXT PRIMARY KEY,
+            original_content  TEXT NOT NULL,
+            compressed_content TEXT,
+            kind              TEXT,
+            dropped           INTEGER DEFAULT 0,
+            created_ts        INTEGER NOT NULL,
+            ttl_seconds       INTEGER DEFAULT 1800,
+            retrieval_count   INTEGER DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS entities (
+            id          TEXT NOT NULL,
+            namespace   TEXT NOT NULL,
+            label       TEXT NOT NULL,
+            kind        TEXT,
+            source_file TEXT,
+            community   INTEGER,
+            first_seen  INTEGER NOT NULL,
+            last_seen   INTEGER NOT NULL,
+            PRIMARY KEY (namespace, id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_entities_ns_label ON entities(namespace, label);
+
+        CREATE TABLE IF NOT EXISTS triples (
+            namespace         TEXT NOT NULL,
+            subj_id           TEXT NOT NULL,
+            predicate         TEXT NOT NULL,
+            obj_id            TEXT NOT NULL,
+            confidence_type   TEXT NOT NULL DEFAULT 'EXTRACTED',
+            confidence_score  REAL NOT NULL DEFAULT 1.0,
+            source_file       TEXT,
+            ts                INTEGER NOT NULL,
+            valid_from        INTEGER NOT NULL,
+            valid_to          INTEGER
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_triples_ns_subj ON triples(namespace, subj_id);
+        CREATE INDEX IF NOT EXISTS idx_triples_ns_obj  ON triples(namespace, obj_id);
         """
     )
     _migrate(conn)

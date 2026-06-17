@@ -102,6 +102,58 @@ def memory_forget(id_or_pattern: str, namespace: str | None = None) -> dict:
     )
 
 
+@mcp.tool()
+def memory_retrieve(token: str, query: str | None = None) -> dict:
+    """Retrieve the original content for a CCR sentinel token or bare hash.
+
+    ``token`` is either a full sentinel (``ccr:<hash>:<n>``) emitted by
+    compress-cache-retrieve, or a bare 12-char hex hash.  ``query`` is an
+    optional whitespace-separated list of terms; when provided only lines
+    containing ALL terms (case-insensitive) are returned.
+
+    Returns ``{ok: true, hash, kind, content, truncated_by_query}`` on success
+    or ``{ok: false, reason: "not-found-or-expired", token}`` otherwise.
+    """
+    return tools.memory_retrieve(_conn, token=token, query=query)
+
+
+@mcp.tool()
+def graph_ingest(path: str, namespace: str | None = None) -> dict:
+    """Ingest a graphify node-link JSON into the persistent knowledge graph.
+
+    ``path`` is the filesystem path to a ``graph.json`` produced by graphify
+    (NetworkX node-link format).  Nodes become entities; edges become triples.
+    Ingestion is idempotent — re-ingesting the same file is safe.
+
+    Returns ``{ok, entities, triples, skipped}``.
+    """
+    return tools.graph_ingest(_conn, path=path, namespace=_resolve_namespace(namespace))
+
+
+@mcp.tool()
+def graph_query(text: str, limit: int = 10, namespace: str | None = None) -> dict:
+    """Search the knowledge graph by entity label and return matches + neighbors.
+
+    Returns entities whose labels match ``text`` (case-insensitive substring)
+    plus their immediate incident triples.  When the text-memory backend is
+    available, results are fused with ``memory_recall`` hits via RRF so the
+    caller gets a single unified ranked view of both tiers.
+
+    Returns ``{entities, text_hits, fusion, count}``.
+    """
+    return tools.graph_query(_conn, text=text, limit=limit, namespace=_resolve_namespace(namespace))
+
+
+@mcp.tool()
+def graph_neighbors(entity_id: str, depth: int = 1, namespace: str | None = None) -> dict:
+    """Return the incident triples for an entity up to ``depth`` hops.
+
+    Traverses the currently-valid (non-superseded) edges in both directions.
+    Returns ``{entity_id, depth, count, neighbors}``.
+    """
+    return tools.graph_neighbors(_conn, entity_id=entity_id, depth=depth, namespace=_resolve_namespace(namespace))
+
+
 def main() -> None:
     """Console-script entry point."""
     try:
