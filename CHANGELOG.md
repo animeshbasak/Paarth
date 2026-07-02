@@ -10,6 +10,25 @@ _Nothing yet._
 
 ---
 
+## v3.3.0 — 2026-07-02 (The brain learns + injection budget)
+
+Two token-savings features: the learning loop now actually learns from real usage, and every hook injection respects a hard token budget.
+
+### Fixed
+
+- **Learning loop promoted zero patterns from real data.** `superagent-patterns promote` grouped routes by a fingerprint of the full task wording + chain, so differently-worded tasks never accumulated the required 3 repeats — `patterns.jsonl` stayed empty forever (verified: 25 real routes → 25 groups of 1). Promote now groups by **chain alone**; the stored `signal` is the top-8 most frequent meaningful words across the group's tasks, so the classifier's token-overlap matching still works. Pattern ids now hash the chain only (stable as the signal drifts).
+- **Gate dead zone.** Promote seeds `useCount=3` but the classifier gated patterns at `useCount>=5`, muting every fresh pattern. `GATE_USE` default is now 3 (env override `SUPERAGENT_LEARNING_CLASSIFIER_GATE_USE_COUNT` unchanged).
+- **Subagent-stop noise.** `hooks/superagent-subagent-stop.py` no longer logs routes for empty-description subagent stops.
+
+### Added
+
+- **Failure-aware success rates.** Promote now blends `done` vs `halt`/`fail` outcomes per chain with a Laplace-style prior: `successRate = (done + 0.6·2)/(total + 2)` (prior weight via `SUPERAGENT_LEARNING_PRIOR_WEIGHT`). Chains that halt often score lower and fall below the classifier's 0.6 gate — the brain learns from mistakes, not just wins.
+- **Adaptive injection budget.** Both `superagent-prompt-submit.py` and `superagent-session-start.py` now estimate injected tokens (chars/4) and enforce `SUPERAGENT_INJECT_BUDGET_TOKENS` (default 600). The per-prompt optimized-prompt block is dropped whole when it doesn't fit (never truncated); the SessionStart routes list shrinks 5→3→1→0 to fit. Every drop is logged to `~/.superagent/metrics/inject.jsonl` (`est_saved_tokens`) so savings are measurable. Kill switch: `SUPERAGENT_INJECT_BUDGET=0`. SessionStart also gets a dedicated kill switch `SUPERAGENT_SESSION_CONTEXT=0`.
+- **Configurable wake-up size.** The mempalace wake-up call in the `/superagent` router is now `head -n "${SUPERAGENT_WAKE_LINES:-40}"` (was a fixed 60 lines) — ~30% less session-start context by default.
+- Tests: rewritten `test-patterns-promote.sh` (differently-worded grouping + halt blending), extended `test-classify-patterns.sh` (fresh useCount=3 pattern usable) and `test-hook-prompt-submit.sh` (budget drop/kill-switch/generous), new `test-hook-session-start.sh`. Routing bench: 45/45, avg 1.000.
+
+---
+
 ## v3.2.0 — 2026-06-17 (Context efficiency — fewer tokens in and out)
 
 Cut tokens in *and* out of the model, make the knowledge graph persistent, and add organisation-level governance. Memory-OS bumped to v0.3.0; 196 pytest + 73 shell tests green.
