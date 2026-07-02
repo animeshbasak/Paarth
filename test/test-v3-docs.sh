@@ -15,7 +15,7 @@ grep -q '## v3.0.0' "$ROOT/CHANGELOG.md" \
   || { echo "FAIL: CHANGELOG missing v3.0.0 section"; exit 1; }
 
 VERSION=$(jq -r '.version' "$ROOT/package.json" 2>/dev/null || echo missing)
-[[ "$VERSION" == "3.0.0" ]] || { echo "FAIL: package.json version is $VERSION, want 3.0.0"; exit 1; }
+[[ "$VERSION" =~ ^3\.[0-9]+\.[0-9]+$ ]] || { echo "FAIL: package.json version is $VERSION, want 3.x.y"; exit 1; }
 
 grep -qE 'Scrapling|Octogent|jcode|References Integration Pack' "$ROOT/README.md" \
   || { echo "FAIL: README missing v3.0.0 references mentions"; exit 1; }

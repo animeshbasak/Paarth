@@ -113,7 +113,9 @@ for rule in rules:
 # overlap with the task is ≥1 AND successRate ≥ gate AND useCount ≥ gate.
 PATTERNS_PATH = os.path.expanduser("~/.superagent/brain/patterns.jsonl")
 GATE_SR = float(os.environ.get('SUPERAGENT_LEARNING_CLASSIFIER_GATE_SUCCESS_RATE', '0.6'))
-GATE_USE = int(os.environ.get('SUPERAGENT_LEARNING_CLASSIFIER_GATE_USE_COUNT', '5'))
+# Default 3 matches PROMOTE_MIN_USES: a freshly promoted pattern is usable
+# immediately instead of sitting in a 3-vs-5 dead zone.
+GATE_USE = int(os.environ.get('SUPERAGENT_LEARNING_CLASSIFIER_GATE_USE_COUNT', '3'))
 
 def _tokens(s: str) -> set:
     return set(re.findall(r"[a-z0-9]+", (s or "").lower()))

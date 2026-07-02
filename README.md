@@ -7,7 +7,7 @@
 **Write your AI instructions once. SuperAgent compiles them to Cursor, Codex, Copilot, Continue.dev, Windsurf, Aider, Gemini, and Claude Code in their native formats. Then it routes every task to the right skill, watches the shell for scary commands, tracks your spend, and falls back to a free local model when you hit the rate limit. And with Memory-OS, every one of those tools shares a single persistent memory — what you teach Claude Code on Monday, Cursor knows on Tuesday. v3.2 goes further: it compresses what your AI reads and writes (reversibly), and turns your codebase into a knowledge graph that survives across sessions.**
 
 [![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
-[![Version](https://img.shields.io/badge/v3.2.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.2.0)
+[![Version](https://img.shields.io/badge/v3.3.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.3.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-196%20green-brightgreen)](#receipts)
 [![Bench](https://img.shields.io/badge/routing-45%2F45-brightgreen)](#receipts)
@@ -357,6 +357,7 @@ AIDefence tested on a 100-prompt corpus: **86% of attack prompts caught, 2% fals
 | [**v3.0 Capstone**](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.0.0) | Three upstream projects (Scrapling / Octogent / jcode) distilled into native skills. |
 | [**v3.1 Memory-OS**](CHANGELOG.md) (Jun 2026) | One persistent memory across every coding tool. Hybrid semantic recall (paraphrase rediscovery 0%→100% on bench), decay + semantic dedup lifecycle, security-hardened MCP boundary, local-first embeddings. [Plan →](docs/plans/2026-06-03-memory-os-integration.md) |
 | [**v3.2 Context efficiency**](CHANGELOG.md) (Jun 2026) | Fewer tokens in *and* out: CCR reversible compression (`memory_retrieve`), SmartCrusher statistical tool-output compression, a persistent cross-session knowledge graph (`graph_ingest`/`graph_query`/`graph_neighbors`), and the `superagent-verbosity` output shaper. Headroom-inspired, all local-first. |
+| [**v3.3 The brain learns**](CHANGELOG.md) (Jul 2026) | The learning loop actually learns: routes promote to patterns by chain (failure-aware success rates), and freshly learned chains route immediately. Plus a hard token budget on every hook injection (`SUPERAGENT_INJECT_BUDGET_TOKENS`, drops logged as measurable savings). |
 
 ---
 

@@ -20,6 +20,13 @@ def main():
     description = (payload.get("tool_input") or {}).get("description", "") or ""
     session_id = payload.get("session_id", "")
 
+    # A subagent stop with no description carries zero signal: chain is always
+    # empty here, so an empty task means nothing to attribute and nothing to
+    # learn from — it only dilutes routes.jsonl. Skip it.
+    if not description.strip():
+        sys.stdout.write(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStop"}}))
+        return 0
+
     record = {
         "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "task_hash": "",

@@ -24,7 +24,7 @@ If `backend=local`, run in **lite mode**: skip step 2 context load, cap chain at
 
 **2. Load context (cloud only).** Skip on local backend. Otherwise run once per session:
 ```bash
-command -v mempalace >/dev/null 2>&1 && mempalace wake-up 2>/dev/null | head -60 || true
+command -v mempalace >/dev/null 2>&1 && mempalace wake-up 2>/dev/null | head -n "${SUPERAGENT_WAKE_LINES:-40}" || true
 ```
 
 **3. Optimize (brain step 0).** Rewrite the raw task into a tight directive before classifying. Strip the `? ` confirm prefix first if present (see step 6), then:

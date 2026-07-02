@@ -6,6 +6,7 @@ on the prompt text, and writes back a hookSpecificOutput envelope containing an
 `additionalContext` block that summarizes the routing plan. Bails silently on any
 error so a broken classifier never blocks the user's prompt.
 """
+import datetime
 import json
 import os
 import shutil
@@ -16,6 +17,30 @@ import sys
 def _emit(obj):
     sys.stdout.write(json.dumps(obj))
     sys.stdout.flush()
+
+
+def _flag_off(name: str) -> bool:
+    return os.environ.get(name, "1").lower() in ("0", "false", "off")
+
+
+def est_tokens(s: str) -> int:
+    # Rough chars/4 heuristic — good enough for budget gating, no tokenizer dep.
+    return max(1, len(s) // 4)
+
+
+def _log_saved(n: int) -> None:
+    try:
+        d = os.path.expanduser("~/.superagent/metrics")
+        os.makedirs(d, exist_ok=True)
+        rec = {
+            "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "event": "inject_budget",
+            "est_saved_tokens": n,
+        }
+        with open(os.path.join(d, "inject.jsonl"), "a") as f:
+            f.write(json.dumps(rec) + "\n")
+    except Exception:
+        pass
 
 
 def main():
@@ -123,19 +148,36 @@ def main():
         except Exception:
             pass
 
-    lines = [
+    route_block = "\n".join([
         "## SuperAgent route",
         f"Complexity: {complexity}" + (f"  Categories: {', '.join(categories)}" if categories else ""),
         "Chain: " + (" → ".join(chain) if chain else "(no chain — using default)"),
-    ]
+    ])
+
+    # ── Adaptive injection budget ───────────────────────────────────────────────
+    # Hard token ceiling on what this hook injects per prompt. The route block
+    # always ships; the optimized-prompt block (which repeats the whole prompt)
+    # is dropped WHOLE when it doesn't fit — a truncated directive is worse
+    # than none. Kill switch: SUPERAGENT_INJECT_BUDGET=0|false|off.
+    budget_on = not _flag_off("SUPERAGENT_INJECT_BUDGET")
+    try:
+        budget = int(os.environ.get("SUPERAGENT_INJECT_BUDGET_TOKENS", "600"))
+    except ValueError:
+        budget = 600
+
+    blocks = [route_block]
+    remaining = budget - est_tokens(route_block)
     if optimized:
-        lines += [
-            "",
+        opt_block = "\n".join([
             "## Optimized prompt (SuperAgent brain)",
             optimized,
             "Treat the optimized prompt above as the operative task; the raw prompt is kept for reference.",
-        ]
-    additional_context = "\n".join(lines)
+        ])
+        if not budget_on or est_tokens(opt_block) <= remaining:
+            blocks.append(opt_block)
+        else:
+            _log_saved(est_tokens(opt_block))
+    additional_context = "\n\n".join(blocks)
 
     _emit({
         "hookSpecificOutput": {
