@@ -14,8 +14,9 @@ Usage: superagent-patterns <subcommand> [flags]
 
 Subcommands:
   list [--json]            List all stored patterns.
-  promote                  Scan routes.jsonl for repeated done-routes (>=3)
-                           and (re)write pattern records.
+  promote                  Scan routes.jsonl for chains with >=3 done-routes
+                           and (re)write pattern records. Success rate blends
+                           done vs halt/fail with a neutral 0.6 prior.
   decay                    Apply exponential confidence decay to all patterns.
   protect <pattern-id>     Flip protected:true on the matching pattern.
   prune [--below RATE]     Remove unprotected patterns below RATE (default 0.1).
@@ -57,18 +58,20 @@ patterns_path = sys.argv[2]
 
 PROMOTE_MIN_USES = int(os.environ.get('SUPERAGENT_LEARNING_PROMOTE_MIN_USES', '3'))
 INITIAL_SUCCESS_RATE = 0.6
+# Laplace-style prior so a chain with few observations stays near the neutral
+# 0.6 instead of jumping to 1.0 after three lucky runs.
+PRIOR_WEIGHT = float(os.environ.get('SUPERAGENT_LEARNING_PRIOR_WEIGHT', '2'))
 
-def signal_from_task(task: str) -> str:
+def meaningful_words(task: str):
     import re
     STOP = set("a an the is are was were be being been do does did has have had this that these those it i you we they to from in on at of for with by".split())
     words = re.findall(r"[a-z0-9]+", (task or '').lower())
-    meaningful = [w for w in words if w not in STOP and len(w) >= 3]
-    return " ".join(sorted(set(meaningful))[:8])
+    return [w for w in words if w not in STOP and len(w) >= 3]
 
-def pattern_id(signal, chain):
+def pattern_id(chain):
+    # Hash the chain only: the signal is frequency-derived and drifts as new
+    # routes accrue, so it can't participate in a stable identity.
     h = hashlib.sha256()
-    h.update(signal.encode())
-    h.update(b"|")
     h.update(",".join(chain).encode())
     return "p-" + h.hexdigest()[:8]
 
@@ -85,7 +88,11 @@ if os.path.exists(patterns_path):
             except Exception:
                 continue
 
-agg = collections.Counter()
+# Group by chain alone. Task wording is near-unique per route, so any key
+# that embeds it never accumulates repeats — that bug kept this store empty.
+done = collections.Counter()      # chain -> done count
+total = collections.Counter()     # chain -> done + halt + fail count
+words = collections.defaultdict(collections.Counter)  # chain -> word freq
 last_seen = {}
 if os.path.exists(routes_path):
     with open(routes_path) as f:
@@ -97,21 +104,26 @@ if os.path.exists(routes_path):
                 r = json.loads(line)
             except Exception:
                 continue
-            if r.get('outcome') != 'done':
+            outcome = r.get('outcome')
+            if outcome not in ('done', 'halt', 'fail'):
                 continue
-            chain = r.get('chain') or []
+            chain = tuple(r.get('chain') or [])
             if not chain:
                 continue
-            signal = signal_from_task(r.get('task', ''))
-            key = (signal, tuple(chain))
-            agg[key] += 1
-            last_seen[key] = r.get('ts', '')
+            total[chain] += 1
+            for w in meaningful_words(r.get('task', '')):
+                words[chain][w] += 1
+            if outcome == 'done':
+                done[chain] += 1
+                last_seen[chain] = r.get('ts', '')
 
 now = datetime.datetime.now(datetime.timezone.utc).isoformat()
-for (signal, chain), count in agg.items():
-    if count < PROMOTE_MIN_USES:
+for chain, done_count in done.items():
+    if done_count < PROMOTE_MIN_USES:
         continue
-    pid = pattern_id(signal, list(chain))
+    sr = (done_count + INITIAL_SUCCESS_RATE * PRIOR_WEIGHT) / (total[chain] + PRIOR_WEIGHT)
+    signal = " ".join(w for w, _ in words[chain].most_common(8))
+    pid = pattern_id(list(chain))
     rec = existing.get(pid, {
         'id': pid,
         'kind': 'task-routing',
@@ -122,11 +134,12 @@ for (signal, chain), count in agg.items():
         'lastUsed': now,
         'protected': False,
     })
-    delta_uses = max(0, count - rec.get('useCount', 0))
-    if delta_uses > 0:
-      rec['useCount'] = count
-      rec['successRate'] = min(1.0, rec.get('successRate', INITIAL_SUCCESS_RATE) + 0.03 * delta_uses)
-      rec['lastUsed'] = last_seen.get((signal, chain)) or now
+    # Only touch the record on new evidence, so decay between promotes sticks.
+    if done_count > rec.get('useCount', 0):
+        rec['useCount'] = done_count
+        rec['successRate'] = round(min(1.0, sr), 4)
+        rec['signal'] = signal
+        rec['lastUsed'] = last_seen.get(chain) or now
     existing[pid] = rec
 
 tmp = patterns_path + ".tmp"

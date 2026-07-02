@@ -16,4 +16,14 @@ LAST=$(tail -n1 "$TMPHOME/.superagent/brain/routes.jsonl")
 echo "$LAST" | jq -e '.subagent == true and .outcome == "done"' >/dev/null \
   || { echo "FAIL: subagent-stop record shape: $LAST"; exit 1; }
 
+# A stop with no description must NOT be logged — it is pure noise.
+COUNT_BEFORE=$(wc -l < "$TMPHOME/.superagent/brain/routes.jsonl")
+NODESC='{"hook_event_name":"SubagentStop","session_id":"s","tool_input":{},"tool_output":{"success":true}}'
+HOME="$TMPHOME" python3 "$HOOK" <<<"$NODESC" >/dev/null
+EMPTYDESC='{"hook_event_name":"SubagentStop","session_id":"s","tool_input":{"description":"   "},"tool_output":{"success":true}}'
+HOME="$TMPHOME" python3 "$HOOK" <<<"$EMPTYDESC" >/dev/null
+COUNT_AFTER=$(wc -l < "$TMPHOME/.superagent/brain/routes.jsonl")
+[ "$COUNT_BEFORE" -eq "$COUNT_AFTER" ] \
+  || { echo "FAIL: empty-description stop was logged ($COUNT_BEFORE -> $COUNT_AFTER)"; exit 1; }
+
 echo "test-hook-subagent-stop: PASS"
