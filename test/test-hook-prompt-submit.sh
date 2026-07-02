@@ -39,4 +39,28 @@ OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" python3 "$HOOK" <<<"$PAYLO
 echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt") | not' >/dev/null \
   || { echo "FAIL: unexpected optimization block on clean prompt: $OUT"; exit 1; }
 
+# ── adaptive injection budget ────────────────────────────────────────────────
+# Filler-heavy LONG prompt: optimizer fires, but the optimized block (~>750
+# est. tokens) blows the 600-token default budget → dropped whole; route block stays.
+LONG="could you please fix the dark mode toggle bug? $(printf 'detail %.0s' {1..500})"
+PAYLOAD=$(jq -cn --arg p "$LONG" '{"session_id":"s-4","hook_event_name":"UserPromptSubmit","prompt":$p}')
+OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" python3 "$HOOK" <<<"$PAYLOAD")
+
+echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt") | not' >/dev/null \
+  || { echo "FAIL: over-budget optimized block not dropped"; exit 1; }
+echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## SuperAgent route")' >/dev/null \
+  || { echo "FAIL: route block missing when optimized block dropped: $OUT"; exit 1; }
+jq -e '.event == "inject_budget" and .est_saved_tokens > 600' "$TMPHOME/.superagent/metrics/inject.jsonl" >/dev/null \
+  || { echo "FAIL: inject_budget savings not recorded"; exit 1; }
+
+# Kill switch → uncapped, block present again
+OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" SUPERAGENT_INJECT_BUDGET=0 python3 "$HOOK" <<<"$PAYLOAD")
+echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt")' >/dev/null \
+  || { echo "FAIL: kill switch did not disable budget"; exit 1; }
+
+# Generous budget → block present
+OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" SUPERAGENT_INJECT_BUDGET_TOKENS=5000 python3 "$HOOK" <<<"$PAYLOAD")
+echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt")' >/dev/null \
+  || { echo "FAIL: block dropped despite generous budget"; exit 1; }
+
 echo "test-hook-prompt-submit: PASS"

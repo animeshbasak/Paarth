@@ -18,6 +18,15 @@ import sys
 from pathlib import Path
 
 
+def _flag_off(name: str) -> bool:
+    return os.environ.get(name, "1").lower() in ("0", "false", "off")
+
+
+def est_tokens(s: str) -> int:
+    # Rough chars/4 heuristic — good enough for budget gating, no tokenizer dep.
+    return max(1, len(s) // 4)
+
+
 def read_or_empty(path: Path, max_bytes: int = 4096) -> str:
     try:
         if not path.exists():
@@ -42,11 +51,15 @@ def routes_summary(routes_path: Path, n: int = 5) -> str:
         out.append(f"  - {r.get('ts','')[:16]} [{r.get('outcome','?')}] {chain}")
     if not out:
         return ""
-    return "Recent routes (last 5):\n" + "\n".join(out)
+    return f"Recent routes (last {len(out)}):\n" + "\n".join(out)
 
 
 def main() -> None:
     if os.environ.get("SUPERAGENT_SAFETY") == "off":
+        sys.exit(0)
+    # Dedicated kill-switch for this hook's injection (SUPERAGENT_SAFETY above
+    # kept for back-compat).
+    if _flag_off("SUPERAGENT_SESSION_CONTEXT"):
         sys.exit(0)
 
     home = Path.home()
@@ -60,7 +73,20 @@ def main() -> None:
         f"Date: {dt.date.today().isoformat()}\n"
         f"Backend mode: {'local-only' if local_only.exists() else 'mixed'}"
     )
-    rs = routes_summary(routes)
+    # Adaptive injection budget: shrink the routes list until the whole block
+    # fits SUPERAGENT_INJECT_BUDGET_TOKENS (chars/4 estimate). Disable with
+    # SUPERAGENT_INJECT_BUDGET=0|false|off.
+    budget_on = not _flag_off("SUPERAGENT_INJECT_BUDGET")
+    try:
+        budget = int(os.environ.get("SUPERAGENT_INJECT_BUDGET_TOKENS", "600"))
+    except ValueError:
+        budget = 600
+    remaining = budget - est_tokens(parts[0])
+
+    for n in (5, 3, 1, 0):
+        rs = routes_summary(routes, n=n) if n else ""
+        if not budget_on or not rs or est_tokens(rs) <= remaining:
+            break
     if rs:
         parts.append(rs)
 
