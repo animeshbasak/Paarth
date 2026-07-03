@@ -16,6 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install PyYAML (superagent-classify reads rules.yaml)
+        run: python3 -m pip install pyyaml || python3 -m pip install --break-system-packages pyyaml
       - name: Run shell suite
         run: python3 test/run-ci.py --timeout 120
 
