@@ -10,6 +10,21 @@ _Nothing yet._
 
 ---
 
+## v3.4.0 — 2026-07-03 (Session auto-capture)
+
+Roadmap #1 shipped: memory grows without anyone calling `memory_write`.
+
+### Added
+
+- **`superagent-capture` — session auto-capture into memory-os.** The distill Stop hook now pipes its payload to a new stdlib-only Python bin that parses the session transcript (last 800 lines, `SUPERAGENT_CAPTURE_TAIL_LINES`) and writes rule-based distillations through `memory_os.tools.memory_write` — inheriting sanitization, audit, FTS indexing, decay, and batch dedup. Per session: one `kind="session"` summary (first prompt, message/tool counts, files edited, outcome), up to 3 `decision` entries (decision-phrase regex), up to 3 `feedback` entries (correction regex). Stop fires every turn, so writes are **upserts**: prior entries tagged `session:<id>` are forgotten and replaced — one live summary per session, always current. No API calls, sub-second, always exits 0. Kill switch `SUPERAGENT_AUTO_CAPTURE=0|false|off`. Namespace = memory-os git-root hash (`namespace_for(cwd)`), kept distinct from the learnings project-hash.
+- First **real-schema transcript fixture** (`test/fixtures/transcript-real.jsonl`: nested `.message.role`, block-array content, `tool_use` entries) + `test/test-capture.sh` (extraction, upsert, cross-session, kill switch, missing-transcript).
+
+### Fixed
+
+- **Distill correction extraction never worked on real transcripts.** The jq filter read top-level `.role`/`.content`, but real Claude Code transcripts nest them under `.message.*` with block-array content — corrections were only ever extracted from the simplified test fixture. The filter now handles both schemas; `test-distill.sh` covers both (and isolates `$HOME` so hook tests no longer write to the real learnings/memory stores).
+
+---
+
 ## v3.3.0 — 2026-07-02 (The brain learns + injection budget)
 
 Two token-savings features: the learning loop now actually learns from real usage, and every hook injection respects a hard token budget.

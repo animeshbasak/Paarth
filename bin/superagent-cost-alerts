@@ -41,7 +41,9 @@ if crossed_idx == -1:
     sys.exit(0)
 
 level = levels[crossed_idx] if crossed_idx < len(levels) else f'tier-{crossed_idx}'
-today = datetime.date.today().isoformat()
+# Compare in UTC — alert ts is written as UTC; local date breaks dedup
+# whenever the local calendar day differs from UTC (e.g. 00:00-05:30 IST).
+today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 already_emitted = False
 if os.path.exists(alerts_path):

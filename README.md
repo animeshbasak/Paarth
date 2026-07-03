@@ -7,7 +7,7 @@
 **Write your AI instructions once. SuperAgent compiles them to Cursor, Codex, Copilot, Continue.dev, Windsurf, Aider, Gemini, and Claude Code in their native formats. Then it routes every task to the right skill, watches the shell for scary commands, tracks your spend, and falls back to a free local model when you hit the rate limit. And with Memory-OS, every one of those tools shares a single persistent memory — what you teach Claude Code on Monday, Cursor knows on Tuesday. v3.2 goes further: it compresses what your AI reads and writes (reversibly), and turns your codebase into a knowledge graph that survives across sessions.**
 
 [![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
-[![Version](https://img.shields.io/badge/v3.3.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.3.0)
+[![Version](https://img.shields.io/badge/v3.4.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.4.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-196%20green-brightgreen)](#receipts)
 [![Bench](https://img.shields.io/badge/routing-45%2F45-brightgreen)](#receipts)
@@ -96,7 +96,7 @@ $ superagent-classify "scrape this Cloudflare-protected page"
 
 ---
 
-## 2. The 26 command-line tools
+## 2. The 27 command-line tools
 
 Every capability is a real executable installed to `~/.local/bin/`. Run any of them by hand.
 
@@ -108,6 +108,7 @@ Every capability is a real executable installed to `~/.local/bin/`. Run any of t
 | `superagent-chain <name>` | Prints the ordered steps of a named YAML chain (e.g. `ship-v2`). |
 | `superagent-compile` | Rewrites `skills/` into every platform's native instruction format. |
 | `superagent-patterns` | Learning-loop store: `list` · `promote` · `decay` · `protect` · `prune`. |
+| `superagent-capture` | Session auto-capture: distills each session transcript into memory-os entries (summary + decisions + corrections) from the Stop hook. Rule-based, API-free, upserts per session. |
 | `superagent-oneshot` | Computes your one-shot rate — % of tasks finished on the first attempt. |
 | `superagent-reload` | Mirrors repo skills into `~/.claude/skills/` for hot pickup next session. |
 | `superagent-pool` | Orchestrate parallel Claude Code sessions: `spawn` · `list` · `tag` · `kill` · `status`. |
@@ -358,6 +359,7 @@ AIDefence tested on a 100-prompt corpus: **86% of attack prompts caught, 2% fals
 | [**v3.1 Memory-OS**](CHANGELOG.md) (Jun 2026) | One persistent memory across every coding tool. Hybrid semantic recall (paraphrase rediscovery 0%→100% on bench), decay + semantic dedup lifecycle, security-hardened MCP boundary, local-first embeddings. [Plan →](docs/plans/2026-06-03-memory-os-integration.md) |
 | [**v3.2 Context efficiency**](CHANGELOG.md) (Jun 2026) | Fewer tokens in *and* out: CCR reversible compression (`memory_retrieve`), SmartCrusher statistical tool-output compression, a persistent cross-session knowledge graph (`graph_ingest`/`graph_query`/`graph_neighbors`), and the `superagent-verbosity` output shaper. Headroom-inspired, all local-first. |
 | [**v3.3 The brain learns**](CHANGELOG.md) (Jul 2026) | The learning loop actually learns: routes promote to patterns by chain (failure-aware success rates), and freshly learned chains route immediately. Plus a hard token budget on every hook injection (`SUPERAGENT_INJECT_BUDGET_TOKENS`, drops logged as measurable savings). |
+| [**v3.4 Session auto-capture**](CHANGELOG.md) (Jul 2026) | Memory grows by itself: every session is distilled into memory-os entries (summary, decisions, corrections) by the Stop hook — rule-based, API-free, upserted per session. Roadmap #1 shipped. |
 
 ---
 
@@ -365,12 +367,11 @@ AIDefence tested on a 100-prompt corpus: **86% of attack prompts caught, 2% fals
 
 The honest roadmap — gaps we know about, in priority order:
 
-1. **Session auto-capture** — a Stop-hook that distills each session into memory entries automatically, so memory grows without anyone calling `memory_write`. The single highest-leverage missing piece.
-2. **CI matrix** — GitHub Actions running the 196 memory tests + 45-prompt routing bench + fresh-box adapter installs on macOS and Linux per PR. (Today the gates run locally; the receipts should be public.)
-3. **Team memory** — an opt-in shared namespace synced through git (encrypted), so a team's decisions compound the way an individual's do.
-4. **Vector-on-by-default decision** — once `bench --real` data accumulates across machines, decide whether semantic recall ships enabled (today: opt-in, zero-dep default).
-5. **Copilot/Antigravity graduation** — both adapters are experimental pending upstream MCP support; revisit quarterly.
-6. **Windows support** — `cron_install` and the shell adapters assume POSIX; the Python server itself is already portable.
+1. **CI matrix** — GitHub Actions running the 196 memory tests + 45-prompt routing bench + fresh-box adapter installs on macOS and Linux per PR. (Today the gates run locally; the receipts should be public.)
+2. **Team memory** — an opt-in shared namespace synced through git (encrypted), so a team's decisions compound the way an individual's do.
+3. **Vector-on-by-default decision** — once `bench --real` data accumulates across machines, decide whether semantic recall ships enabled (today: opt-in, zero-dep default).
+4. **Copilot/Antigravity graduation** — both adapters are experimental pending upstream MCP support; revisit quarterly.
+5. **Windows support** — `cron_install` and the shell adapters assume POSIX; the Python server itself is already portable.
 
 ---
 
@@ -378,7 +379,7 @@ The honest roadmap — gaps we know about, in priority order:
 
 ```
 SuperAgent/
-├── bin/            26 command-line tools + the memory-os MCP server (installed to ~/.local/bin/)
+├── bin/            27 command-line tools + the memory-os MCP server (installed to ~/.local/bin/)
 ├── skills/         32 skills (the source of truth)
 ├── agents/         6 specialist agent personas
 ├── hooks/          9 Claude Code lifecycle hooks (+ 3 helper scripts)

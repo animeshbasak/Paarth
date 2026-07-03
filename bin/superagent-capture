@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""superagent-capture — session auto-capture into memory-os.
+
+Reads a Claude Code Stop-hook payload on stdin ({transcript_path, session_id,
+cwd}), distills the session transcript into memory-os entries rule-based (no
+API call), and writes them through memory_os.tools.memory_write so they
+inherit sanitization, audit, FTS indexing, decay, and batch dedup.
+
+Entries per session:
+  - 1 x kind="session"  — summary: first prompt, counts, files edited, outcome
+  - <=3 x kind="decision" — lines matching decision phrases
+  - <=3 x kind="feedback" — user correction lines
+
+Stop fires on every assistant turn, not once per session, so writes are
+upserts: prior entries tagged session:<id> are marked forgotten and replaced.
+
+Kill switch: SUPERAGENT_AUTO_CAPTURE=0|false|off. Always exits 0.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+TAIL_LINES = int(os.environ.get("SUPERAGENT_CAPTURE_TAIL_LINES", "800"))
+TRUNC = 200
+MAX_FILES = 10
+MAX_DECISIONS = 3
+MAX_FEEDBACK = 3
+
+DECISION_RE = re.compile(
+    r"\b(we decided|let's use|lets use|going with|instead of|decision:)", re.IGNORECASE
+)
+CORRECTION_RE = re.compile(
+    r"^(no[,. ]|don't|do not |stop|never|actually|wrong|not like that)", re.IGNORECASE
+)
+EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
+
+
+def _flag_off(name: str) -> bool:
+    return os.environ.get(name, "1").lower() in ("0", "false", "off")
+
+
+def _text_of(content) -> str:
+    """Flatten a message content field (string or block array) to text."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text") or "")
+        return " ".join(parts)
+    return ""
+
+
+def parse_transcript(path: Path):
+    """Parse the transcript tail. Handles the real Claude Code schema
+    (.message.role/.message.content with block arrays, tool_use entries)
+    and the simplified {"role","content"} shape used by older fixtures."""
+    user_texts, assistant_texts, files, tool_calls = [], [], [], 0
+    lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()[-TAIL_LINES:]
+    for ln in lines:
+        ln = ln.strip()
+        if not ln:
+            continue
+        try:
+            rec = json.loads(ln)
+        except Exception:
+            continue
+        if not isinstance(rec, dict):
+            continue
+        msg = rec.get("message") if isinstance(rec.get("message"), dict) else rec
+        role = msg.get("role")
+        content = msg.get("content")
+        if isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "tool_use":
+                    tool_calls += 1
+                    if block.get("name") in EDIT_TOOLS:
+                        fp = (block.get("input") or {}).get("file_path")
+                        if fp and fp not in files:
+                            files.append(fp)
+        text = _text_of(content).strip()
+        if not text:
+            continue
+        if role == "user":
+            user_texts.append(text)
+        elif role == "assistant":
+            assistant_texts.append(text)
+    return user_texts, assistant_texts, files, tool_calls
+
+
+def build_entries(user_texts, assistant_texts, files, tool_calls):
+    first = user_texts[0][:TRUNC] if user_texts else "(no user prompt)"
+    outcome = assistant_texts[-1][:TRUNC] if assistant_texts else "(no assistant output)"
+    summary = (
+        f"Session: {first}\n"
+        f"Messages: {len(user_texts)} user / {len(assistant_texts)} assistant, "
+        f"{tool_calls} tool calls.\n"
+        + (f"Files edited: {', '.join(files[:MAX_FILES])}\n" if files else "")
+        + f"Outcome: {outcome}"
+    )
+    entries = [("session", summary)]
+
+    seen = set()
+    for text in user_texts + assistant_texts:
+        for line in text.splitlines():
+            line = line.strip()
+            if len(line) < 12 or line[:TRUNC] in seen:
+                continue
+            if DECISION_RE.search(line):
+                entries.append(("decision", line[:TRUNC]))
+                seen.add(line[:TRUNC])
+    decisions = [e for e in entries if e[0] == "decision"][:MAX_DECISIONS]
+
+    feedback = []
+    for text in user_texts:
+        for line in text.splitlines():
+            line = line.strip()
+            if CORRECTION_RE.match(line) and line[:TRUNC] not in seen:
+                feedback.append(("feedback", line[:TRUNC]))
+                seen.add(line[:TRUNC])
+    return [entries[0]] + decisions + feedback[:MAX_FEEDBACK]
+
+
+def main() -> int:
+    if _flag_off("SUPERAGENT_AUTO_CAPTURE"):
+        return 0
+    try:
+        payload = json.loads(sys.stdin.read() or "{}")
+    except Exception:
+        return 0
+    transcript = payload.get("transcript_path") or ""
+    session_id = payload.get("session_id") or "unknown"
+    cwd = payload.get("cwd") or os.getcwd()
+    path = Path(transcript)
+    if not transcript or not path.is_file():
+        return 0
+
+    # memory_os is pure stdlib on the write path — import it straight from
+    # the repo checkout, no venv needed.
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "superagent-memory-mcp"))
+    try:
+        from memory_os import db, namespace, tools
+    except Exception:
+        return 0
+
+    try:
+        user_texts, assistant_texts, files, tool_calls = parse_transcript(path)
+        if not user_texts and not assistant_texts:
+            return 0
+        entries = build_entries(user_texts, assistant_texts, files, tool_calls)
+
+        ns = namespace.namespace_for(Path(cwd))
+        conn = db.connect()
+        tag = f"session:{session_id}"
+
+        # Upsert: forget prior entries for this session, then write fresh.
+        prior = conn.execute(
+            "SELECT id FROM entries WHERE namespace = ? AND forgotten = 0 "
+            "AND tags_json LIKE ?",
+            (ns, f'%"{tag}"%'),
+        ).fetchall()
+        for row in prior:
+            conn.execute("UPDATE entries SET forgotten = 1 WHERE id = ?", (row["id"],))
+
+        for kind, content in entries:
+            tools.memory_write(conn, content=content, kind=kind, namespace=ns, tags=[tag, "auto-capture"])
+    except Exception:
+        pass
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

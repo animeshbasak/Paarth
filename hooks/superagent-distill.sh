@@ -32,11 +32,23 @@ elif [[ -x "$(dirname "${BASH_SOURCE[0]}")/../bin/superagent-obs-rotate" ]]; the
 fi
 [[ -n "$ROTATE_BIN" ]] && "$ROTATE_BIN" >/dev/null 2>&1 || true
 
+# ── Wave 3: session auto-capture into memory-os ───────────────────────────────
+# Kill switch: SUPERAGENT_AUTO_CAPTURE=0|false|off (checked inside the bin too).
+CAPTURE_BIN=""
+if command -v superagent-capture >/dev/null 2>&1; then
+  CAPTURE_BIN="$(command -v superagent-capture)"
+elif [[ -x "$(dirname "${BASH_SOURCE[0]}")/../bin/superagent-capture" ]]; then
+  CAPTURE_BIN="$(dirname "${BASH_SOURCE[0]}")/../bin/superagent-capture"
+fi
+[[ -n "$CAPTURE_BIN" ]] && printf '%s' "$PAYLOAD" | "$CAPTURE_BIN" >/dev/null 2>&1 || true
+
 TRANSCRIPT=$(printf '%s' "$PAYLOAD" | jq -r '.transcript_path // empty' 2>/dev/null || echo "")
 [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]] || exit 0
 
 CORRECTIONS=$(tail -n 400 "$TRANSCRIPT" 2>/dev/null \
-  | jq -r 'select(.role=="user") | .content // empty' 2>/dev/null \
+  | jq -r 'select((.message.role // .role) == "user")
+           | (.message.content // .content // empty)
+           | if type == "array" then (map(select(.type? == "text") | .text) | join(" ")) else . end' 2>/dev/null \
   | grep -iE "^(no[,. ]|don't|stop|never|actually|wrong|not like that|do not )" \
   | head -5 || true)
 
