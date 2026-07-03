@@ -7,7 +7,7 @@
 **Write your AI instructions once. SuperAgent compiles them to Cursor, Codex, Copilot, Continue.dev, Windsurf, Aider, Gemini, and Claude Code in their native formats. Then it routes every task to the right skill, watches the shell for scary commands, tracks your spend, and falls back to a free local model when you hit the rate limit. And with Memory-OS, every one of those tools shares a single persistent memory — what you teach Claude Code on Monday, Cursor knows on Tuesday. v3.2 goes further: it compresses what your AI reads and writes (reversibly), and turns your codebase into a knowledge graph that survives across sessions.**
 
 [![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
-[![Version](https://img.shields.io/badge/v3.5.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.5.0)
+[![Version](https://img.shields.io/badge/v3.6.0-shipped-blueviolet)](https://github.com/animeshbasak/SuperAgent/releases/tag/v3.6.0)
 [![CI](https://github.com/animeshbasak/SuperAgent/actions/workflows/ci.yml/badge.svg)](https://github.com/animeshbasak/SuperAgent/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-196%20green-brightgreen)](#receipts)
@@ -60,7 +60,7 @@ SuperAgent removes all four. One config. One safety gate. One cost tracker. One 
 | Capability | Your AI tool alone *(Claude Code / Cursor / Copilot)* | aider | Headroom *(compression)* | Memory MCPs *(Mem0, etc.)* | **SuperAgent** |
 |---|:---:|:---:|:---:|:---:|:---:|
 | One config → compiled to **every** tool natively | ✗ (per-tool files) | ✗ | ✗ | ✗ | ✅ |
-| Plain-English task → auto skill chain | partial | ✗ | ✗ | ✗ | ✅ 48 rules + learning loop |
+| Plain-English task → auto skill chain | partial | ✗ | ✗ | ✗ | ✅ 63 rules + learning loop |
 | Reversibility safety gate (`rm -rf`, `push --force`, `DROP`, `.env`) | ✗ | ✗ | ✗ | ✗ | ✅ harness hook |
 | Cost tracking + **free local-model fallback** at the limit | ✗ | ✗ | ✗ | ✗ | ✅ |
 | Persistent memory **shared across all your tools** | ✗ (per-tool) | ✗ | partial | ✅ (single tool) | ✅ |
@@ -151,7 +151,7 @@ Every capability is a real executable installed to `~/.local/bin/`. Run any of t
 
 ---
 
-## 3. The 32 skills
+## 3. The 52 skills
 
 Skills are the source of truth. The classifier composes them into chains; `superagent-compile` ships them to every platform. Grouped by what they do:
 
@@ -167,9 +167,19 @@ Skills are the source of truth. The classifier composes them into chains; `super
 
 **Creative / front-end** — `framer-motion` (React motion API) · `webgl-craft` (premium 3D / Three.js / shaders) · `video-craft` (HTML→MP4 via hyperframes)
 
-> Plus the bundled `agent-skills:*` namespace — 8 step-by-step engineering skills (spec-driven dev, idea-refine, task breakdown, incremental implementation, API design, deprecation/migration, ADRs, performance) credited to Addy Osmani's [agent-skills](https://github.com/addyosmani/agent-skills).
+> Plus the bundled `agent-skills:*` namespace — 16 step-by-step engineering skills (spec-driven dev, idea-refine, task breakdown, incremental implementation, API design, deprecation/migration, ADRs, performance) credited to Addy Osmani's [agent-skills](https://github.com/addyosmani/agent-skills).
 
 ---
+
+
+### Income pack (`income:*`) — v3.6
+
+Curated from the community skill ecosystem (license-gated, injection-screened, pinned SHAs — see [ATTRIBUTION](docs/ATTRIBUTION.md)):
+**Marketing**: `cold-email` · `copywriting` · `seo-audit` · `programmatic-seo` · `cro` · `pricing` · `social-content` · `product-launch` · `email-marketing` · `paid-ads` (from coreyhaines31/marketingskills, 36k★)
+**Sales**: `sales-outreach` (from Anthropic's official knowledge-work-plugins)
+**Startup**: `validate-idea` · `growth` (solo-founder-superpowers) · `investor-pitch` · `gtm-strategy` (pm-claude-skills)
+**Creator**: `youtube-strategy` · `linkedin-content`
+**Dev income (first-party)**: `freelance-proposals` · `productized-service` · `mvp-scope`
 
 ## 4. The 6 specialist agents
 
@@ -362,6 +372,7 @@ AIDefence tested on a 100-prompt corpus: **86% of attack prompts caught, 2% fals
 | [**v3.3 The brain learns**](CHANGELOG.md) (Jul 2026) | The learning loop actually learns: routes promote to patterns by chain (failure-aware success rates), and freshly learned chains route immediately. Plus a hard token budget on every hook injection (`SUPERAGENT_INJECT_BUDGET_TOKENS`, drops logged as measurable savings). |
 | [**v3.4 Session auto-capture**](CHANGELOG.md) (Jul 2026) | Memory grows by itself: every session is distilled into memory-os entries (summary, decisions, corrections) by the Stop hook — rule-based, API-free, upserted per session. Roadmap #1 shipped. |
 | [**v3.5 CI matrix**](CHANGELOG.md) (Jul 2026) | The receipts go public: shell suite + 196 memory tests on ubuntu/macos and the 45-prompt routing bench hard gate run on every PR. |
+| [**v3.6 Income pack**](CHANGELOG.md) (Jul 2026) | 20 `income:*` skills — marketing, sales outreach, startup validation, pitch/GTM, creator platforms, and a first-party freelance/consulting trio. Curated from 36k★ community collections, license-gated, injection-screened, fully routed + benched. [Provenance →](docs/ATTRIBUTION.md) |
 
 ---
 
@@ -381,12 +392,12 @@ The honest roadmap — gaps we know about, in priority order:
 ```
 SuperAgent/
 ├── bin/            27 command-line tools + the memory-os MCP server (installed to ~/.local/bin/)
-├── skills/         32 skills (the source of truth)
+├── skills/         52 skills (the source of truth)
 ├── agents/         6 specialist agent personas
 ├── hooks/          9 Claude Code lifecycle hooks (+ 3 helper scripts)
 ├── adapters/       9 IDE rule generators + _shared memory-os lib
 ├── commands/       9 slash-command dispatchers
-├── brain/          rules.yaml (48 rules) + the learning loop
+├── brain/          rules.yaml (63 rules) + the learning loop
 ├── bench/          45-prompt routing accuracy harness
 ├── bundles/        optional: free-claude-code · hyperframes · local-llms
 ├── test/           bash + python smoke/unit suites
@@ -421,14 +432,14 @@ After install:
 
 **Where does the learning come from?** Every successful chain logs to `~/.superagent/brain/routes.jsonl`. When the same chain succeeds repeatedly for similar tasks, it's promoted into `patterns.jsonl`, which the classifier reads before the static rules.
 
-**What's the catch?** 32 skills is a lot, and the learning curve is real — but you don't need all of them on day one. Start with `superagent-cost today` and the safety gate. Add `superagent-diff-risk` before a scary push. Add `sparc` when you start a real feature.
+**What's the catch?** 52 skills is a lot, and the learning curve is real — but you don't need all of them on day one. Start with `superagent-cost today` and the safety gate. Add `superagent-diff-risk` before a scary push. Add `sparc` when you start a real feature.
 
 ---
 
 ## Credits
 
 - [Anthropic Claude Code](https://claude.com/claude-code) — the hook-and-skill harness this is built on
-- [Addy Osmani's agent-skills](https://github.com/addyosmani/agent-skills) — the 8 step-by-step engineering skills in the `agent-skills:*` namespace
+- [Addy Osmani's agent-skills](https://github.com/addyosmani/agent-skills) — the 16 step-by-step engineering skills in the `agent-skills:*` namespace
 - [HeyGen Hyperframes](https://github.com/heygen-com/hyperframes) — deterministic video pipeline for the reels
 - [Scrapling](https://github.com/D4Vinci/Scrapling), [Octogent](https://github.com/hesamsheikh/octogent), [jcode](https://github.com/1jehuang/jcode) — the three upstream projects whose work shipped into the v3.0 capstone
 - [Ruflo (claude-flow)](https://github.com/ruflo/claude-flow) — AIDefence pattern store reference + diff-risk classifier regex map
