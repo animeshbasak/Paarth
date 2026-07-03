@@ -10,6 +10,23 @@ _Nothing yet._
 
 ---
 
+## v3.6.0 — 2026-07-04 (Income pack — 20 `income:*` skills)
+
+SuperAgent learns to make money, not just software: marketing, sales, startup, creator, and dev-consulting skills, fully routed.
+
+### Added
+
+- **20 `income:*` skills** in repo `skills/` (auto-symlinked, compiled to all platforms). 17 vendored from the community skill ecosystem — every file license-gated (MIT/Apache-2.0 only), fetched at a **pinned commit SHA**, adapted (namespaced frontmatter, dead cross-links removed, MCP references made conditional), and screened with `superagent-aidefence scan` + dangerous-pattern greps. 3 first-party originals for dev income: `freelance-proposals`, `productized-service`, `mvp-scope`. Full provenance: `docs/ATTRIBUTION.md`. Sources: coreyhaines31/marketingskills (36k★, 10 skills), anthropics/knowledge-work-plugins (official, sales-outreach), whawkinsiv/solo-founder-superpowers (validate-idea, growth), mohitagw15856/pm-claude-skills (investor-pitch, gtm-strategy), plus YouTube/LinkedIn one-offs. Excluded after screening: a LinkedIn cookie-scraper and all sub-1★ mirrors.
+- **15 routing rules** (`outreach`, `copywriting`, `seo`, `cro`, `pricing-strategy`, `social-content`, `product-launch`, `email-marketing`, `paid-ads`, `startup-validate`, `pitch-gtm`, `growth`, `creator-platform`, `freelance`, `mvp-scope`) — 48 → 63 rules; **14 new bench prompts** — 45 → 59, hard gate green.
+- `test/test-income-skills.sh` — pack integrity: frontmatter convention, per-file aidefence screen, dangerous-instruction grep, count floor.
+
+### Fixed
+
+- Routing precision: `ui` no longer fires on marketing prompts ("landing page copy", "design pricing tiers"), `security` no longer fires on non-security audits ("audit the signup flow"), `email-marketing` yields "cold email sequence" to outreach. Two bench goldens (#37, #43) that had baked in the old ui over-fire were corrected to the cleaner chains.
+- README: stale "8 step-by-step engineering skills" agent-skills credit corrected to 16.
+
+---
+
 ## v3.5.0 — 2026-07-03 (CI matrix — public receipts)
 
 Roadmap #2 shipped (was #1 after auto-capture landed): the gates that ran locally now run publicly on every PR.
