@@ -41,9 +41,13 @@ class H(http.server.BaseHTTPRequestHandler):
             req = json.loads(self.rfile.read(n))
         except Exception:
             req = {}
-        # echo back the expected tool name as a successful tool-call
-        tool = req.get("expected") or "Bash"
-        body = json.dumps({"tool": tool, "ok": True}).encode()
+        # echo the forced tool back as an Anthropic-shaped tool_use response
+        tool = (req.get("tool_choice") or {}).get("name") or req.get("expected") or "Bash"
+        body = json.dumps({
+            "id": "msg_mock", "type": "message", "role": "assistant",
+            "content": [{"type": "tool_use", "id": "tu_1", "name": tool, "input": {}}],
+            "stop_reason": "tool_use",
+        }).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -108,8 +112,12 @@ class H(http.server.BaseHTTPRequestHandler):
             # malformed: not JSON
             body = b"<<<not-json>>>"
         else:
-            tool = req.get("expected") or "Bash"
-            body = json.dumps({"tool": tool, "ok": True}).encode()
+            tool = (req.get("tool_choice") or {}).get("name") or req.get("expected") or "Bash"
+            body = json.dumps({
+                "id": "msg_mock", "type": "message", "role": "assistant",
+                "content": [{"type": "tool_use", "id": "tu_1", "name": tool, "input": {}}],
+                "stop_reason": "tool_use",
+            }).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))

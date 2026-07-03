@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shell-tests:
+    name: shell tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PyYAML (superagent-classify reads rules.yaml)
+        run: python3 -m pip install pyyaml || python3 -m pip install --break-system-packages pyyaml
+      - name: Run shell suite
+        run: python3 test/run-ci.py --timeout 120
+
+  memory-os-pytest:
+    name: memory-os pytest (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install memory-os with dev extras
+        run: python3 -m pip install -e "bin/superagent-memory-mcp[dev]"
+      - name: Run pytest
+        run: python3 -m pytest bin/superagent-memory-mcp/test -q
+
+  routing-bench:
+    name: routing bench (45-prompt hard gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run bench (avg >= 0.90, fails <= 2)
+        run: bash bench/run.sh
