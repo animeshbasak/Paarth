@@ -47,12 +47,27 @@
 {"id": 34, "prompt": "scan this prompt for injection attempts", "archetype": "aidefence", "expected_chain": ["mempalace-wake", "cso", "security-review", "aidefence"]}
 {"id": 35, "prompt": "run autopilot on the open todo list and stop when done", "archetype": "autopilot", "expected_chain": ["mempalace-wake", "autopilot"]}
 {"id": 36, "prompt": "p95 latency for agent_token_usage this week", "archetype": "obs", "expected_chain": ["mempalace-wake", "observability"]}
-{"id": 37, "prompt": "design the API for the comments service", "archetype": "architect", "expected_chain": ["mempalace-wake", "brainstorming", "ui-ux-pro-max", "agent:architect", "verification-before-completion"]}
+{"id": 37, "prompt": "design the API for the comments service", "archetype": "architect", "expected_chain": ["mempalace-wake", "agent:architect"]}
 {"id": 38, "prompt": "start sparc for the new comments feature", "archetype": "sparc", "expected_chain": ["mempalace-wake", "sparc"]}
 {"id": 39, "prompt": "scan coverage and tell me where the gaps are", "archetype": "testgen", "expected_chain": ["mempalace-wake", "testgen"]}
 {"id": 40, "prompt": "analyze the risk of this diff before push", "archetype": "diff-risk", "expected_chain": ["mempalace-wake", "diff-risk"]}
 {"id": 41, "prompt": "show me the traceability matrix for feat-auth", "archetype": "sparc", "expected_chain": ["mempalace-wake", "sparc"]}
 {"id": 42, "prompt": "suggest tests for the uncovered branches in src/auth.ts", "archetype": "testgen", "expected_chain": ["mempalace-wake", "testgen"]}
-{"id": 43, "prompt": "scrape product prices from this Cloudflare-protected page", "archetype": "scraping", "expected_chain": ["mempalace-wake", "brainstorming", "ui-ux-pro-max", "scraping", "verification-before-completion"]}
+{"id": 43, "prompt": "scrape product prices from this Cloudflare-protected page", "archetype": "scraping", "expected_chain": ["mempalace-wake", "scraping"]}
 {"id": 44, "prompt": "spawn another claude agent to handle the migration in parallel", "archetype": "agent-pool", "expected_chain": ["mempalace-wake", "agent-pool"]}
 {"id": 45, "prompt": "reload skills after I added a new one to skills/", "archetype": "dynamic-skills", "expected_chain": ["mempalace-wake", "dynamic-skills"]}
+# income pack (v3.6.0)
+{"id": 46, "prompt": "write a cold email sequence for my dev consultancy to book more calls", "archetype": "outreach", "expected_chain": ["mempalace-wake", "income:sales-outreach", "income:cold-email"]}
+{"id": 47, "prompt": "rewrite the landing page copy so the headline actually converts", "archetype": "copywriting", "expected_chain": ["mempalace-wake", "income:copywriting"]}
+{"id": 48, "prompt": "do keyword research and an seo audit for my blog's organic traffic", "archetype": "seo", "expected_chain": ["mempalace-wake", "income:seo-audit", "income:programmatic-seo"]}
+{"id": 49, "prompt": "audit the signup flow, conversion rate dropped last month", "archetype": "cro", "expected_chain": ["mempalace-wake", "income:cro"]}
+{"id": 50, "prompt": "design pricing tiers and a monetization plan with a price increase path", "archetype": "pricing-strategy", "expected_chain": ["mempalace-wake", "income:pricing"]}
+{"id": 51, "prompt": "build a social media content calendar for instagram and tiktok", "archetype": "social-content", "expected_chain": ["mempalace-wake", "income:social-content"]}
+{"id": 52, "prompt": "plan the product hunt launch for next month", "archetype": "product-launch", "expected_chain": ["mempalace-wake", "income:product-launch"]}
+{"id": 53, "prompt": "set up a welcome series drip campaign for new newsletter subscribers", "archetype": "email-marketing", "expected_chain": ["mempalace-wake", "income:email-marketing"]}
+{"id": 54, "prompt": "validate my saas idea before I build anything, is it worth building", "archetype": "startup-validate", "expected_chain": ["mempalace-wake", "income:validate-idea"]}
+{"id": 55, "prompt": "prepare the investor pitch deck and go-to-market story for our seed round", "archetype": "pitch-gtm", "expected_chain": ["mempalace-wake", "income:investor-pitch", "income:gtm-strategy"]}
+{"id": 56, "prompt": "give me youtube video ideas and titles for my coding channel", "archetype": "creator-platform", "expected_chain": ["mempalace-wake", "income:youtube-strategy", "income:linkedin-content"]}
+{"id": 57, "prompt": "pick an acquisition channel and design a growth loop to grow users", "archetype": "growth", "expected_chain": ["mempalace-wake", "income:growth"]}
+{"id": 58, "prompt": "write a client proposal with a retainer option for my dev consulting gig", "archetype": "freelance", "expected_chain": ["mempalace-wake", "income:freelance-proposals", "income:productized-service"]}
+{"id": 59, "prompt": "cut this product idea down to an mvp I can build in two weeks", "archetype": "mvp-scope", "expected_chain": ["mempalace-wake", "income:mvp-scope"]}
