@@ -10,6 +10,17 @@ _Nothing yet._
 
 ---
 
+## v3.5.0 — 2026-07-03 (CI matrix — public receipts)
+
+Roadmap #2 shipped (was #1 after auto-capture landed): the gates that ran locally now run publicly on every PR.
+
+### Added
+
+- **GitHub Actions CI matrix** (`.github/workflows/ci.yml`): three jobs on push/PR to main — the shell suite on ubuntu + macos, the memory-os pytest suite (196 tests) on ubuntu + macos via `pip install -e "bin/superagent-memory-mcp[dev]"`, and the 45-prompt routing bench with its hard gate (avg ≥ 0.90, fails ≤ 2).
+- **`test/run-ci.py`** — portable CI shell-test runner with per-test timeouts and an explicit, reasoned skip list (only the 5 install.sh tests, which hang on `mempalace mine` on a fresh box). Every skip is printed in the CI log — no silent truncation. `test-canary.sh` runs in CI: audit showed it self-hosts its own mock on :18082 and only fails on dev machines where the real proxy holds the port.
+
+---
+
 ## v3.4.0 — 2026-07-03 (Session auto-capture)
 
 Roadmap #1 shipped: memory grows without anyone calling `memory_write`.
