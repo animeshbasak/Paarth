@@ -29,9 +29,13 @@ active_dir() {
     echo "$ROOT/${SUPERAGENT_SPARC_SLUG}"; return 0
   fi
   local latest
+  # stat flags differ: BSD/macOS wants -f '%m', GNU/Linux wants -c '%Y'.
   latest=$(find "$ROOT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
-            | xargs -I{} stat -f '%m %N' {} 2>/dev/null \
-            | sort -rn | head -1 | awk '{print $2}')
+            | while IFS= read -r d; do
+                m=$(stat -f '%m' "$d" 2>/dev/null || stat -c '%Y' "$d" 2>/dev/null) || continue
+                printf '%s %s\n' "$m" "$d"
+              done \
+            | sort -rn | head -1 | cut -d' ' -f2-)
   [[ -n "$latest" ]] && echo "$latest"
 }
 
