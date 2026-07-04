@@ -1,12 +1,40 @@
 # Changelog
 
-All notable changes to SuperAgent are documented here.
+All notable changes to PAARTH (formerly SuperAgent, renamed in v4.0.0) are documented here.
 
 ---
 
 ## Unreleased
 
 _Nothing yet._
+
+---
+
+## v4.0.0 — 2026-07-04 (PAARTH — the rebrand)
+
+SuperAgent is now **PAARTH — Proactive Agentic AI for Routing, Telemetry & Heuristics**. Full clean rename, no aliases.
+
+### Renamed
+
+| Surface | Old | New |
+|---|---|---|
+| CLI tools (27) | `superagent-*` | `paarth-*` |
+| Env vars | `SUPERAGENT_*` | `PAARTH_*` |
+| State dir | `~/.superagent` | `~/.paarth` (auto-migrated once by the state-init hook) |
+| Memory MCP | `superagent-memory-mcp` / `superagent-memory` | `paarth-memory-mcp` / `paarth-memory` |
+| Router skill / slash | `superagent`, `/superagent` | `paarth`, `/paarth` |
+| Brain agent | `superagent-brain` | `paarth-brain` |
+| GitHub repo | animeshbasak/SuperAgent | animeshbasak/Paarth (old URLs redirect) |
+
+### Changed
+
+- New animated hero (`docs/media/hero-paarth.svg`) — PAARTH wordmark, acronym, arrow-through-nodes routing motif.
+- README rebuilt for visibility: capability map with verified counts up front, TOC, quickstart, reorganized sections.
+- Historical CHANGELOG entries, dated plan docs, and upstream attribution URLs intentionally keep the old name — history is not rewritten.
+
+### Migration
+
+Nothing manual: reinstall (`./install.sh`) refreshes symlinks and hook paths; the state-init hook moves `~/.superagent` → `~/.paarth` on first run. Scripts calling `superagent-*` binaries or `SUPERAGENT_*` env vars must switch to the new names — no compatibility aliases ship (clean break by design).
 
 ---
 
