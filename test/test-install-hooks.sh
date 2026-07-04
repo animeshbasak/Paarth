@@ -18,7 +18,7 @@ done
 
 HOME="$TMPHOME" bash "$INSTALL" >/dev/null 2>&1 || true
 for event in UserPromptSubmit SubagentStop Notification PermissionRequest PreCompact; do
-  total=$(jq --arg e "$event" '[.hooks[$e][]?.hooks[]? | select(.command | contains("superagent"))] | length' "$TMPHOME/.claude/settings.json")
+  total=$(jq --arg e "$event" '[.hooks[$e][]?.hooks[]? | select(.command | contains("paarth"))] | length' "$TMPHOME/.claude/settings.json")
   [[ "$total" -le 1 ]] || { echo "FAIL: $event duplicated (count=$total) on second install"; exit 1; }
 done
 

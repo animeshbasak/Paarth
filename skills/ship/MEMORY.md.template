@@ -1,7 +1,7 @@
 # ship — agent memory
 
 > Auto-loaded by the brain on `ship` activation if present at
-> `~/.superagent/agent-memory/ship/MEMORY.md`. Keep ≤ 50 bullets.
+> `~/.paarth/agent-memory/ship/MEMORY.md`. Keep ≤ 50 bullets.
 > Append structured logs via `learnings.jsonl`; distill into bullets here.
 
 ## Current project shape

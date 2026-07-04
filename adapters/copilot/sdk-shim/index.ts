@@ -1,5 +1,5 @@
 /**
- * SuperAgent memory-os → Copilot SDK shim (stub).
+ * PAARTH memory-os → Copilot SDK shim (stub).
  *
  * Copilot does not natively support MCP servers. This shim wraps the
  * Python MCP server in stdio and exposes its 5 tools as Copilot SDK tools.
@@ -13,7 +13,7 @@
  */
 import { spawn } from "node:child_process";
 
-const MCP_BIN = process.env.SUPERAGENT_MEMORY_BIN || "superagent-memory-mcp";
+const MCP_BIN = process.env.PAARTH_MEMORY_BIN || "paarth-memory-mcp";
 
 interface McpResponse {
   result?: unknown;

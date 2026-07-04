@@ -11,7 +11,7 @@ grep -q 'ScheduleWakeup' "$ROOT/skills/autopilot/SKILL.md" \
 grep -q 'budget gate\|auto-downgrade.flag' "$ROOT/skills/autopilot/SKILL.md" \
   || { echo "FAIL: budget gate not documented"; exit 1; }
 
-OUT=$("$ROOT/bin/superagent-classify" "run autopilot on the open todo list and stop when done")
+OUT=$("$ROOT/bin/paarth-classify" "run autopilot on the open todo list and stop when done")
 echo "$OUT" | jq -e '.chain | index("autopilot") != null' >/dev/null \
   || { echo "FAIL: classifier doesn't route to autopilot: $OUT"; exit 1; }
 

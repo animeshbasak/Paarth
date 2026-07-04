@@ -2,7 +2,7 @@
 # test/test-agents-routing.sh — classifier emits specialist agent ref on trigger phrases
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CBIN="$SCRIPT_DIR/../bin/superagent-classify"
+CBIN="$SCRIPT_DIR/../bin/paarth-classify"
 
 declare -a CASES=(
   "threat-model the auth flow|agent:security-architect"

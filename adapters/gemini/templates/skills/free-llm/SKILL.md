@@ -37,20 +37,20 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:18082/health
 - `200` → proxy live; skip start (step 7). Jump to canary if `setup`/`switch`.
 - non-200 / curl error → continue to install/start.
 
-### 2. Verify `superagent-switch` CLI is available
+### 2. Verify `paarth-switch` CLI is available
 
 ```bash
-command -v superagent-switch
+command -v paarth-switch
 ```
 
 If missing, point user to `bundles/free-claude-code/install.sh` and stop. Do not attempt manual install — installation is delegated.
 
 ### 3. Verify `free-claude-code` is installed
 
-Check `~/.superagent/free-claude-code/.venv/bin/free-cc` exists. If not:
+Check `~/.paarth/free-claude-code/.venv/bin/free-cc` exists. If not:
 
 ```
-SuperAgent has not installed free-claude-code yet.
+PAARTH has not installed free-claude-code yet.
 Run: bash bundles/free-claude-code/install.sh
 That will: git clone repo, uv venv --python 3.14, uv sync.
 ```
@@ -95,25 +95,25 @@ Cloud opt-in (only if user passes `--cloud` or local probe failed and user confi
 
 See `references/routing.md` for the complete table and fallback chains.
 
-### 6. Write `~/.superagent/free-llm.env`
+### 6. Write `~/.paarth/free-llm.env`
 
-If `~/.superagent/free-llm.env` exists, back it up to `free-llm.env.bak.<timestamp>` then overwrite. Always emit BOTH variables — `free-claude-code` rejects requests missing either:
+If `~/.paarth/free-llm.env` exists, back it up to `free-llm.env.bak.<timestamp>` then overwrite. Always emit BOTH variables — `free-claude-code` rejects requests missing either:
 
 ```
 ANTHROPIC_BASE_URL=http://localhost:18082
 ANTHROPIC_AUTH_TOKEN=freecc
-SUPERAGENT_FREE_LLM_TIER=local
-SUPERAGENT_FREE_LLM_OPUS=lmstudio/unsloth/MiniMax-M2.5-GGUF
-SUPERAGENT_FREE_LLM_SONNET=ollama/qwen2.5-coder:7b
-SUPERAGENT_FREE_LLM_HAIKU=ollama/qwen2.5-coder:7b
+PAARTH_FREE_LLM_TIER=local
+PAARTH_FREE_LLM_OPUS=lmstudio/unsloth/MiniMax-M2.5-GGUF
+PAARTH_FREE_LLM_SONNET=ollama/qwen2.5-coder:7b
+PAARTH_FREE_LLM_HAIKU=ollama/qwen2.5-coder:7b
 ```
 
-If user already has `ANTHROPIC_API_KEY` in env, write it to `~/.superagent/free-llm.env.prev` so `back` can restore it.
+If user already has `ANTHROPIC_API_KEY` in env, write it to `~/.paarth/free-llm.env.prev` so `back` can restore it.
 
 ### 7. Start the proxy in background
 
 ```bash
-superagent-switch start --port 18082 --env ~/.superagent/free-llm.env
+paarth-switch start --port 18082 --env ~/.paarth/free-llm.env
 ```
 
 Wait up to 5s, then verify:
@@ -122,14 +122,14 @@ Wait up to 5s, then verify:
 curl -s http://localhost:18082/health
 ```
 
-If port 18082 is already bound by a non-superagent process, fall back to 18083 (rewrite the env file accordingly) and emit a warning. Never silently use a different port — the user's `ANTHROPIC_BASE_URL` must match.
+If port 18082 is already bound by a non-paarth process, fall back to 18083 (rewrite the env file accordingly) and emit a warning. Never silently use a different port — the user's `ANTHROPIC_BASE_URL` must match.
 
 ### 8. Run canary tool-call
 
-Delegate to `superagent-switch`:
+Delegate to `paarth-switch`:
 
 ```bash
-superagent-switch canary <opus-model> --depth=3
+paarth-switch canary <opus-model> --depth=3
 ```
 
 A depth-3 canary exercises a real tool-calling loop — it is the only reliable check that an open-weights model can survive Claude Code's tool-call schema. If it fails, **do not switch**. Surface the error and tell the user to either pick a different model (`switch <model>`) or stay on Anthropic.
@@ -148,18 +148,18 @@ Run `free-llm back` to revert.
 Before declaring success, ALL of:
 
 1. `curl -s http://localhost:18082/health` returns 200.
-2. `superagent-switch canary` exited 0 with depth ≥ 3.
-3. Both `ANTHROPIC_BASE_URL=http://localhost:18082` and `ANTHROPIC_AUTH_TOKEN=freecc` are present in `~/.superagent/free-llm.env`.
-4. `~/.superagent/free-llm.env.prev` exists if the user previously had `ANTHROPIC_API_KEY` set.
+2. `paarth-switch canary` exited 0 with depth ≥ 3.
+3. Both `ANTHROPIC_BASE_URL=http://localhost:18082` and `ANTHROPIC_AUTH_TOKEN=freecc` are present in `~/.paarth/free-llm.env`.
+4. `~/.paarth/free-llm.env.prev` exists if the user previously had `ANTHROPIC_API_KEY` set.
 
 If any check fails, do not claim the switch worked.
 
 ## Edge cases
 
-- **Proxy already running on :18082** — reuse existing process; do not double-start. Confirm it is the SuperAgent-namespaced instance (probe `/superagent` endpoint or check pidfile at `~/.superagent/free-claude-code.pid`); if a foreign process holds the port, fall back to 18083.
+- **Proxy already running on :18082** — reuse existing process; do not double-start. Confirm it is the PAARTH-namespaced instance (probe `/paarth` endpoint or check pidfile at `~/.paarth/free-claude-code.pid`); if a foreign process holds the port, fall back to 18083.
 - **Port collision (:18082 bound by foreign process)** — fall back to :18083, rewrite env file, log a warning. Never silently ignore.
-- **Stale `~/.superagent/free-llm.env` from a previous session** — back up to `free-llm.env.bak.<unix-ts>` then overwrite.
-- **Existing `ANTHROPIC_API_KEY` in user env** — back up to `~/.superagent/free-llm.env.prev` BEFORE writing the new env. `free-llm back` restores it.
+- **Stale `~/.paarth/free-llm.env` from a previous session** — back up to `free-llm.env.bak.<unix-ts>` then overwrite.
+- **Existing `ANTHROPIC_API_KEY` in user env** — back up to `~/.paarth/free-llm.env.prev` BEFORE writing the new env. `free-llm back` restores it.
 - **Canary fails** — abort. Do not write env. Surface the model-id and the failing tool-call. Suggest a smaller-tier fallback from `references/routing.md`.
 - **Context window truncation** — local models with smaller contexts (8k–32k) silently drop turns. Detect via canary depth-3; document in `references/troubleshooting.md`.
 - **Tool-call schema mismatch** — many open-weights models malform tool-call JSON. The canary catches this. See `references/troubleshooting.md`.

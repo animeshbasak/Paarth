@@ -8,7 +8,7 @@ description: Run the 20-prompt classifier bench and print the score. Use after e
 > **Ethos:** Verify or die.
 
 ## When to use
-- After any change to `skills/superagent/brain/rules.yaml`.
+- After any change to `skills/paarth/brain/rules.yaml`.
 - After adding a new skill that should route via a new regex.
 - As a pre-merge gate — the CI workflow runs this automatically.
 

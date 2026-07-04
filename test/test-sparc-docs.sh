@@ -10,7 +10,7 @@ grep -qiE 'boolean gate|no.+score|pass or fail' "$ROOT/skills/sparc/SKILL.md" \
 grep -q '5-phase\|5 phases' "$ROOT/skills/sparc/SKILL.md" \
   || { echo "FAIL: 5-phase pipeline not documented"; exit 1; }
 
-OUT=$("$ROOT/bin/superagent-classify" "start sparc for the new comments feature")
+OUT=$("$ROOT/bin/paarth-classify" "start sparc for the new comments feature")
 echo "$OUT" | jq -e '.chain | index("sparc") != null' >/dev/null \
   || { echo "FAIL: classifier doesn't route to sparc: $OUT"; exit 1; }
 

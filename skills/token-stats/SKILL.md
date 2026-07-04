@@ -1,10 +1,10 @@
 ---
 name: token-stats
-description: Show superagent token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Also emits a pastable GitHub badge for sharing. Use when user asks about token savings, how many tokens saved, superagent stats, runs /token-stats, or asks for a savings badge.
+description: Show paarth token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Also emits a pastable GitHub badge for sharing. Use when user asks about token savings, how many tokens saved, paarth stats, runs /token-stats, or asks for a savings badge.
 argument-hint: "[--test | --badge]"
 ---
 
-# SuperAgent Token Stats
+# PAARTH Token Stats
 
 Show token savings for the current project. Supports a `--badge` mode that emits a shareable markdown badge for the user's own README.
 
@@ -18,7 +18,7 @@ Show token savings for the current project. Supports a `--badge` mode that emits
 
 ```bash
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
 
 if [[ ! -f "$STATS" ]]; then
@@ -50,7 +50,7 @@ fmt() {
 }
 
 echo ""
-echo "SuperAgent Token Stats — $PROJECT"
+echo "PAARTH Token Stats — $PROJECT"
 echo "──────────────────────────────────────────────"
 printf "Compression ratio : %sx  (your codebase, measured %s)\n" "$RATIO" "$CAL_DATE"
 echo "──────────────────────────────────────────────"
@@ -80,8 +80,8 @@ echo ""
 Also run and include dollar-cost breakdown:
 
 ```bash
-superagent-cost today
-superagent-cost week
+paarth-cost today
+paarth-cost week
 ```
 
 Shows cost grouped by model (opus / sonnet / haiku) and a model-mix coach note.
@@ -94,7 +94,7 @@ correctly on first try without a retry. Distilled from
 detection), adapted to our `routes.jsonl` outcome ledger.
 
 ```bash
-superagent-oneshot
+paarth-oneshot
 ```
 
 Output is `total / oneshot / retried / rate` plus a coaching line. A rate
@@ -102,7 +102,7 @@ above 85% means routing is sharp; under 65% means `rules.yaml` wants tuning.
 For machine-readable use:
 
 ```bash
-superagent-oneshot --json
+paarth-oneshot --json
 ```
 
 ## Badge Mode
@@ -111,9 +111,9 @@ When `--badge` is passed, emit a pastable markdown badge that the user can drop 
 
 ```bash
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
-REPO_URL="https://github.com/animeshbasak/SuperAgent"
+REPO_URL="https://github.com/animeshbasak/Paarth"
 
 if [[ ! -f "$STATS" ]]; then
   TOT=0
@@ -126,8 +126,8 @@ elif [[ "$TOT" -ge 1000 ]];    then LABEL="$(echo "scale=0; $TOT/1000" | bc)k_to
 else                                LABEL="${TOT}_tokens_saved"
 fi
 
-URL="https://img.shields.io/badge/SuperAgent-${LABEL}-brightgreen?style=flat-square"
-MARKDOWN="[![SuperAgent: ${LABEL//_/ }](${URL})](${REPO_URL})"
+URL="https://img.shields.io/badge/PAARTH-${LABEL}-brightgreen?style=flat-square"
+MARKDOWN="[![PAARTH: ${LABEL//_/ }](${URL})](${REPO_URL})"
 
 echo ""
 echo "Paste this into your README to show off your savings:"
@@ -140,14 +140,14 @@ echo ""
 '
 ```
 
-After displaying, remind the user: "Drop that one line in your README. Every visitor sees your receipt — and a link back to SuperAgent. That's how we grow."
+After displaying, remind the user: "Drop that one line in your README. Every visitor sees your receipt — and a link back to PAARTH. That's how we grow."
 
 ## Test Mode
 
 When `--test` argument is passed, display this hardcoded sample output:
 
 ```
-SuperAgent Token Stats — /your/project (SAMPLE DATA)
+PAARTH Token Stats — /your/project (SAMPLE DATA)
 ──────────────────────────────────────────────
 Compression ratio : 48.3x  (your codebase, measured 2026-04-17)
 ──────────────────────────────────────────────

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — Windsurf Installer
-# Installs SuperAgent rules for Windsurf (Codeium)
+# PAARTH — Windsurf Installer
+# Installs PAARTH rules for Windsurf (Codeium)
 # Usage: bash adapters/windsurf/install.sh [--project <path>]
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -16,11 +16,11 @@ info() { echo -e "${CYAN}→${NC} $*"; }
 TARGET="${PROJECT_DIR:-.}"
 
 echo ""
-echo -e "${CYAN}SuperAgent for Windsurf${NC}"
+echo -e "${CYAN}PAARTH for Windsurf${NC}"
 echo ""
 
 info "Compiling skills for Windsurf..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform windsurf \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform windsurf \
   --output "$SCRIPT_DIR/templates/" 2>&1 | tail -3
 
 # Install AGENTS.md at project root
@@ -34,7 +34,7 @@ cp "$SCRIPT_DIR/templates/rules/"*.md "$WINDSURF_RULES/" 2>/dev/null || true
 ok "Rule files installed at $WINDSURF_RULES/"
 
 # CLIs
-for tool in superagent-classify superagent-chain superagent-cost superagent-learn; do
+for tool in paarth-classify paarth-chain paarth-cost paarth-learn; do
   src="$REPO_ROOT/bin/$tool"
   dst="$HOME/.local/bin/$tool"
   if [[ -f "$src" ]]; then
@@ -45,5 +45,5 @@ done
 ok "CLIs installed"
 
 echo ""
-ok "SuperAgent for Windsurf installed!"
+ok "PAARTH for Windsurf installed!"
 echo ""

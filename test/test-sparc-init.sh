@@ -2,14 +2,14 @@
 # test/test-sparc-init.sh — init scaffolds dir + state.json; idempotent
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-sparc"
+BIN="$SCRIPT_DIR/../bin/paarth-sparc"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
 
 HOME="$TMPHOME" "$BIN" init feat-darkmode >/dev/null
 
-DIR="$TMPHOME/.superagent/sparc/feat-darkmode"
+DIR="$TMPHOME/.paarth/sparc/feat-darkmode"
 [[ -d "$DIR" ]] || { echo "FAIL: $DIR missing"; exit 1; }
 [[ -f "$DIR/state.json" ]] || { echo "FAIL: state.json missing"; exit 1; }
 

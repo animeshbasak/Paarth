@@ -22,7 +22,7 @@ How Claude tiers (Opus / Sonnet / Haiku) map to real model IDs in the `free-clau
 
 ## Fallback chains
 
-If the primary model errors (429, 5xx, canary fail), `superagent-switch` walks the chain. Never silently swap tier — surface the swap.
+If the primary model errors (429, 5xx, canary fail), `paarth-switch` walks the chain. Never silently swap tier — surface the swap.
 
 ### Opus chain (local)
 1. `lmstudio/unsloth/MiniMax-M2.5-GGUF`

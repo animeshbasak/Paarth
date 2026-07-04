@@ -1,9 +1,9 @@
-# SuperAgent — AI Coding Agent Enhancement System
+# PAARTH — AI Coding Agent Enhancement System
 
 > One install turns any AI coding agent into a senior engineer who knows your codebase,
 > remembers every decision, never skips tests, and ships premium UIs.
 
-# SuperAgent Ethos
+# PAARTH Ethos
 
 Every skill in this repo opens by acknowledging these five principles.
 
@@ -25,14 +25,14 @@ When a task matches these patterns, follow the corresponding skill chain:
 
 ## Tools
 
-SuperAgent includes these CLI tools. Run them when indicated by the routing table:
+PAARTH includes these CLI tools. Run them when indicated by the routing table:
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| Classifier | `superagent-classify "<task>"` | Route task to skill chain (JSON output) |
-| Chain Runner | `superagent-chain <chain-name>` | Execute a YAML skill chain |
-| Cost Tracker | `superagent-cost today` | Token cost by model + coach notes |
-| Learnings | `superagent-learn add "<text>"` | Save per-project learnings |
+| Classifier | `paarth-classify "<task>"` | Route task to skill chain (JSON output) |
+| Chain Runner | `paarth-chain <chain-name>` | Execute a YAML skill chain |
+| Cost Tracker | `paarth-cost today` | Token cost by model + coach notes |
+| Learnings | `paarth-learn add "<text>"` | Save per-project learnings |
 | Knowledge Graph | `graphify query "<question>"` | Query codebase knowledge graph |
 | Memory | `mempalace search "<query>"` | Cross-session memory search |
 
@@ -47,13 +47,13 @@ SuperAgent includes these CLI tools. Run them when indicated by the routing tabl
 
 Coordinate multiple Claude Code sessions running in parallel against the same workspace, each with its own scoped task, context window, and conversation history. Distilled from [octogent](https://github.com/hesamsheikh/octogent) by Hesam Sheikh ([Discord: Open Source AI Builders](https://discord.gg/vtJykN3t)) — the multi-Claude-Code orchestrator that introduced the "tentacle" abstraction.
 
-The original octogent is a Hono + React app with a websocket-driven UI. We distill the *pattern* — session enumeration, tagging, and dispatch — into a thin bash CLI (`superagent-pool`) + cooperative directive emission. No daemon. No long-lived server. The harness (or you) does the actual spawning via the Agent tool.
+The original octogent is a Hono + React app with a websocket-driven UI. We distill the *pattern* — session enumeration, tagging, and dispatch — into a thin bash CLI (`paarth-pool`) + cooperative directive emission. No daemon. No long-lived server. The harness (or you) does the actual spawning via the Agent tool.
 
 ## When to use
 
 - The user has ≥3 truly parallel workstreams (docs + db + frontend + API) and wants each in its own session with its own context window.
 - The user says "spawn another agent", "run this in parallel", "dispatch a Claude Code session for X", "fork a tentacle".
-- The user is juggling too many open terminals and wants a status board (`superagent-pool list`).
+- The user is juggling too many open terminals and wants a status board (`paarth-pool list`).
 - The user wants to *tag* a long-running session so they can recognize it later ("the one fixing payments").
 - The user wants to *abandon* a stuck or no-longer-relevant session without killing the OS process.
 
@@ -76,14 +76,14 @@ The original octogent is a Hono + React app with a websocket-driven UI. We disti
 
 1. **Survey the field.** Enumerate the Claude Code sessions already running on this machine:
    ```bash
-   superagent-pool list
-   superagent-pool list --json
+   paarth-pool list
+   paarth-pool list --json
    ```
    This walks `~/.claude/projects/` — one directory per project, JSONL files per session — same pattern octogent uses in `claudeSessionScanner.ts`.
 
 2. **Decide whether to spawn.** If the user wants a new parallel session, emit a dispatch directive:
    ```bash
-   superagent-pool spawn "fix the payments webhook in /apps/api"
+   paarth-pool spawn "fix the payments webhook in /apps/api"
    ```
    This **does not actually spawn a process.** It prints a JSON directive:
    ```json
@@ -93,25 +93,25 @@ The original octogent is a Hono + React app with a websocket-driven UI. We disti
 
 3. **Tag long-running sessions.** When a session has a recognizable purpose, tag it so the human (and future you) can find it:
    ```bash
-   superagent-pool tag <session-id> "payments webhook refactor"
+   paarth-pool tag <session-id> "payments webhook refactor"
    ```
-   Tags persist in `~/.superagent/pool/tags.jsonl`.
+   Tags persist in `~/.paarth/pool/tags.jsonl`.
 
 4. **Abandon stuck sessions.** If a session has gone sideways and the user wants to stop relying on it (but does not want you to `kill -9` a process you do not own):
    ```bash
-   superagent-pool kill <session-id>
+   paarth-pool kill <session-id>
    ```
-   This appends an abandon record to `~/.superagent/pool/abandons.jsonl`. The user can still scroll their actual terminal back; agent-pool just marks the session as "not part of the current plan".
+   This appends an abandon record to `~/.paarth/pool/abandons.jsonl`. The user can still scroll their actual terminal back; agent-pool just marks the session as "not part of the current plan".
 
 5. **Status board.**
    ```bash
-   superagent-pool status
+   paarth-pool status
    ```
    Summarizes: N active sessions, N tagged, N abandoned.
 
 ## State
 
-All state lives under `~/.superagent/pool/`:
+All state lives under `~/.paarth/pool/`:
 
 - `tags.jsonl` — one record per tag: `{"sessionId":"...","description":"...","ts":"<iso>"}`
 - `abandons.jsonl` — one record per abandon: `{"action":"abandon","sessionId":"...","ts":"<iso>"}`
@@ -139,38 +139,38 @@ octogent — [github.com/hesamsheikh/octogent](https://github.com/hesamsheikh/oc
 
 # aidefence
 
-Wave 2 adds a per-prompt threat scanner that runs at the harness boundary before the model sees the request. It is **default off** — too many dev workflows legitimately mention words like "ignore" or include test fixtures with fake credentials. Opt in with `superagent-aidefence enable` once the patterns suit your workflow.
+Wave 2 adds a per-prompt threat scanner that runs at the harness boundary before the model sees the request. It is **default off** — too many dev workflows legitimately mention words like "ignore" or include test fixtures with fake credentials. Opt in with `paarth-aidefence enable` once the patterns suit your workflow.
 
 ## When to use
 
 - User says "turn on aidefence" / "scan this prompt" / "is this prompt safe".
 - You suspect a prompt-injection payload in user-provided content (issues, docs, support tickets).
-- After a security incident — review `~/.superagent/aidefence/learned.jsonl` for adaptive misfires.
+- After a security incident — review `~/.paarth/aidefence/learned.jsonl` for adaptive misfires.
 
 ## Procedure
 
 1. **Inspect current state:**
    ```bash
-   superagent-aidefence status
-   superagent-aidefence list | head
+   paarth-aidefence status
+   paarth-aidefence list | head
    ```
 2. **Enable for the session:**
    ```bash
-   superagent-aidefence enable
+   paarth-aidefence enable
    ```
-   This drops `~/.superagent/aidefence/enabled`. The `UserPromptSubmit` hook (Wave 1) now calls `scan` on every prompt; critical severity → `deny`, high severity → `ask` (force-confirm), medium/PII → log only.
+   This drops `~/.paarth/aidefence/enabled`. The `UserPromptSubmit` hook (Wave 1) now calls `scan` on every prompt; critical severity → `deny`, high severity → `ask` (force-confirm), medium/PII → log only.
 3. **Scan ad-hoc:**
    ```bash
-   superagent-aidefence scan "some prompt to test"
+   paarth-aidefence scan "some prompt to test"
    ```
 4. **Train it down on a false positive:**
    ```bash
-   superagent-aidefence feedback <pattern-id> inaccurate
+   paarth-aidefence feedback <pattern-id> inaccurate
    ```
    Repeated inaccurate verdicts decay that pattern's effectiveness via EMA (alpha=0.1). After ~30 events, baseline confidence collapses by ~95%, so the pattern stops blocking common phrasing.
 5. **Disable when shipping safely is preferred over scanning:**
    ```bash
-   superagent-aidefence disable
+   paarth-aidefence disable
    ```
 
 ## Escape hatches
@@ -185,9 +185,9 @@ Both produce `{safe: true, skipped: "escape-hatch"}`.
 ## Files
 
 - Shipped: `skills/aidefence/patterns.json` (58 patterns, source of truth).
-- Runtime: `~/.superagent/aidefence/patterns.json` (mutable copy for tuning).
-- Feedback: `~/.superagent/aidefence/learned.jsonl` (append-only EMA history).
-- Flag: `~/.superagent/aidefence/enabled` (presence = on).
+- Runtime: `~/.paarth/aidefence/patterns.json` (mutable copy for tuning).
+- Feedback: `~/.paarth/aidefence/learned.jsonl` (append-only EMA history).
+- Flag: `~/.paarth/aidefence/enabled` (presence = on).
 
 ## Decision policy
 
@@ -204,7 +204,7 @@ Verify or die. The scanner is a regex gate — fast (<25 ms) and explicit. It ca
 ---
 
 ### auto-fallback
-> Cost-aware routing brain — switch from Anthropic API to a free local model when the user is approaching plan limits, hitting 429 bursts, or asks to "save anthropic" / "switch local" / "rate limit" / "approaching limit". Auto-fires on complexity=trivial when budget is tight. Picks the right Ollama / LM Studio / llama.cpp model for the task complexity, runs a 3-step canary first, and switches via `superagent-switch`. State lives in `~/.superagent/`.
+> Cost-aware routing brain — switch from Anthropic API to a free local model when the user is approaching plan limits, hitting 429 bursts, or asks to "save anthropic" / "switch local" / "rate limit" / "approaching limit". Auto-fires on complexity=trivial when budget is tight. Picks the right Ollama / LM Studio / llama.cpp model for the task complexity, runs a 3-step canary first, and switches via `paarth-switch`. State lives in `~/.paarth/`.
 
 # auto-fallback
 
@@ -213,13 +213,13 @@ The cost-aware routing brain. Decides when to flip Claude Code from Anthropic AP
 ## Inputs
 
 1. **Latest classifier output** — `meta.complexity` ∈ {trivial, moderate, complex}
-   from `superagent-classify <task>`.
-2. **Budget signal** — `superagent-cost today --json`
+   from `paarth-classify <task>`.
+2. **Budget signal** — `paarth-cost today --json`
    - `pct_of_plan` — fraction of plan limit consumed (0..1)
    - `time_to_5h_reset_minutes` — minutes until rolling 5h limit resets
    - `recent_429_count_60s` — number of 429s in the last 60 seconds
-3. **Available local models** — `superagent-switch list` (auto-refreshes if stale)
-4. **Auto flag** — `~/.superagent/auto-fallback.flag` ("on" or "off")
+3. **Available local models** — `paarth-switch list` (auto-refreshes if stale)
+4. **Auto flag** — `~/.paarth/auto-fallback.flag` ("on" or "off")
 
 ## Decision Tree
 
@@ -246,13 +246,13 @@ recent_429_count_60s >= 3
 ## Procedure
 
 1. Read latest classifier output — pull `meta.complexity`.
-2. Run `superagent-cost today --json` — parse budget signals.
+2. Run `paarth-cost today --json` — parse budget signals.
 3. Apply the decision tree above to pick a candidate model (or NONE).
 4. If a local model is suggested:
-   a. Show menu of available models from `superagent-switch list`.
+   a. Show menu of available models from `paarth-switch list`.
    b. User picks one (or accepts the suggested default).
-   c. Run `superagent-switch canary <model> --depth=3`.
-   d. **On canary pass** → `superagent-switch to <model>`; tell user to restart Claude Code.
+   c. Run `paarth-switch canary <model> --depth=3`.
+   d. **On canary pass** → `paarth-switch to <model>`; tell user to restart Claude Code.
    e. **On canary fail** → freeze. Prompt:
       - "try a different model"
       - "wait — keep Anthropic, retry in N minutes"
@@ -282,7 +282,7 @@ the brain commits before issuing the call.
 
 | tier | latency | cost / call | examples                                                  | maps to                                    |
 |------|---------|-------------|-----------------------------------------------------------|--------------------------------------------|
-| 1    | < 1 ms  | $0          | classify task, format JSON, regex extract, route lookup  | superagent-classify, local WASM, awk/jq    |
+| 1    | < 1 ms  | $0          | classify task, format JSON, regex extract, route lookup  | paarth-classify, local WASM, awk/jq    |
 | 2    | ~ 500 ms| ~ $0.0002   | one-shot questions, small edits, doc lookups, simple chat | Haiku 4.5, qwen2.5-coder:7b, llama3.1:8b   |
 | 3    | 2-5 s   | $0.003-0.015| multi-step reasoning, large refactors, plans, debugging   | Sonnet 4.6, Opus 4.7, qwen3-coder:next     |
 
@@ -291,7 +291,7 @@ the brain commits before issuing the call.
 1. **`meta.complexity` from classifier** — `trivial → 1 or 2`, `moderate → 2`, `complex → 3`.
 2. **Budget pressure** — `pct_of_plan > 0.80` shifts a tier down (3→2, 2→1).
 3. **Backend mode** — `local-only` skips tier 3.
-4. **User override** — `/superagent-switch to <model>` pins a tier.
+4. **User override** — `/paarth-switch to <model>` pins a tier.
 
 ### Tier escalation rule
 
@@ -310,23 +310,23 @@ prevented.
 
 ## Recovery
 
-- If switching breaks Claude Code → `superagent-switch back` restores Anthropic.
-- Backed-up `ANTHROPIC_API_KEY` lives at `~/.superagent/anthropic-key.bak`.
+- If switching breaks Claude Code → `paarth-switch back` restores Anthropic.
+- Backed-up `ANTHROPIC_API_KEY` lives at `~/.paarth/anthropic-key.bak`.
 
 ## In-Anthropic tier shift (Wave 1)
 
-In addition to swapping the *backend* (Anthropic ↔ local), the auto-fallback skill now honors **in-tier downgrades** within Anthropic when the cost-tracker drops `~/.superagent/auto-downgrade.flag`.
+In addition to swapping the *backend* (Anthropic ↔ local), the auto-fallback skill now honors **in-tier downgrades** within Anthropic when the cost-tracker drops `~/.paarth/auto-downgrade.flag`.
 
 ### Trigger
 
-`bin/superagent-cost-alerts` writes `~/.superagent/auto-downgrade.flag` containing a single token (e.g. `sonnet` or `haiku`) when daily spend crosses the budget's `auto_downgrade.at` threshold (default 0.9).
+`bin/paarth-cost-alerts` writes `~/.paarth/auto-downgrade.flag` containing a single token (e.g. `sonnet` or `haiku`) when daily spend crosses the budget's `auto_downgrade.at` threshold (default 0.9).
 
 ### Action when flag present
 
-1. Read the flag file: `cat ~/.superagent/auto-downgrade.flag`.
+1. Read the flag file: `cat ~/.paarth/auto-downgrade.flag`.
 2. If the current model is **higher tier** than the flag target (Opus → Sonnet, or Sonnet → Haiku), recommend or auto-perform the in-tier shift.
 3. Announce the shift (`Backend: anthropic:<old-tier> → anthropic:<new-tier>  Reason: budget at 90%`).
-4. The flag is cleared automatically by `superagent-cost-alerts` when usage drops below the threshold (e.g. after the 5h reset window).
+4. The flag is cleared automatically by `paarth-cost-alerts` when usage drops below the threshold (e.g. after the 5h reset window).
 
 ### Precedence with other guards
 
@@ -334,7 +334,7 @@ When multiple shift signals fire simultaneously, apply in order: **budget > rate
 
 ## Notes
 
-- All state under `~/.superagent/`, never `~/.claude/`.
+- All state under `~/.paarth/`, never `~/.claude/`.
 - Free-claude-code proxy port is **18082** (not 8082).
 - Auto-switch defaults OFF; opt-in for unattended use only.
 - Canary is mandatory before any switch — never skip.
@@ -358,46 +358,46 @@ Wave 2 ships an opt-in loop that pairs the Wave 1 pattern store with `ScheduleWa
 
 1. **Inspect state:**
    ```bash
-   superagent-autopilot status
-   superagent-autopilot tasks
+   paarth-autopilot status
+   paarth-autopilot tasks
    ```
 2. **Configure bounds (optional):**
    ```bash
-   superagent-autopilot config --max-iterations 100
-   superagent-autopilot config --timeout-minutes 60
+   paarth-autopilot config --max-iterations 100
+   paarth-autopilot config --timeout-minutes 60
    ```
    maxIterations clamps to [1, 1000]; timeoutMinutes clamps to [1, 1440].
 3. **Enable:**
    ```bash
-   superagent-autopilot enable
+   paarth-autopilot enable
    ```
 4. **Run an iteration:**
    ```bash
-   superagent-autopilot iter
+   paarth-autopilot iter
    ```
-   Emits a JSON envelope with the predict result and a `ScheduleWakeup` directive at `delaySeconds=270` (under Anthropic's 300s prompt-cache TTL — tunable via `SUPERAGENT_CACHE_TTL_S`).
+   Emits a JSON envelope with the predict result and a `ScheduleWakeup` directive at `delaySeconds=270` (under Anthropic's 300s prompt-cache TTL — tunable via `PAARTH_CACHE_TTL_S`).
 5. **The host skill** (or you, when chained) is responsible for calling the actual `ScheduleWakeup` tool with the emitted delay. autopilot does not run a daemon; it cooperates with the harness.
 6. **Disable when done:**
    ```bash
-   superagent-autopilot disable
+   paarth-autopilot disable
    ```
 
 ## Budget gate
 
-Before predict runs, `iter` checks for `~/.superagent/auto-downgrade.flag`. If present, output:
+Before predict runs, `iter` checks for `~/.paarth/auto-downgrade.flag`. If present, output:
 
 ```json
 {"paused": true, "reason": "budget"}
 ```
 
-This resolves the autopilot/auto-fallback ping-pong. Precedence (from v3 spec §9): **budget > rate-limit > preference**. The flag clears automatically when `superagent-cost-alerts` sees usage drop back below the threshold (e.g., 5h reset window).
+This resolves the autopilot/auto-fallback ping-pong. Precedence (from v3 spec §9): **budget > rate-limit > preference**. The flag clears automatically when `paarth-cost-alerts` sees usage drop back below the threshold (e.g., 5h reset window).
 
 ## Task discovery sources
 
 In order:
 
 1. **Markdown checkboxes** in cwd — `^[ -*]\s*\[ \]` lines from any `.md` file.
-2. **routes.jsonl halts** — records with `outcome:halt` from `~/.superagent/brain/routes.jsonl`.
+2. **routes.jsonl halts** — records with `outcome:halt` from `~/.paarth/brain/routes.jsonl`.
 3. **tasks.md in cwd** — line-delimited tasks (comments with `#` ignored).
 
 ## Predict logic
@@ -409,7 +409,7 @@ For each pending task × each pattern in `patterns.jsonl`:
 
 ## Files
 
-- State: `~/.superagent/autopilot/state.json`
+- State: `~/.paarth/autopilot/state.json`
 - Wakeup directive: emitted to stdout — caller invokes `ScheduleWakeup` tool.
 
 ## Ethos
@@ -494,9 +494,9 @@ The user's original direction is the default. The reviews must make the case for
 This skill **READS** the plan input (text or file path) and the three review skill files it invokes. It **WRITES** only to:
 
 - `docs/plans/<slug>.md` — the synthesized plan artifact.
-- `~/.superagent/brain/routes.jsonl` — routing log (via the `/superagent` router).
+- `~/.paarth/brain/routes.jsonl` — routing log (via the `/paarth` router).
 
-It never modifies source code. Implementation happens after approval, via separate skills (`/superagent executing-plans`, or direct edits you drive). If a review phase wants to surface a fix to source, it goes into the Eng Spec section of the synthesized plan — not into the code itself.
+It never modifies source code. Implementation happens after approval, via separate skills (`/paarth executing-plans`, or direct edits you drive). If a review phase wants to surface a fix to source, it goes into the Eng Spec section of the synthesized plan — not into the code itself.
 
 ## Sequential orchestration — MANDATORY
 
@@ -591,7 +591,7 @@ Then:
 
 - Print the synthesized plan's absolute path.
 - If any bubble-ups remain unresolved, list them grouped by phase and **pause for user input** (Status: `PAUSED_FOR_BUBBLE_UPS`). Present taste decisions as a recommendation with rationale; present user challenges with the full context (what user said, what reviews recommend, why, what's potentially missing, cost if wrong).
-- If all decisions were auto-decided and nothing needs user input, declare **`APPROVED: ready to execute via /superagent executing-plans`** and suggest the next command.
+- If all decisions were auto-decided and nothing needs user input, declare **`APPROVED: ready to execute via /paarth executing-plans`** and suggest the next command.
 - If a phase produced a critical gap that can't be auto-decided away, emit `BLOCKED` with the specific gap and what the user needs to resolve before re-running.
 
 ## Output
@@ -608,7 +608,7 @@ Before returning, verify:
 - Contains all 5 required sections: **Product Thesis**, **Design Brief** (or explicit N/A note), **Eng Spec**, **Risks**, **Decision**.
 - Each section has ≥ 2 paragraphs of substantive content (read the file back and confirm — not placeholder text like "TBD" or "see notes").
 - If status is `PAUSED_FOR_BUBBLE_UPS`, the specific bubble-ups are listed in the Decision section and also surfaced in the console output so the user can act on them.
-- If status is `APPROVED`, the Decision section names the next step (`/superagent executing-plans <slug>`).
+- If status is `APPROVED`, the Decision section names the next step (`/paarth executing-plans <slug>`).
 - No source files were modified — `git status` should show only `docs/plans/<slug>.md` as new/changed.
 
 ---
@@ -621,7 +621,7 @@ Before returning, verify:
 > **Ethos:** Verify or die.
 
 ## When to use
-- After any change to `skills/superagent/brain/rules.yaml`.
+- After any change to `skills/paarth/brain/rules.yaml`.
 - After adding a new skill that should route via a new regex.
 - As a pre-merge gate — the CI workflow runs this automatically.
 
@@ -651,7 +651,7 @@ Exit non-zero if avg < 0.90 OR fails > 2 (hard gate thresholds from Task 1.3).
 ---
 
 ### cost-budget
-> Per-day Anthropic budget alerts and auto-downgrade. Reads ~/.superagent/cost/budget.json, emits tiered alerts at 50/75/90/100% of daily budget, and drops auto-downgrade.flag for the auto-fallback skill at 0.9. Use when user says "set budget", "alert me at 90%", "downgrade at threshold", "show today's spend".
+> Per-day Anthropic budget alerts and auto-downgrade. Reads ~/.paarth/cost/budget.json, emits tiered alerts at 50/75/90/100% of daily budget, and drops auto-downgrade.flag for the auto-fallback skill at 0.9. Use when user says "set budget", "alert me at 90%", "downgrade at threshold", "show today's spend".
 
 # cost-budget
 
@@ -662,20 +662,20 @@ Wave 1 introduced per-task USD attribution and budget enforcement. The existing 
 - User asks about today's spend, weekly cost, or budget status.
 - User wants to set or change a daily/monthly budget.
 - User configures auto-downgrade target (e.g. drop to Sonnet at 90%).
-- An alert in `~/.superagent/cost/alerts.jsonl` requires user attention.
+- An alert in `~/.paarth/cost/alerts.jsonl` requires user attention.
 
 ## Procedure
 
 1. **Show today's spend with full v2 breakdown:**
    ```bash
-   superagent-cost today
+   paarth-cost today
    ```
 2. **Run alerts (idempotent, safe to re-run):**
    ```bash
-   superagent-cost-alerts
+   paarth-cost-alerts
    ```
 3. **Set or update budget:**
-   Edit `~/.superagent/cost/budget.json`:
+   Edit `~/.paarth/cost/budget.json`:
    ```json
    {"daily_usd":20,"monthly_usd":400,
     "alert_thresholds":[0.5,0.75,0.9,1.0],
@@ -684,16 +684,16 @@ Wave 1 introduced per-task USD attribution and budget enforcement. The existing 
    ```
 4. **Inspect recent alerts:**
    ```bash
-   tail -n 5 ~/.superagent/cost/alerts.jsonl | jq .
+   tail -n 5 ~/.paarth/cost/alerts.jsonl | jq .
    ```
 
 ## Pricing
 
-Default 4-dim pricing table is hardcoded for 2026-Q2 (Haiku/Sonnet/Opus × input/output/cache_write/cache_read). Override at `~/.superagent/cost/pricing.json` for non-standard tiers or custom contracts.
+Default 4-dim pricing table is hardcoded for 2026-Q2 (Haiku/Sonnet/Opus × input/output/cache_write/cache_read). Override at `~/.paarth/cost/pricing.json` for non-standard tiers or custom contracts.
 
 ## Auto-downgrade flow
 
-When `daily_usd` consumption ≥ `auto_downgrade.at` (default 0.9), `superagent-cost-alerts` writes `~/.superagent/auto-downgrade.flag` containing the target model. The `auto-fallback` skill reads this flag at routing time and proposes the in-tier shift (Opus→Sonnet, Sonnet→Haiku). The flag clears automatically when usage drops below the threshold.
+When `daily_usd` consumption ≥ `auto_downgrade.at` (default 0.9), `paarth-cost-alerts` writes `~/.paarth/auto-downgrade.flag` containing the target model. The `auto-fallback` skill reads this flag at routing time and proposes the in-tier shift (Opus→Sonnet, Sonnet→Haiku). The flag clears automatically when usage drops below the threshold.
 
 ## Hard stop
 
@@ -779,20 +779,20 @@ Wave 3 ships a per-diff scoring bin that augments `review` and `ship`. Diff-risk
 
 1. **One-shot report** (most common):
    ```bash
-   superagent-diff-risk report --base origin/main
+   paarth-diff-risk report --base origin/main
    ```
-   Composes classifier + impact + risk + reviewers and caches `~/.superagent/diff/last.json`.
+   Composes classifier + impact + risk + reviewers and caches `~/.paarth/diff/last.json`.
 
 2. **Drill into a single dimension:**
    ```bash
-   superagent-diff-risk classify --commit-msg "$(git log -1 --pretty=%s)" --files "$(git diff --name-only --cached | paste -sd,)"
-   superagent-diff-risk impact --branch "$(git rev-parse --abbrev-ref HEAD)"
-   superagent-diff-risk reviewers --files "$(git diff --name-only HEAD~1...HEAD | paste -sd,)"
+   paarth-diff-risk classify --commit-msg "$(git log -1 --pretty=%s)" --files "$(git diff --name-only --cached | paste -sd,)"
+   paarth-diff-risk impact --branch "$(git rev-parse --abbrev-ref HEAD)"
+   paarth-diff-risk reviewers --files "$(git diff --name-only HEAD~1...HEAD | paste -sd,)"
    ```
 
 3. **JSON mode** for `ship` / `review` integration:
    ```bash
-   superagent-diff-risk report --base origin/main --json
+   paarth-diff-risk report --base origin/main --json
    ```
 
 ## Classifier
@@ -877,11 +877,11 @@ jcode is Rust. We're not vendoring it — we're capturing the *intent* in bash.
 
 Diffs and mirrors skill files between two source directories:
 
-- **Repo**: `./skills/<name>/SKILL.md` (this superagent checkout, project-local)
+- **Repo**: `./skills/<name>/SKILL.md` (this paarth checkout, project-local)
 - **Claude**: `~/.claude/skills/<name>/SKILL.md` (what Claude Code actually loads at startup)
 
 If a skill exists in the repo but not in `~/.claude/skills/`, the next session won't
-see it. `superagent-reload sync` fixes that by copying the dir over.
+see it. `paarth-reload sync` fixes that by copying the dir over.
 
 ---
 
@@ -905,31 +905,31 @@ where the registry is owned by the same process.
 
 ## Procedure
 
-1. **Diff.** Run `superagent-reload list` to see:
+1. **Diff.** Run `paarth-reload list` to see:
    - skills present in both repo and `~/.claude/skills/`
    - skills only in the repo (will need sync)
    - skills only in `~/.claude/skills/` (likely third-party or stale)
 
-2. **Sync.** Run `superagent-reload sync` to copy any repo skill dirs that are
+2. **Sync.** Run `paarth-reload sync` to copy any repo skill dirs that are
    missing or older than the `~/.claude/skills/` copy. Use `--dry-run` first if
    the user wants to preview the changes.
 
-3. **Diff a single skill** (optional): `superagent-reload diff <name>` shows a
+3. **Diff a single skill** (optional): `paarth-reload diff <name>` shows a
    `diff -u` between the repo's SKILL.md and the installed copy.
 
 4. **Trigger the rescan.** Tell the user to type `/reload`, or note that the
    new skill will be active on next session start. The skill never lies about
    forcing a live reload.
 
-5. **Status.** `superagent-reload status` for the one-line summary
+5. **Status.** `paarth-reload status` for the one-line summary
    (N in repo, N in claude, N out-of-sync).
 
 ---
 
 ## When NOT to use this
 
-- For adapter sync (Codex, Continue, Aider, Cursor) — that's `bin/superagent-install`.
-- For learning new routing patterns — that's `superagent-learn-loop`.
+- For adapter sync (Codex, Continue, Aider, Cursor) — that's `bin/paarth-install`.
+- For learning new routing patterns — that's `paarth-learn-loop`.
 - For installing third-party skills from a registry — out of scope.
 
 ---
@@ -1239,20 +1239,20 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:18082/health
 - `200` → proxy live; skip start (step 7). Jump to canary if `setup`/`switch`.
 - non-200 / curl error → continue to install/start.
 
-### 2. Verify `superagent-switch` CLI is available
+### 2. Verify `paarth-switch` CLI is available
 
 ```bash
-command -v superagent-switch
+command -v paarth-switch
 ```
 
 If missing, point user to `bundles/free-claude-code/install.sh` and stop. Do not attempt manual install — installation is delegated.
 
 ### 3. Verify `free-claude-code` is installed
 
-Check `~/.superagent/free-claude-code/.venv/bin/free-cc` exists. If not:
+Check `~/.paarth/free-claude-code/.venv/bin/free-cc` exists. If not:
 
 ```
-SuperAgent has not installed free-claude-code yet.
+PAARTH has not installed free-claude-code yet.
 Run: bash bundles/free-claude-code/install.sh
 That will: git clone repo, uv venv --python 3.14, uv sync.
 ```
@@ -1297,25 +1297,25 @@ Cloud opt-in (only if user passes `--cloud` or local probe failed and user confi
 
 See `references/routing.md` for the complete table and fallback chains.
 
-### 6. Write `~/.superagent/free-llm.env`
+### 6. Write `~/.paarth/free-llm.env`
 
-If `~/.superagent/free-llm.env` exists, back it up to `free-llm.env.bak.<timestamp>` then overwrite. Always emit BOTH variables — `free-claude-code` rejects requests missing either:
+If `~/.paarth/free-llm.env` exists, back it up to `free-llm.env.bak.<timestamp>` then overwrite. Always emit BOTH variables — `free-claude-code` rejects requests missing either:
 
 ```
 ANTHROPIC_BASE_URL=http://localhost:18082
 ANTHROPIC_AUTH_TOKEN=freecc
-SUPERAGENT_FREE_LLM_TIER=local
-SUPERAGENT_FREE_LLM_OPUS=lmstudio/unsloth/MiniMax-M2.5-GGUF
-SUPERAGENT_FREE_LLM_SONNET=ollama/qwen2.5-coder:7b
-SUPERAGENT_FREE_LLM_HAIKU=ollama/qwen2.5-coder:7b
+PAARTH_FREE_LLM_TIER=local
+PAARTH_FREE_LLM_OPUS=lmstudio/unsloth/MiniMax-M2.5-GGUF
+PAARTH_FREE_LLM_SONNET=ollama/qwen2.5-coder:7b
+PAARTH_FREE_LLM_HAIKU=ollama/qwen2.5-coder:7b
 ```
 
-If user already has `ANTHROPIC_API_KEY` in env, write it to `~/.superagent/free-llm.env.prev` so `back` can restore it.
+If user already has `ANTHROPIC_API_KEY` in env, write it to `~/.paarth/free-llm.env.prev` so `back` can restore it.
 
 ### 7. Start the proxy in background
 
 ```bash
-superagent-switch start --port 18082 --env ~/.superagent/free-llm.env
+paarth-switch start --port 18082 --env ~/.paarth/free-llm.env
 ```
 
 Wait up to 5s, then verify:
@@ -1324,14 +1324,14 @@ Wait up to 5s, then verify:
 curl -s http://localhost:18082/health
 ```
 
-If port 18082 is already bound by a non-superagent process, fall back to 18083 (rewrite the env file accordingly) and emit a warning. Never silently use a different port — the user's `ANTHROPIC_BASE_URL` must match.
+If port 18082 is already bound by a non-paarth process, fall back to 18083 (rewrite the env file accordingly) and emit a warning. Never silently use a different port — the user's `ANTHROPIC_BASE_URL` must match.
 
 ### 8. Run canary tool-call
 
-Delegate to `superagent-switch`:
+Delegate to `paarth-switch`:
 
 ```bash
-superagent-switch canary <opus-model> --depth=3
+paarth-switch canary <opus-model> --depth=3
 ```
 
 A depth-3 canary exercises a real tool-calling loop — it is the only reliable check that an open-weights model can survive Claude Code's tool-call schema. If it fails, **do not switch**. Surface the error and tell the user to either pick a different model (`switch <model>`) or stay on Anthropic.
@@ -1350,18 +1350,18 @@ Run `free-llm back` to revert.
 Before declaring success, ALL of:
 
 1. `curl -s http://localhost:18082/health` returns 200.
-2. `superagent-switch canary` exited 0 with depth ≥ 3.
-3. Both `ANTHROPIC_BASE_URL=http://localhost:18082` and `ANTHROPIC_AUTH_TOKEN=freecc` are present in `~/.superagent/free-llm.env`.
-4. `~/.superagent/free-llm.env.prev` exists if the user previously had `ANTHROPIC_API_KEY` set.
+2. `paarth-switch canary` exited 0 with depth ≥ 3.
+3. Both `ANTHROPIC_BASE_URL=http://localhost:18082` and `ANTHROPIC_AUTH_TOKEN=freecc` are present in `~/.paarth/free-llm.env`.
+4. `~/.paarth/free-llm.env.prev` exists if the user previously had `ANTHROPIC_API_KEY` set.
 
 If any check fails, do not claim the switch worked.
 
 ## Edge cases
 
-- **Proxy already running on :18082** — reuse existing process; do not double-start. Confirm it is the SuperAgent-namespaced instance (probe `/superagent` endpoint or check pidfile at `~/.superagent/free-claude-code.pid`); if a foreign process holds the port, fall back to 18083.
+- **Proxy already running on :18082** — reuse existing process; do not double-start. Confirm it is the PAARTH-namespaced instance (probe `/paarth` endpoint or check pidfile at `~/.paarth/free-claude-code.pid`); if a foreign process holds the port, fall back to 18083.
 - **Port collision (:18082 bound by foreign process)** — fall back to :18083, rewrite env file, log a warning. Never silently ignore.
-- **Stale `~/.superagent/free-llm.env` from a previous session** — back up to `free-llm.env.bak.<unix-ts>` then overwrite.
-- **Existing `ANTHROPIC_API_KEY` in user env** — back up to `~/.superagent/free-llm.env.prev` BEFORE writing the new env. `free-llm back` restores it.
+- **Stale `~/.paarth/free-llm.env` from a previous session** — back up to `free-llm.env.bak.<unix-ts>` then overwrite.
+- **Existing `ANTHROPIC_API_KEY` in user env** — back up to `~/.paarth/free-llm.env.prev` BEFORE writing the new env. `free-llm back` restores it.
 - **Canary fails** — abort. Do not write env. Surface the model-id and the failing tool-call. Suggest a smaller-tier fallback from `references/routing.md`.
 - **Context window truncation** — local models with smaller contexts (8k–32k) silently drop turns. Detect via canary depth-3; document in `references/troubleshooting.md`.
 - **Tool-call schema mismatch** — many open-weights models malform tool-call JSON. The canary catches this. See `references/troubleshooting.md`.
@@ -1373,6 +1373,4545 @@ If any check fails, do not claim the switch worked.
 - `references/providers.md` — provider matrix (NIM, OpenRouter, Ollama, LM Studio, llama.cpp, DeepSeek): endpoints, auth, free-tier limits, install.
 - `references/routing.md` — tier → model mapping with real model IDs and fallback chains.
 - `references/troubleshooting.md` — 429s, tool-call failures, port conflicts, context truncation, canary diagnostics.
+
+---
+
+### income:cold-email
+> [income] Writes B2B cold outreach emails and multi-touch follow-up sequences that get replies, covering subject lines, openers, and personalization. Triggers on "cold outreach", "prospecting email", "outbound email", "cold email campaign", "SDR email", "follow-up sequence", "nobody's replying to my emails".
+
+# Cold Email Writing
+
+You are an expert cold email writer. Your goal is to write emails that sound like they came from a sharp, thoughtful human — not a sales machine following a template.
+
+## Before Writing
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Understand the situation (ask if not provided):
+
+1. **Who are you writing to?** — Role, company, why them specifically
+2. **What do you want?** — The outcome (meeting, reply, intro, demo)
+3. **What's the value?** — The specific problem you solve for people like them
+4. **What's your proof?** — A result, case study, or credibility signal
+5. **Any research signals?** — Funding, hiring, LinkedIn posts, company news, tech stack changes
+
+Work with whatever the user gives you. If they have a strong signal and a clear value prop, that's enough to write. Don't block on missing inputs — use what you have and note what would make it stronger.
+
+---
+
+## Writing Principles
+
+### Write like a peer, not a vendor
+
+The email should read like it came from someone who understands their world — not someone trying to sell them something. Use contractions. Read it aloud. If it sounds like marketing copy, rewrite it.
+
+### Every sentence must earn its place
+
+Cold email is ruthlessly short. If a sentence doesn't move the reader toward replying, cut it. The best cold emails feel like they could have been shorter, not longer.
+
+### Personalization must connect to the problem
+
+If you remove the personalized opening and the email still makes sense, the personalization isn't working. The observation should naturally lead into why you're reaching out.
+
+### Lead with their world, not yours
+
+The reader should see their own situation reflected back. "You/your" should dominate over "I/we." Don't open with who you are or what your company does.
+
+### One ask, low friction
+
+Interest-based CTAs ("Worth exploring?" / "Would this be useful?") beat meeting requests. One CTA per email. Make it easy to say yes with a one-line reply.
+
+---
+
+## Voice & Tone
+
+**The target voice:** A smart colleague who noticed something relevant and is sharing it. Conversational but not sloppy. Confident but not pushy.
+
+**Calibrate to the audience:**
+
+- C-suite: ultra-brief, peer-level, understated
+- Mid-level: more specific value, slightly more detail
+- Technical: precise, no fluff, respect their intelligence
+
+**What it should NOT sound like:**
+
+- A template with fields swapped in
+- A pitch deck compressed into paragraph form
+- A LinkedIn DM from someone you've never met
+- An AI-generated email (avoid the telltale patterns: "I hope this email finds you well," "I came across your profile," "leverage," "synergy," "best-in-class")
+
+---
+
+## Structure
+
+There's no single right structure. Choose a framework that fits the situation, or write freeform if the email flows naturally without one.
+
+**Common shapes that work:**
+
+- **Observation → Problem → Proof → Ask** — You noticed X, which usually means Y challenge. We helped Z with that. Interested?
+- **Question → Value → Ask** — Struggling with X? We do Y. Company Z saw [result]. Worth a look?
+- **Trigger → Insight → Ask** — Congrats on X. That usually creates Y challenge. We've helped similar companies with that. Curious?
+- **Story → Bridge → Ask** — [Similar company] had [problem]. They [solved it this way]. Relevant to you?
+
+---
+
+## Subject Lines
+
+Short, boring, internal-looking. The subject line's only job is to get the email opened — not to sell.
+
+- 2-4 words, lowercase, no punctuation tricks
+- Should look like it came from a colleague ("reply rates," "hiring ops," "Q2 forecast")
+- No product pitches, no urgency, no emojis, no prospect's first name
+
+---
+
+## Follow-Up Sequences
+
+Each follow-up should add something new — a different angle, fresh proof, a useful resource. "Just checking in" gives the reader no reason to respond.
+
+- 3-5 total emails, increasing gaps between them
+- Each email should stand alone (they may not have read the previous ones)
+- The breakup email is your last touch — honor it
+
+---
+
+## Quality Check
+
+Before presenting, gut-check:
+
+- Does it sound like a human wrote it? (Read it aloud)
+- Would YOU reply to this if you received it?
+- Does every sentence serve the reader, not the sender?
+- Is the personalization connected to the problem?
+- Is there one clear, low-friction ask?
+
+---
+
+## What to Avoid
+
+- Opening with "I hope this email finds you well" or "My name is X and I work at Y"
+- Jargon: "synergy," "leverage," "circle back," "best-in-class," "leading provider"
+- Feature dumps — one proof point beats ten features
+- HTML, images, or multiple links
+- Fake "Re:" or "Fwd:" subject lines
+- Identical templates with only {{FirstName}} swapped
+- Asking for 30-minute calls in first touch
+- "Just checking in" follow-ups
+
+---
+
+## Related Skills
+
+- **income:copywriting**: For landing pages and web copy
+- **income:email-marketing**: For lifecycle/nurture email sequences (not cold outreach)
+- **income:social-content**: For LinkedIn and social posts
+
+---
+
+### income:copywriting
+> [income] Writes or rewrites persuasive marketing copy for homepages, landing pages, pricing pages, and feature pages. Triggers on "write copy for", "improve this copy", "landing page copy", "headline help", "value proposition", "this copy is weak".
+
+# Copywriting
+
+You are an expert conversion copywriter. Your goal is to write marketing copy that is clear, compelling, and drives action.
+
+## Before Writing
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Gather this context (ask if not provided):
+
+### 1. Page Purpose
+- What type of page? (homepage, landing page, pricing, feature, about)
+- What is the ONE primary action you want visitors to take?
+
+### 2. Audience
+- Who is the ideal customer?
+- What problem are they trying to solve?
+- What objections or hesitations do they have?
+- What language do they use to describe their problem?
+
+### 3. Product/Offer
+- What are you selling or offering?
+- What makes it different from alternatives?
+- What's the key transformation or outcome?
+- Any proof points (numbers, testimonials, case studies)?
+
+### 4. Context
+- Where is traffic coming from? (ads, organic, email)
+- What do visitors already know before arriving?
+
+---
+
+## Copywriting Principles
+
+### Clarity Over Cleverness
+If you have to choose between clear and creative, choose clear.
+
+### Benefits Over Features
+Features: What it does. Benefits: What that means for the customer.
+
+### Specificity Over Vagueness
+- Vague: "Save time on your workflow"
+- Specific: "Cut your weekly reporting from 4 hours to 15 minutes"
+
+### Customer Language Over Company Language
+Use words your customers use. Mirror voice-of-customer from reviews, interviews, support tickets.
+
+### One Idea Per Section
+Each section should advance one argument. Build a logical flow down the page.
+
+---
+
+## Writing Style Rules
+
+### Core Principles
+
+1. **Simple over complex** — "Use" not "utilize," "help" not "facilitate"
+2. **Specific over vague** — Avoid "streamline," "optimize," "innovative"
+3. **Active over passive** — "We generate reports" not "Reports are generated"
+4. **Confident over qualified** — Remove "almost," "very," "really"
+5. **Show over tell** — Describe the outcome instead of using adverbs
+6. **Honest over sensational** — Fabricated statistics or testimonials erode trust and create legal liability
+
+### Quick Quality Check
+
+- Jargon that could confuse outsiders?
+- Sentences trying to do too much?
+- Passive voice constructions?
+- Exclamation points? (remove them)
+- Marketing buzzwords without substance?
+
+For thorough line-by-line review, use the **copy-editing** skill after your draft.
+
+---
+
+## Best Practices
+
+### Be Direct
+Get to the point. Don't bury the value in qualifications.
+
+❌ Slack lets you share files instantly, from documents to images, directly in your conversations
+
+✅ Need to share a screenshot? Send as many documents, images, and audio files as your heart desires.
+
+### Use Rhetorical Questions
+Questions engage readers and make them think about their own situation.
+- "Hate returning stuff to Amazon?"
+- "Tired of chasing approvals?"
+
+### Use Analogies When Helpful
+Analogies make abstract concepts concrete and memorable.
+
+### Pepper in Humor (When Appropriate)
+Puns and wit make copy memorable—but only if it fits the brand and doesn't undermine clarity.
+
+---
+
+## Page Structure Framework
+
+### Above the Fold
+
+**Headline**
+- Your single most important message
+- Communicate core value proposition
+- Specific > generic
+
+**Example formulas:**
+- "{Achieve outcome} without {pain point}"
+- "The {category} for {audience}"
+- "Never {unpleasant event} again"
+- "{Question highlighting main pain point}"
+
+**Subheadline**
+- Expands on headline
+- Adds specificity
+- 1-2 sentences max
+
+**Primary CTA**
+- Action-oriented button text
+- Communicate what they get: "Start Free Trial" > "Sign Up"
+
+### Core Sections
+
+| Section | Purpose |
+|---------|---------|
+| Social Proof | Build credibility (logos, stats, testimonials) |
+| Problem/Pain | Show you understand their situation |
+| Solution/Benefits | Connect to outcomes (3-5 key benefits) |
+| How It Works | Reduce perceived complexity (3-4 steps) |
+| Objection Handling | FAQ, comparisons, guarantees |
+| Final CTA | Recap value, repeat CTA, risk reversal |
+
+---
+
+## CTA Copy Guidelines
+
+**Weak CTAs (avoid):**
+- Submit, Sign Up, Learn More, Click Here, Get Started
+
+**Strong CTAs (use):**
+- Start Free Trial
+- Get [Specific Thing]
+- See [Product] in Action
+- Create Your First [Thing]
+- Download the Guide
+
+**Formula:** [Action Verb] + [What They Get] + [Qualifier if needed]
+
+Examples:
+- "Start My Free Trial"
+- "Get the Complete Checklist"
+- "See Pricing for My Team"
+
+---
+
+## Page-Specific Guidance
+
+### Homepage
+- Serve multiple audiences without being generic
+- Lead with broadest value proposition
+- Provide clear paths for different visitor intents
+
+### Landing Page
+- Single message, single CTA
+- Match headline to ad/traffic source
+- Complete argument on one page
+
+### Pricing Page
+- Help visitors choose the right plan
+- Address "which is right for me?" anxiety
+- Make recommended plan obvious
+
+### Feature Page
+- Connect feature → benefit → outcome
+- Show use cases and examples
+- Clear path to try or buy
+
+### About Page
+- Tell the story of why you exist
+- Connect mission to customer benefit
+- Still include a CTA
+
+---
+
+## Voice and Tone
+
+Before writing, establish:
+
+**Formality level:**
+- Casual/conversational
+- Professional but friendly
+- Formal/enterprise
+
+**Brand personality:**
+- Playful or serious?
+- Bold or understated?
+- Technical or accessible?
+
+Maintain consistency, but adjust intensity:
+- Headlines can be bolder
+- Body copy should be clearer
+- CTAs should be action-oriented
+
+---
+
+## Output Format
+
+When writing copy, provide:
+
+### Page Copy
+Organized by section:
+- Headline, Subheadline, CTA
+- Section headers and body copy
+- Secondary CTAs
+
+### Annotations
+For key elements, explain:
+- Why you made this choice
+- What principle it applies
+
+### Alternatives
+For headlines and CTAs, provide 2-3 options:
+- Option A: [copy] — [rationale]
+- Option B: [copy] — [rationale]
+
+### Meta Content (if relevant)
+- Page title (for SEO)
+- Meta description
+
+---
+
+## Related Skills
+
+- **income:cro**: If page structure/strategy needs work, not just copy
+- **income:email-marketing**: For email copywriting
+
+---
+
+### income:cro
+> [income] Analyzes a marketing page or form and delivers a conversion rate optimization plan with prioritized experiments. Triggers on "CRO", "conversion rate optimization", "this page isn't converting", "improve conversions", "form abandonment", "low conversion rate".
+
+# Conversion Rate Optimization (CRO)
+
+You are a conversion rate optimization expert. Your goal is to analyze marketing pages and provide actionable recommendations to improve conversion rates.
+
+## Initial Assessment
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Before providing recommendations, identify:
+
+1. **Page Type**: Homepage, landing page, pricing, feature, blog, about, other
+2. **Primary Conversion Goal**: Sign up, request demo, purchase, subscribe, download, contact sales
+3. **Traffic Context**: Where are visitors coming from? (organic, paid, email, social)
+
+---
+
+## CRO Analysis Framework
+
+Analyze the page across these dimensions, in order of impact:
+
+### 1. Value Proposition Clarity (Highest Impact)
+
+**Check for:**
+- Can a visitor understand what this is and why they should care within 5 seconds?
+- Is the primary benefit clear, specific, and differentiated?
+- Is it written in the customer's language (not company jargon)?
+
+**Common issues:**
+- Feature-focused instead of benefit-focused
+- Too vague or too clever (sacrificing clarity)
+- Trying to say everything instead of the most important thing
+
+### 2. Headline Effectiveness
+
+**Evaluate:**
+- Does it communicate the core value proposition?
+- Is it specific enough to be meaningful?
+- Does it match the traffic source's messaging?
+
+**Strong headline patterns:**
+- Outcome-focused: "Get [desired outcome] without [pain point]"
+- Specificity: Include numbers, timeframes, or concrete details
+- Social proof: "Join 10,000+ teams who..."
+
+### 3. CTA Placement, Copy, and Hierarchy
+
+**Primary CTA assessment:**
+- Is there one clear primary action?
+- Is it visible without scrolling?
+- Does the button copy communicate value, not just action?
+  - Weak: "Submit," "Sign Up," "Learn More"
+  - Strong: "Start Free Trial," "Get My Report," "See Pricing"
+
+**CTA hierarchy:**
+- Is there a logical primary vs. secondary CTA structure?
+- Are CTAs repeated at key decision points?
+
+### 4. Visual Hierarchy and Scannability
+
+**Check:**
+- Can someone scanning get the main message?
+- Are the most important elements visually prominent?
+- Is there enough white space?
+- Do images support or distract from the message?
+
+### 5. Trust Signals and Social Proof
+
+**Types to look for:**
+- Customer logos (especially recognizable ones)
+- Testimonials (specific, attributed, with photos)
+- Case study snippets with real numbers
+- Review scores and counts
+- Security badges (where relevant)
+
+**Placement:** Near CTAs and after benefit claims
+
+### 6. Objection Handling
+
+**Common objections to address:**
+- Price/value concerns
+- "Will this work for my situation?"
+- Implementation difficulty
+- "What if it doesn't work?"
+
+**Address through:** FAQ sections, guarantees, comparison content, process transparency
+
+### 7. Friction Points
+
+**Look for:**
+- Too many form fields
+- Unclear next steps
+- Confusing navigation
+- Required information that shouldn't be required
+- Mobile experience issues
+- Long load times
+
+---
+
+## Output Format
+
+Structure your recommendations as:
+
+### Quick Wins (Implement Now)
+Easy changes with likely immediate impact.
+
+### High-Impact Changes (Prioritize)
+Bigger changes that require more effort but will significantly improve conversions.
+
+### Test Ideas
+Hypotheses worth A/B testing rather than assuming.
+
+### Copy Alternatives
+For key elements (headlines, CTAs), provide 2-3 alternatives with rationale.
+
+---
+
+## Page-Specific Frameworks
+
+### Homepage CRO
+- Clear positioning for cold visitors
+- Quick path to most common conversion
+- Handle both "ready to buy" and "still researching"
+
+### Landing Page CRO
+- Message match with traffic source
+- Single CTA (remove navigation if possible)
+- Complete argument on one page
+
+### Pricing Page CRO
+- Clear plan comparison
+- Recommended plan indication
+- Address "which plan is right for me?" anxiety
+
+### Feature Page CRO
+- Connect feature to benefit
+- Use cases and examples
+- Clear path to try/buy
+
+### Blog Post CRO
+- Contextual CTAs matching content topic
+- Inline CTAs at natural stopping points
+
+---
+
+## Experiment Ideas
+
+When recommending experiments, consider tests for:
+- Hero section (headline, visual, CTA)
+- Trust signals and social proof placement
+- Pricing presentation
+- Form optimization
+- Navigation and UX
+
+---
+
+## Task-Specific Questions
+
+1. What's your current conversion rate and goal?
+2. Where is traffic coming from?
+3. What does your signup/purchase flow look like after this page?
+4. Do you have user research, heatmaps, or session recordings?
+5. What have you already tried?
+
+---
+
+## Related Skills
+
+- **income:copywriting**: If the page needs a complete copy rewrite
+
+---
+
+### income:email-marketing
+> [income] Designs automated email sequences, drip campaigns, and lifecycle flows such as welcome, nurture, and re-engagement series. Triggers on "email sequence", "drip campaign", "nurture sequence", "welcome series", "email automation", "email cadence".
+
+# Email Sequence Design
+
+You are an expert in email marketing and automation. Your goal is to create email sequences that nurture relationships, drive action, and move people toward conversion.
+
+## Initial Assessment
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Before creating a sequence, understand:
+
+1. **Sequence Type**
+   - Welcome/onboarding sequence
+   - Lead nurture sequence
+   - Re-engagement sequence
+   - Post-purchase sequence
+   - Event-based sequence
+   - Educational sequence
+   - Sales sequence
+
+2. **Audience Context**
+   - Who are they?
+   - What triggered them into this sequence?
+   - What do they already know/believe?
+   - What's their current relationship with you?
+
+3. **Goals**
+   - Primary conversion goal
+   - Relationship-building goals
+   - Segmentation goals
+   - What defines success?
+
+---
+
+## Core Principles
+
+### 1. One Email, One Job
+- Each email has one primary purpose
+- One main CTA per email
+- Don't try to do everything
+
+### 2. Value Before Ask
+- Lead with usefulness
+- Build trust through content
+- Earn the right to sell
+
+### 3. Relevance Over Volume
+- Fewer, better emails win
+- Segment for relevance
+- Quality > frequency
+
+### 4. Clear Path Forward
+- Every email moves them somewhere
+- Links should do something useful
+- Make next steps obvious
+
+---
+
+## Email Sequence Strategy
+
+### Sequence Length
+- Welcome: 3-7 emails
+- Lead nurture: 5-10 emails
+- Onboarding: 5-10 emails
+- Re-engagement: 3-5 emails
+
+Depends on:
+- Sales cycle length
+- Product complexity
+- Relationship stage
+
+### Timing/Delays
+- Welcome email: Immediately
+- Early sequence: 1-2 days apart
+- Nurture: 2-4 days apart
+- Long-term: Weekly or bi-weekly
+
+Consider:
+- B2B: Avoid weekends
+- B2C: Test weekends
+- Time zones: Send at local time
+
+### Subject Line Strategy
+- Clear > Clever
+- Specific > Vague
+- Benefit or curiosity-driven
+- 40-60 characters ideal
+- Test emoji (they're polarizing)
+
+**Patterns that work:**
+- Question: "Still struggling with X?"
+- How-to: "How to [achieve outcome] in [timeframe]"
+- Number: "3 ways to [benefit]"
+- Direct: "[First name], your [thing] is ready"
+- Story tease: "The mistake I made with [topic]"
+
+### Preview Text
+- Extends the subject line
+- ~90-140 characters
+- Don't repeat subject line
+- Complete the thought or add intrigue
+
+---
+
+## Sequence Types Overview
+
+### Welcome Sequence (Post-Signup)
+**Length**: 5-7 emails over 12-14 days
+**Goal**: Activate, build trust, convert
+
+Key emails:
+1. Welcome + deliver promised value (immediate)
+2. Quick win (day 1-2)
+3. Story/Why (day 3-4)
+4. Social proof (day 5-6)
+5. Overcome objection (day 7-8)
+6. Core feature highlight (day 9-11)
+7. Conversion (day 12-14)
+
+### Lead Nurture Sequence (Pre-Sale)
+**Length**: 6-8 emails over 2-3 weeks
+**Goal**: Build trust, demonstrate expertise, convert
+
+Key emails:
+1. Deliver lead magnet + intro (immediate)
+2. Expand on topic (day 2-3)
+3. Problem deep-dive (day 4-5)
+4. Solution framework (day 6-8)
+5. Case study (day 9-11)
+6. Differentiation (day 12-14)
+7. Objection handler (day 15-18)
+8. Direct offer (day 19-21)
+
+### Re-Engagement Sequence
+**Length**: 3-4 emails over 2 weeks
+**Trigger**: 30-60 days of inactivity
+**Goal**: Win back or clean list
+
+Key emails:
+1. Check-in (genuine concern)
+2. Value reminder (what's new)
+3. Incentive (special offer)
+4. Last chance (stay or unsubscribe)
+
+### Onboarding Sequence (Product Users)
+**Length**: 5-7 emails over 14 days
+**Goal**: Activate, drive to aha moment, upgrade
+**Note**: Coordinate with in-app onboarding—email supports, doesn't duplicate
+
+Key emails:
+1. Welcome + first step (immediate)
+2. Getting started help (day 1)
+3. Feature highlight (day 2-3)
+4. Success story (day 4-5)
+5. Check-in (day 7)
+6. Advanced tip (day 10-12)
+7. Upgrade/expand (day 14+)
+
+---
+
+## Email Types by Category
+
+### Onboarding Emails
+- New users series
+- New customers series
+- Key onboarding step reminders
+- New user invites
+
+### Retention Emails
+- Upgrade to paid
+- Upgrade to higher plan
+- Ask for review
+- Proactive support offers
+- Product usage reports
+- NPS survey
+- Referral program
+
+### Billing Emails
+- Switch to annual
+- Failed payment recovery
+- Cancellation survey
+- Upcoming renewal reminders
+
+### Usage Emails
+- Daily/weekly/monthly summaries
+- Key event notifications
+- Milestone celebrations
+
+### Win-Back Emails
+- Expired trials
+- Cancelled customers
+
+### Campaign Emails
+- Monthly roundup / newsletter
+- Seasonal promotions
+- Product updates
+- Industry news roundup
+- Pricing updates
+
+---
+
+## Email Copy Guidelines
+
+### Structure
+1. **Hook**: First line grabs attention
+2. **Context**: Why this matters to them
+3. **Value**: The useful content
+4. **CTA**: What to do next
+5. **Sign-off**: Human, warm close
+
+### Formatting
+- Short paragraphs (1-3 sentences)
+- White space between sections
+- Bullet points for scanability
+- Bold for emphasis (sparingly)
+- Mobile-first (most read on phone)
+
+### Tone
+- Conversational, not formal
+- First-person (I/we) and second-person (you)
+- Active voice
+- Read it out loud—does it sound human?
+
+### Length
+- 50-125 words for transactional
+- 150-300 words for educational
+- 300-500 words for story-driven
+
+### CTA Guidelines
+- Buttons for primary actions
+- Links for secondary actions
+- One clear primary CTA per email
+- Button text: Action + outcome
+
+---
+
+## Output Format
+
+### Sequence Overview
+```
+Sequence Name: [Name]
+Trigger: [What starts the sequence]
+Goal: [Primary conversion goal]
+Length: [Number of emails]
+Timing: [Delay between emails]
+Exit Conditions: [When they leave the sequence]
+```
+
+### For Each Email
+```
+Email [#]: [Name/Purpose]
+Send: [Timing]
+Subject: [Subject line]
+Preview: [Preview text]
+Body: [Full copy]
+CTA: [Button text] → [Link destination]
+Segment/Conditions: [If applicable]
+```
+
+### Metrics Plan
+What to measure and benchmarks
+
+---
+
+## Task-Specific Questions
+
+1. What triggers entry to this sequence?
+2. What's the primary goal/conversion action?
+3. What do they already know about you?
+4. What other emails are they receiving?
+5. What's your current email performance?
+
+---
+
+## Related Skills
+
+- **income:copywriting**: For landing pages emails link to
+
+---
+
+### income:freelance-proposals
+> [income] Turns a client conversation into a scoped, priced dev-consulting proposal — discovery summary, options table, retainer path, kill criteria. Triggers on "client proposal", "statement of work", "SOW", "consulting offer", "retainer", "scope this engagement".
+
+# income:freelance-proposals
+
+Origin: first-party PAARTH skill (not vendored). Written for developers selling
+consulting/freelance work. Goal: a proposal the client can say yes to in one read.
+
+## Inputs to collect first
+
+If any of these are missing, ask — do not guess silently:
+1. The client's stated problem in their words (paste or summary).
+2. What "solved" looks like — observable outcome, not deliverable list.
+3. Budget signal if any (range, "no idea", or enterprise procurement).
+4. Your capacity (hours/week available) and target effective rate.
+
+## Procedure
+
+1. **Diagnose before prescribing.** Write a 3-5 sentence problem restatement in the
+   client's vocabulary. If you can't, you don't understand the engagement yet.
+2. **Scope in outcomes, not hours.** Break the work into 2-4 milestones, each with
+   an acceptance check the client can verify without you ("staging deploy passes X",
+   "report identifies top 5 Y"). Anything you can't attach a check to is out of scope
+   — say so explicitly in an "Out of scope" list. Ambiguity here is where margins die.
+3. **Three-option pricing table.** Anchor high:
+   - **Advisory** — review/audit + written recommendations, fixed price, 1-2 weeks.
+   - **Done-with-you** — the milestones above, fixed price per milestone.
+   - **Retainer** — ongoing capacity (N hrs/week), monthly, 3-month minimum,
+     priced at a premium over the fixed-price effective rate (availability costs).
+   Fixed prices are computed from estimated hours × rate × 1.5 risk buffer — never
+   show the hours math to the client; sell the outcome.
+4. **De-risk the yes.** Include: start date, payment terms (50% upfront for fixed
+   scope; monthly-in-advance for retainer), a change-request clause (new scope =
+   new milestone, never silent absorption), and one kill criterion per side
+   ("either party may end at a milestone boundary").
+5. **One page.** Problem, outcome, options table, terms, next step ("reply with
+   option letter; invoice follows"). Cut everything else. Attach CV/case study
+   links; never inline them.
+
+## Verification
+
+Before presenting the proposal, check: every milestone has an acceptance check;
+the words "hours", "estimate", and "roughly" appear zero times in the client-facing
+text; there is exactly one call to action; the retainer option is priced above the
+fixed-price effective rate. If a check fails, revise before showing the user.
+
+---
+
+### income:growth
+> [income] Growth strategy for products — channel selection, growth loops, retention levers, experiment prioritization. Triggers on "grow users", "growth strategy", "acquisition channel", "growth loop".
+
+# Growth & Product-Led Growth
+
+In PLG, the product is your best salesperson. This skill helps you design growth into your product — with concrete tactics and prompts you can hand to Claude Code.
+
+## Core Principles
+
+- Growth is a system, not a hack. Build loops, not one-time campaigns.
+- Activation is the most important metric. A user who never experiences value is already lost.
+- Virality is engineered, not accidental. Design sharing into the product.
+- Retention is the foundation. Growing on top of a leaky bucket is a losing game.
+- For a solo founder: pick ONE growth lever, make it work, then add the next.
+
+---
+
+## The PLG Funnel
+
+Acquisition → Activation → Retention → Revenue → Referral
+
+**The most common mistake:** Founders focus on Acquisition first. Focus on Activation and Retention first — there's no point driving signups into a leaky bucket.
+
+---
+
+## Activation (Start Here)
+
+### Define Your Aha Moment
+
+The specific action where users first experience core value:
+
+| Product Type | Example Aha Moment |
+|-------------|-------------------|
+| Project management | Created first project + added a task |
+| Email tool | Sent first campaign |
+| Analytics | Saw first dashboard with real data |
+| Design tool | Exported first design |
+| Scheduling | Booked first meeting through the tool |
+
+**Your aha moment:** [Action that makes users say "I get it, this is useful"]
+
+### Drive Users to Aha Fast
+
+Every screen between signup and the aha moment is a drop-off risk.
+
+**Tell AI:**
+```
+Design the onboarding flow to get users to [your aha moment] in under 3 minutes:
+1. After signup, skip the "check your email" screen — go directly to the product
+2. Show a setup wizard (3-5 steps max) that collects only what's needed to deliver value
+3. Pre-populate with sample data or templates so the product looks useful immediately
+4. Add a progress checklist: "Complete your setup: ☑ Create [X] ☐ [Next step] ☐ [Final step]"
+5. Show an empty state with a clear CTA on every empty page ("Create your first [X]")
+```
+
+### Activation Emails
+
+Pair your in-product onboarding with a 5-email welcome sequence that nudges unactivated users toward the aha moment: day 0 (what to do next), day 1 (a tip tied to the aha action), day 3 (social proof), day 5 (address the most common blocker), day 7 (last nudge before you stop emailing).
+
+---
+
+## Acquisition Strategies
+
+Pick ONE that matches your product. Don't spread across all of them.
+
+| Strategy | Best For | Effort | Time to Results |
+|----------|----------|--------|-----------------|
+| Free tool / calculator | Products that solve measurable problems | Medium | 1-3 months |
+| Template gallery | Products with customizable outputs | Medium | 2-4 months |
+| Content-as-product | Products in information-heavy spaces | High | 3-6 months |
+| Community-driven | Products with passionate niche users | High | 3-6 months |
+| Integrations | Products that connect to other tools | Medium | 1-2 months per integration |
+| Freemium | Products where free use drives word-of-mouth | Low | Immediate (but slow growth) |
+
+**Tell AI:**
+```
+Build a [free tool / template gallery / calculator] that:
+- Solves a specific problem our ICP has (related to our product)
+- Requires no signup to use
+- Shows a teaser of our full product's value
+- Includes a CTA: "Want more? [Product name] does this automatically."
+- Is SEO-optimized so it attracts organic traffic
+```
+
+---
+
+## Viral Loop Design
+
+A viral loop has 4 parts: User gets value → Has reason to share → New user sees value → Converts → Loop repeats.
+
+### Viral Mechanics for SaaS
+
+| Mechanic | How It Works | Example |
+|----------|-------------|---------|
+| Collaboration invites | Product requires multiple users | "Invite your team to edit this" |
+| Shared outputs | User creates something shareable | Reports, links, dashboards with "Made with [Product]" |
+| Referral rewards | Incentivized invitations | "Give $20, get $20" |
+| Public pages | User content is SEO-indexable | Public profiles, portfolios, pages |
+| Embeds | Widget on user's site links back | Badges, chat widgets, forms |
+
+**Tell AI:**
+```
+Add a sharing/invite mechanic to our product:
+- After a user completes [key action], prompt: "Share this with your team" or "Invite a collaborator"
+- Make shared links show a preview of the output (not just a signup page)
+- Add "Made with [Product]" branding on shared/public outputs with a link to our homepage
+- Track invite sends, invite accepts, and invite-to-signup conversion
+```
+
+---
+
+## Retention Mechanics
+
+### Build Habit Loops
+
+| Component | What It Is | Example |
+|-----------|-----------|---------|
+| Trigger | What brings them back | Email digest, notification, calendar event |
+| Action | What they do in the product | Check dashboard, respond to comment, update status |
+| Reward | Value they get | New insight, progress indicator, completed task |
+| Investment | What makes leaving harder | More data, more connections, more history |
+
+**Tell AI:**
+```
+Build retention mechanics into the product:
+1. Weekly email digest: summarize what happened this week + one insight or action item
+2. Activity notifications: "[Name] commented on your [item]" — not time-based ("It's been 3 days")
+3. Progress indicators: Show users their cumulative value ("You've saved 14 hours this month")
+4. Data investment: The more they use it, the more valuable their data becomes (history, reports, trends)
+```
+
+### Feature Drips
+
+Don't show everything on day 1. Reveal features as users are ready:
+
+**Tell AI:**
+```
+Implement progressive feature disclosure:
+- Week 1: Show only core features (the ones needed for the aha moment)
+- Week 2: Surface advanced feature with a tooltip: "Now that you've [done X], try [advanced feature]"
+- Week 3+: Unlock remaining features with brief explanations
+- Gate premium features with a gentle upgrade prompt at the moment of need
+```
+
+---
+
+## Metrics to Track
+
+Set these up in whatever analytics tool you already use for the product:
+
+| Stage | Key Metric | How to Calculate |
+|-------|-----------|-----------------|
+| Acquisition | Signup rate | Visitors → Signups |
+| Activation | Activation rate | Signups → Completed aha moment |
+| Activation | Time to aha | Average hours/days from signup to key action |
+| Retention | D1/D7/D30 | % of users returning on day 1, 7, 30 |
+| Revenue | Free-to-paid | Free users → Paying users |
+| Referral | Viral coefficient | Invites sent × invite conversion rate |
+
+**Tell AI:**
+```
+Set up growth tracking:
+- Track signup events with source attribution (organic, paid, referral, direct)
+- Track [aha moment action] completion with timestamp
+- Calculate time-to-activate for each user
+- Build a daily dashboard showing: signups, activations, D7 retention, free-to-paid conversion
+- Alert me if activation rate drops below [X]% or D7 retention drops below [Y]%
+```
+
+---
+
+## Growth Experiments
+
+When you want to improve a metric, frame it as a hypothesis:
+
+1. **Hypothesis:** "If we [change], then [metric] will [improve] because [reason]."
+2. **Metric:** What specifically will you measure?
+3. **Duration:** Run for 1-2 weeks minimum, or until 100+ users have been through the flow.
+4. **Decide:** Did the metric improve? Ship it or revert.
+5. **Document:** Write down what you learned, even (especially) from failures.
+
+Rank candidate experiments by expected impact × ease of implementation, and run the highest-scoring one first. For solo founders, prefer simple feature flags over full A/B testing infrastructure — you don't need statistical significance at 100 users, you need a clear before/after read.
+
+---
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Focusing on acquisition before activation | Fix activation first — no point driving users into a broken onboarding |
+| Building viral features nobody uses | Viral loops must be part of the core workflow, not a sidebar feature |
+| Measuring vanity metrics (signups) | Track activation rate and retention, not just signups |
+| Trying all channels at once | Pick ONE, make it work, then add another |
+| Complex A/B testing infrastructure | Use simple feature flags. You don't need Optimizely at 100 users |
+
+---
+
+### income:gtm-strategy
+> [income] Builds a complete go-to-market asset pack — positioning statement, messaging pillars, feature-to-benefit mapping, and role-specific use cases. Triggers on \"go to market\", \"GTM\", \"market entry\", \"channel strategy\", \"positioning statement\", \"messaging pillars\".
+
+# income:gtm-strategy
+
+> Credits and upstream
+> - Adapted from the `go-to-market` skill in [pm-claude-skills](https://github.com/mohitagw15856/pm-claude-skills) by Mohit Aggarwal, pinned at commit `b6080ee7a338b4b65a4da490d04c29dd7ca23f1a`.
+> - Licensed MIT. Original copyright (c) 2026 Mohit Aggarwal — permission notice retained per license terms.
+> - origin=vendored (license=MIT, permissive)
+> - Adapted for this repo: dropped the cross-links to upstream's `references/messaging-hierarchy.md`, `templates/gtm-pack.md`, and a sibling `professional-brain` skill, none of which are vendored here. The persistent-memory step below is rephrased to be conditional on whatever project memory store is actually present, rather than naming a specific missing skill.
+
+This skill produces a complete go-to-market asset pack for a product, feature, or initiative. It follows Geoffrey Moore's positioning framework and structures all outputs for use in sales decks, landing pages, launch emails, and internal alignment docs.
+
+## Working from a brief
+
+You will often get a short brief without every detail. **Always deliver the full GTM pack anyway** — do not stop to ask questions and do not leave bracketed placeholders like `[ADD PROOF POINT]` or `[Technical capability]`. Where a detail is missing (differentiators, proof points, features), infer specific, realistic ones from the product description and the target customer, and mark anything inferred as *(assumed — confirm)*. A concrete, labelled assumption is always better than a blank.
+
+## Inputs (infer any not provided — label assumptions)
+
+- **Product/feature name**
+- **One-line description** (what it does, technically)
+- **Target customer** (role, company size, industry if relevant)
+- **Primary problem it solves**
+- **Key competitor or alternative** (what people do today without this)
+- **Top 3 differentiators**
+
+## Reads from / Writes to project memory (if any)
+
+If this project maintains a persistent memory or "brain" store, check it before asking the user anything:
+
+- **Read first:** product/ICP context, prior market and strategy notes, and any existing entry for the feature being launched.
+- **Write after:** save the launch plan and any positioning or channel decision back to that store, provenance-tagged.
+
+If no such store exists, proceed directly from the brief and inferred assumptions.
+
+## Output Structure
+
+Always produce all four sections below in order.
+
+---
+
+### 1. Positioning Statement
+
+Use the Geoffrey Moore format exactly:
+
+> For **[target customer]** who **[has this problem or need]**, **[Product Name]** is a **[product category]** that **[key benefit/outcome]**. Unlike **[primary alternative or competitor]**, our product **[key differentiator]**.
+
+Write one primary positioning statement, then offer a shorter tagline version (10 words or fewer) suitable for a hero headline.
+
+---
+
+### 2. Messaging Pillars
+
+Generate 3–5 messaging pillars. Each pillar must include:
+
+- **Pillar name** (2–4 words, bold)
+- **One-sentence summary** of what this pillar claims
+- **2–3 proof points** (specific and evidence-backed; if no data was provided, infer a realistic proof point and mark it *(assumed)* — never leave a bare placeholder)
+- **Example use in copy** (one sentence as it would appear in a landing page or deck)
+
+Pillars should be distinct — avoid overlap. Each pillar should be defensible against the primary competitor.
+
+---
+
+### 3. Feature & Functionality List
+
+Produce a two-column table:
+
+| Feature / Functionality | Buyer Benefit (what it means for the user) |
+|---|---|
+| [Technical capability] | [Outcome in plain language — start with a verb: "Reduces...", "Enables...", "Eliminates..."] |
+
+Rules:
+- Never list a feature without a corresponding benefit
+- Benefits should reference the target customer's workflow or pain point
+- Aim for 6–12 rows; if only 1–2 features were given, infer the rest plausibly from the product description
+- Avoid jargon in the benefit column — write as if explaining to a buyer, not an engineer
+
+---
+
+### 4. Use Cases
+
+Generate 3–5 role-specific use cases. Each use case must follow this format:
+
+**Use Case [N]: [Role] — [Scenario Title]**
+
+- **Who:** [Job title / role]
+- **Situation:** [The specific moment or trigger that leads them to use the product]
+- **Before:** [What they had to do without this product — be specific about time, friction, or risk]
+- **With [Product Name]:** [What they do now — concrete action, not vague benefit]
+- **Outcome:** [Measurable or tangible result]
+
+Use cases should cover different buyer personas if possible (e.g. end user, manager, admin).
+
+---
+
+## Quality Checks
+
+Before delivering output, verify:
+- [ ] Positioning statement follows Moore format exactly
+- [ ] Tagline is 10 words or fewer
+- [ ] Each pillar has at least 2 proof points (or flagged placeholders)
+- [ ] Every feature has a benefit — no orphaned features
+- [ ] Benefits start with action verbs
+- [ ] Use cases include a Before/After structure
+- [ ] Language is consistent with the target customer's vocabulary (not internal engineering terms)
+
+## Anti-Patterns
+
+- [ ] Do not write feature descriptions instead of benefits — the GTM pack must translate features into customer value
+- [ ] Do not use the same messaging across all buyer personas — each role has different priorities and language
+- [ ] Do not create a positioning statement that could apply to any competitor — differentiation must be specific and defensible
+- [ ] Do not skip the "not for" section — defining who this is not for sharpens positioning and prevents misdirected sales effort
+- [ ] Do not list use cases without tying them to specific job titles or buyer roles
+
+## Example Trigger Phrases
+
+- "Create a positioning statement for [product]"
+- "Write a GTM plan for [feature]"
+- "Give me key pillars for [product name]"
+- "Build a feature and use case list for [product]"
+- "We're launching [X] — help me with the messaging"
+
+---
+
+### income:investor-pitch
+> [income] Builds the narrative and slide-by-slide structure for an investor pitch deck — what each slide must prove, content guidance, and common mistakes to avoid. Triggers on \"pitch deck\", \"investor pitch\", \"fundraise deck\", \"seed round narrative\".
+
+# income:investor-pitch
+
+> Credits and upstream
+> - Adapted from the `investor-pitch-deck` skill in [pm-claude-skills](https://github.com/mohitagw15856/pm-claude-skills) by Mohit Aggarwal, pinned at commit `b6080ee7a338b4b65a4da490d04c29dd7ca23f1a`.
+> - Licensed MIT. Original copyright (c) 2026 Mohit Aggarwal — permission notice retained per license terms.
+> - origin=vendored (license=MIT, permissive)
+
+Builds the complete narrative and slide structure for an investor pitch deck — focused on what investors need to see, not what founders want to show.
+
+## Required Inputs
+- **Company name and one-line description**
+- **Stage** (Pre-seed / Seed / Series A / Series B)
+- **Ask** (how much raising and what for)
+- **Key metrics** (revenue, growth, users, retention)
+- **Target investors** (generalist / sector-specific / angels)
+- **Deck length** (10 / 12 / 15 slides)
+
+## Output Structure
+
+For each slide:
+- **What this slide must prove** (the investor question it answers)
+- **Content guidance** (specific, not generic)
+- **Common mistake to avoid**
+
+---
+
+**Slide 1: Cover** — Proves you can say what you do in one sentence.
+**Slide 2: Problem** — Proves the problem is real, painful, and large. Lead with the human problem, not market size.
+**Slide 3: Solution** — Proves your solution is meaningfully better. Focus on outcome, not features.
+**Slide 4: Product** — Proves this is real and works. Show the actual product.
+**Slide 5: Traction** — Proves people want this. Show retention and revenue, not signups.
+**Slide 6: Market** — Proves the market is large enough. Use bottoms-up TAM where possible.
+**Slide 7: Business Model** — Proves you understand unit economics. Include CAC and LTV.
+**Slide 8: Go-To-Market** — Proves you can acquire customers efficiently. Focus on what is actually working.
+**Slide 9: Competition** — Proves you understand the landscape. Never say "no competitors."
+**Slide 10: Team** — Proves this team can execute this opportunity. One sentence per person, specific.
+**Slide 11: Financials** — Proves you understand your business. Show assumptions, not just projections.
+**Slide 12: The Ask** — Proves you know exactly what you need. Specific use of funds and 18-month milestones.
+
+## Narrative Principles
+- Every slide answers one investor question
+- Investors decide go/no-go on slides 1-5 — front-load evidence
+- Keep to 10-12 slides for a first meeting
+
+## Quality Checks
+
+- [ ] Each slide answers one specific investor question
+- [ ] Slides 1-5 front-load the strongest evidence
+- [ ] Traction slide shows retention and revenue, not just signups
+- [ ] Competition slide does not say "no competitors"
+- [ ] Ask slide specifies use of funds and 18-month milestones
+- [ ] TAM is bottoms-up where possible
+
+## Anti-Patterns
+
+- [ ] Do not include a "no real competitors" slide — every company has competition and investors will discount founders who claim otherwise
+- [ ] Do not use a top-down TAM calculation without a bottoms-up validation — investors distrust pure top-down market sizing
+- [ ] Do not leave the ask vague — specify the amount, use of funds, and 18-month milestones the funding enables
+- [ ] Do not let traction slides show vanity metrics — focus on revenue, retention, and growth rate over downloads and signups
+- [ ] Do not bury the problem slide — investors must understand and feel the pain before they care about the solution
+
+## Example Trigger Phrases
+- "Build a pitch deck structure for [company]"
+- "Help me structure my Series A deck"
+- "What slides should my investor pitch have?"
+
+---
+
+### income:linkedin-content
+> [income] Turns expertise, articles, or video transcripts into engaging LinkedIn posts with hooks and CTAs. Triggers on \"linkedin post\", \"repurpose for linkedin\", \"linkedin content\".
+
+# LinkedIn Content
+
+Turn source material — a YouTube transcript, blog article, guide, or raw insight — into a LinkedIn post that sounds like the user, not like AI. This is a **step-by-step, interactive process**: never output a finished post immediately. Each step presents options, waits for the user's decision, then moves on.
+
+> Adapted from the `linkedin-writer` skill in [naveedharri/benai-skills](https://github.com/naveedharri/benai-skills) (MIT). Works standalone from pasted content; supercharged if a web-scraping or transcript MCP is already connected.
+
+## Connectors (Optional)
+
+| If Connected | What It Adds |
+|-----------|--------------|
+| **Transcript/YouTube MCP** | Pull a transcript directly from a video URL instead of asking the user to paste it |
+| **Web-fetch/scraping MCP** | Pull article text directly from a blog URL |
+
+> **No MCPs connected?** Ask the user to paste the transcript or article text directly — that's the default path and works just as well.
+
+Why this process exists: great LinkedIn posts aren't summaries of content — they're built around a specific audience outcome, the right structural framework, and a hook that stops the scroll. Rushing to a finished post skips the thinking that makes a post perform.
+
+## Step 0: Source Intake
+
+Figure out what the source material is and get the full content.
+
+**Always use provided content first.** If the user pastes a transcript, article text, notes, or a document, read it directly — don't try to fetch anything externally.
+
+- **User provides content directly (most common):** read it, give a 1-2 sentence summary of what it covers, and move on.
+- **User provides just an insight or idea (no source doc):** acknowledge it and summarize it back to confirm understanding — that's valid input on its own.
+- **User provides only a URL, no pasted text:** if a relevant MCP is connected (transcript/YouTube or web-fetch), use it to retrieve the content. If no such MCP is connected, ask the user to paste the transcript or article text directly rather than guessing at the content.
+
+Never scrape LinkedIn profiles or posts directly — if LinkedIn content is the source, ask the user to paste the text.
+
+Confirm the source material with a brief summary before moving to Step 1.
+
+## Step 1: Content Analysis (Internal)
+
+Before suggesting outcomes, analyze the source material silently:
+
+- Core themes and ideas
+- Specific stories, data points, or examples that stand out
+- Angles that could resonate with the target audience
+- Personal experiences or unique perspectives worth surfacing
+
+Don't dump this analysis on the user — use it to inform Step 2's options. Just confirm you've read it and are ready to suggest directions.
+
+## Step 2: Define the Main Outcome for the Audience
+
+Decide *what the reader should take away from this post*. Every good post changes how the reader thinks, feels, or acts — and source material usually supports several different angles. Picking the right one is what separates a forgettable post from one that resonates.
+
+**Present 10 genuinely different options**, each with:
+- **Main outcome** (1 sentence) — what the reader walks away thinking, feeling, or doing
+- **Angle** (1 sentence) — the specific lens to get there
+- **Secondary outcome** (optional, 1 sentence) — an additional benefit
+
+Pull from different themes in the source material and different audience segments/pain points — don't just rephrase the same idea 10 ways.
+
+**One post = one idea with depth.** If the user picks a main outcome plus a secondary, weave the secondary in as an undertone, not an explicit section — giving equal weight to 4-5 ideas turns a punchy post into a shallow blog post.
+
+**Wait for the user to choose before continuing.**
+
+## Step 3: Define the Writing Framework
+
+Present all four frameworks below, each with 3-5 bullets describing how *this specific post* would flow under that structure — a skeleton, not a draft.
+
+| Framework | Best for |
+|---|---|
+| **PAS** — Problem, Agitation, Solution | A clear pain point that needs surfacing and intensifying before the resolution lands. |
+| **AIDA** — Attention, Interest, Desire, Action | Building momentum toward a specific action — announcements, discoveries, calls to try something. |
+| **CPF** — Context, Problem, Framework | Topics that need scene-setting before the problem makes sense — educational, nuanced posts. |
+| **BAB** — Before, After, Bridge | Transformation stories — where the reader is now, where they could be, and the bridge between. |
+
+**Wait for the user to choose before continuing.**
+
+## Step 4: Define the Hook
+
+The hook is the single most important element — on LinkedIn only the first ~2 lines show before "see more." It has to earn that click.
+
+**Brevity is everything.** Great hooks are short — often under 15 words for the first line. If a hook needs a paragraph to land, it's not a hook.
+
+**Present exactly 10 hook options.** Each should:
+- Be short and punchy — 1-2 lines max
+- Serve the outcome chosen in Step 2, each from a different angle
+- Be ready to use as-is
+
+Draw from proven hook shapes, filling in specifics from the source material rather than writing something only "loosely inspired." A few reliable shapes to pull from:
+
+- **Result-in-time**: "I [achieved outcome] in [time frame]. I also [related outcome]."
+- **Contrarian claim**: "Everyone tells you to [common advice]. Here's why that's wrong."
+- **Confession**: "I made a [size] mistake with [topic]. Here's what it taught me."
+- **Question hook**: "Why do most [audience] struggle with [problem]?"
+- **Number list tease**: "[N] things I wish I knew before [experience]."
+- **Direct address**: "If you're a [audience segment], stop doing [common behavior]."
+- **Before/after snapshot**: "[State before]. Now [state after]. Here's what changed."
+
+Match the shape to the outcome (Step 2), the framework (Step 3), and the audience's real pain points — not a generic template filled with placeholders.
+
+**Wait for the user to choose before continuing.**
+
+## Step 5: Write the Post
+
+Now write the full post. Present it as a clean, standalone block of text the user can copy or iterate on.
+
+### The Hook-to-Body Connection
+
+Posts most commonly fail here. The hook and body must read as one continuous thought.
+
+The hook delivers the "what." The very next line should be the natural next thought a reader would have — ask "if someone just read this hook out loud, what would I say next?"
+
+Avoid: re-explaining the hook in different words, abruptly jumping topics, or opening the body with backstory the hook already implied.
+
+### Writing Rules
+
+**Sentence length and rhythm — the #1 tell between human and AI writing:**
+- Average sentence length: 7-12 words. Break up anything over 20.
+- Every new thought gets its own line — no exceptions.
+- Rhythm: short statement → line break → expansion → line break → contrast → line break → insight.
+- Fragments are fine and often stronger: "Node by node." "In real time." "That was still true a year later."
+
+**Structure & formatting:**
+- Short paragraphs — 1-2 sentences, then a line break.
+- Use arrow bullets (`↳` or `➝`) for lists, never plain dashes or bullet points.
+- Total length 150-300 words (the LinkedIn sweet spot).
+- End with a soft CTA or a question to drive engagement.
+
+**Tone:**
+- Direct and confident — no hedging.
+- Conversational — write like explaining something to a smart friend, not structuring an argument.
+- Use "I" and "you" freely.
+- Specific examples over generic advice; lead with insight, not information.
+- No corporate jargon or buzzword soup.
+
+**What NOT to do:**
+- No hashtags in the body (optional 3-5 at the very bottom, on their own line).
+- No more than 1-2 emojis, and only if they add something.
+- No LinkedIn clichés: "I'm excited to share...", "In today's fast-paced world", "Let's dive in", "game-changer", "landscape".
+- No walls of text — if a paragraph runs past 2 sentences, split it.
+- No cramming 4-5 ideas into sections — one idea, with depth.
+
+### After Writing
+
+Present the draft, then ask:
+- How does this feel — want to adjust tone, length, or emphasis?
+- Should any section be sharpened?
+- Want to try a different hook from Step 4?
+
+Be ready to iterate — the first draft is a starting point.
+
+## Quick Reference
+
+| Step | What happens | User chooses from |
+|---|---|---|
+| 0 | Get source material | — |
+| 1 | Analyze content internally | — |
+| 2 | Suggest audience outcomes | 10 options |
+| 3 | Suggest writing frameworks | 4 frameworks with skeletons |
+| 4 | Suggest hooks | 10 options |
+| 5 | Write the post | Iterate with the user |
+
+**Golden rule:** never skip a step, never combine steps, never output a finished post before Step 5. Each decision builds on the last — rushing produces generic content.
+
+---
+
+### income:mvp-scope
+> [income] Cuts a product or client build to the smallest slice that earns money or proof — walking skeleton, fake-it list, first-dollar path. Triggers on "mvp", "smallest version", "scope cut", "descope", "what can I ship in two weeks", "lean build".
+
+# income:mvp-scope
+
+Origin: first-party PAARTH skill (not vendored). The counterweight to feature
+creep: define the smallest build that produces revenue or a validated learning.
+
+## Procedure
+
+1. **State the first dollar.** One sentence: who pays (or commits), for what,
+   through which mechanism (Stripe link, invoice, LOI, waitlist deposit). If the
+   answer is "nobody yet", route to income:validate-idea first — an MVP without a
+   payer definition is a prototype, not a product.
+2. **Walking skeleton.** List the end-to-end happy path as user-visible steps
+   (max 7). The MVP is exactly these steps working once, for one user segment, on
+   one platform. Everything else is a later milestone.
+3. **Fake-it list.** For each step, ask: can this be manual, hardcoded, or a
+   third-party tool for the first 10 customers? Auth → magic link only. Admin →
+   a spreadsheet. Billing → payment link. Notifications → you, manually. Write
+   the fake next to each step; automating a fake before 10 customers is scope creep.
+4. **Cut list with re-entry criteria.** Every cut feature gets one line: what was
+   cut + the observable trigger that re-adds it ("add team accounts when 3 paying
+   users ask"). This makes cuts feel reversible, which is what makes them stick.
+5. **Two-week test.** If the skeleton + fakes still exceed ~2 weeks of the user's
+   real available hours, cut the segment (narrower who) before cutting steps.
+   When the user has a stack preference on file, estimate against that stack.
+6. **Definition of shipped.** The MVP is done when one real outside person
+   completes the happy path and the first-dollar mechanism has been exercised at
+   least once (even at $1). Demo-to-friends does not count.
+
+## Verification
+
+The scope passes when: the happy path is ≤7 steps; every step has either real
+code or a named fake; the cut list is longer than the build list; first-dollar
+mechanism is concrete (a URL or an invoice template, not "we'll charge later").
+
+---
+
+### income:paid-ads
+> [income] Plans and optimizes paid advertising campaigns across Google Ads, Meta, LinkedIn, and TikTok, covering targeting, bidding, and creative. Triggers on "PPC", "ad campaign", "ROAS", "Google Ads", "Facebook ads", "ad budget", "should I run ads".
+
+# Paid Ads
+
+You are an expert performance marketer with direct access to ad platform accounts. Your goal is to help create, optimize, and scale paid advertising campaigns that drive efficient customer acquisition.
+
+## Before Starting
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Gather this context (ask if not provided):
+
+### 1. Campaign Goals
+- What's the primary objective? (Awareness, traffic, leads, sales, app installs)
+- What's the target CPA or ROAS?
+- What's the monthly/weekly budget?
+- Any constraints? (Brand guidelines, compliance, geographic)
+
+### 2. Product & Offer
+- What are you promoting? (Product, free trial, lead magnet, demo)
+- What's the landing page URL?
+- What makes this offer compelling?
+
+### 3. Audience
+- Who is the ideal customer?
+- What problem does your product solve for them?
+- What are they searching for or interested in?
+- Do you have existing customer data for lookalikes?
+
+### 4. Current State
+- Have you run ads before? What worked/didn't?
+- Do you have existing pixel/conversion data?
+- What's your current funnel conversion rate?
+
+---
+
+## Platform Selection Guide
+
+| Platform | Best For | Use When |
+|----------|----------|----------|
+| **Google Ads** | High-intent search traffic | People actively search for your solution |
+| **Meta** | Demand generation, visual products | Creating demand, strong creative assets |
+| **LinkedIn** | B2B, decision-makers | Job title/company targeting matters, higher price points |
+| **Twitter/X** | Tech audiences, thought leadership | Audience is active on X, timely content |
+| **TikTok** | Younger demographics, viral creative | Audience skews 18-34, video capacity |
+
+---
+
+## Campaign Structure Best Practices
+
+### Account Organization
+
+```
+Account
+├── Campaign 1: [Objective] - [Audience/Product]
+│   ├── Ad Set 1: [Targeting variation]
+│   │   ├── Ad 1: [Creative variation A]
+│   │   ├── Ad 2: [Creative variation B]
+│   │   └── Ad 3: [Creative variation C]
+│   └── Ad Set 2: [Targeting variation]
+└── Campaign 2...
+```
+
+### Naming Conventions
+
+```
+[Platform]_[Objective]_[Audience]_[Offer]_[Date]
+
+Examples:
+META_Conv_Lookalike-Customers_FreeTrial_2024Q1
+GOOG_Search_Brand_Demo_Ongoing
+LI_LeadGen_CMOs-SaaS_Whitepaper_Mar24
+```
+
+### Budget Allocation
+
+**Testing phase (first 2-4 weeks):**
+- 70% to proven/safe campaigns
+- 30% to testing new audiences/creative
+
+**Scaling phase:**
+- Consolidate budget into winning combinations
+- Increase budgets 20-30% at a time
+- Wait 3-5 days between increases for algorithm learning
+
+---
+
+## Ad Copy Frameworks
+
+### Key Formulas
+
+**Problem-Agitate-Solve (PAS):**
+> [Problem] → [Agitate the pain] → [Introduce solution] → [CTA]
+
+**Before-After-Bridge (BAB):**
+> [Current painful state] → [Desired future state] → [Your product as bridge]
+
+**Social Proof Lead:**
+> [Impressive stat or testimonial] → [What you do] → [CTA]
+
+---
+
+## Audience Understanding & Targeting
+
+Knowing your audience deeply is still the highest-leverage work in paid ads — demographics, job titles, pain points, fears, hopes, the exact language they use, who they follow, what they've tried, why they failed, what they buy. **Gather every identifier you can.**
+
+What's changed in 2026 is **where you apply that knowledge.** As ad-platform algorithms have gotten dramatically better at finding the right person, jamming all your audience identifiers into the platform's *targeting filters* underperforms feeding those same identifiers into the *creative* (headlines, copy, visuals, hooks, examples).
+
+The discipline now: **audience knowledge → creative first, targeting filters second.** How much that ratio tips toward "creative" varies meaningfully by platform.
+
+### Platform-by-platform: where to apply audience knowledge
+
+| Platform | Audience knowledge → creative | Audience knowledge → targeting filters | Notes |
+|----------|------------------------------|-------------------------------------|-------|
+| **Meta** (post-Andromeda) | **80%+** | 20% | Algorithm rewards broad + specific creative. See [[#Modern Meta playbook (Andromeda era — 2026+)]] below for the full reframe. Interest-stacking now actively hurts. |
+| **Google Search** | 40% | **60%** | Keywords are still the dominant signal — match-types, search-intent layering, and negative keywords still drive performance. Creative (RSA headlines) matters but is downstream of the keyword. |
+| **Google Performance Max / Demand Gen** | **70%** | 30% | Audience signals are advisory, not deterministic. Creative + product feed quality dominate. |
+| **LinkedIn** | 40% | **60%** | Job-title / company / industry filters still produce real precision because LinkedIn's identity data is high-quality. Creative makes the click; firmographics make the *right person* see it. |
+| **TikTok** | **70%** | 30% | Algorithm is closer to Meta's model — broad targeting + native-feeling creative wins. Some audience interests help but creative dominates. |
+| **Twitter/X** | 50% | 50% | Interest + follower targeting still meaningful, but creative differentiation is high-leverage given lower competition. |
+
+These ratios are directional, not precise. Test in your actual account.
+
+### Applying audience knowledge to creative
+
+Once you've gathered audience identifiers, here's how to put each kind into the creative:
+
+- **Demographic identifiers** (age, location, occupation) → embed as identity-trigger keywords in headlines (see [[#The one-keyword hack (identity-trigger keywords)]])
+- **Pain points + fears** → headline + first line of body copy (Sabri Suby's framing: "the verbatim words your customers use about the problem")
+- **Hopes / desired outcomes** → transformation copy + CTAs
+- **Objections + "why they didn't buy last time"** → objection-handling retargeting ads (see [[#The 4-component retargeting framework]])
+- **Their language / vocabulary** → the entire copy voice — never use industry jargon they don't
+- **Existing customer base** → still feed it for lookalike audiences (see Key Concepts below)
+- **Niche / segment they identify with** → identity-trigger keywords in headline ("for dentists" / "for B2B founders" / "for parents of toddlers")
+
+### Key Concepts (still apply)
+
+- **Lookalikes**: Base on best customers (by LTV), not all customers. Still high-value across platforms.
+- **Retargeting**: Segment by funnel stage (visitors vs. cart abandoners). See [[#Retarget with DIFFERENT offers (not the same one)]] and [[#The 4-component retargeting framework]] for the modern playbook.
+- **Exclusions**: Exclude existing customers and recent converters — showing ads to people who already bought wastes spend.
+
+### Common failure mode
+
+Trying to make up for weak creative with hyper-precise targeting. If your creative is generic but you stack 12 interests + 3 demographic filters + a custom audience, what you've built is a small audience that all see a bad ad. Better: gather the same audience identifiers, write 5 creative variants that each speak to a different segment, target broadly, let the algorithm match each creative to the right segment.
+
+---
+
+## Modern Meta playbook (Andromeda era — 2026+)
+
+Meta launched the **Andromeda** algorithm in 2025, which fundamentally changed Meta ads. The old playbook (interest stacking, polished video creative, single-winner scaling) underperforms. The new playbook:
+
+### Creative volume is the constraint (statics > polished video)
+- Andromeda is "a hungry panda" — it needs constant fresh creative or it fatigues
+- **Statics often outperform video in 2026** because:
+  - Meta's algorithm has a bias toward statics — it can show more statics per session per user, so they're cheaper to deliver
+  - Static creative is 10x cheaper and faster to produce than video, enabling the volume Andromeda needs
+  - Even top advertisers running 17+ VSLs report that down-and-dirty native statics often beat 2.5-month-production VSLs
+- **Dedicate 1 hour per week** to producing fresh creatives for your winning offer. Volume > polish.
+
+### Creative IS the targeting (broad audience + specific creative)
+- The old playbook: stack interests, narrow the audience, hope to find the right buyer
+- The new playbook: target broadly (just the country) and let the creative do the targeting
+- **Long-form ad copy works better than short-form** in 2026 — gives Meta a wider context window to understand who to show the ad to
+- Test it: take your best winning ad with interest-stacked targeting, duplicate it, remove all targeting (just pick the country), run side-by-side for 7 days. Check CPAs. Broad typically wins.
+
+### The one-keyword hack (identity-trigger keywords)
+- Take your winning ad
+- Duplicate it with a niche/identity keyword inserted in the headline or body copy
+- *"Here's how to get 462 leads per week on autopilot"* → *"Here's how to get 462 **dental** leads per week on autopilot"* / *"...**lawyer** leads..."* / *"...**property investment** leads..."*
+- The keyword is an **identity trigger** for the viewer AND a targeting signal for Andromeda
+- Dramatically drops CPL and opens audience pockets you couldn't reach with a generic ad
+
+### AI variant farming (the 100-people test)
+- Take your winning ad
+- Feed to Claude/ChatGPT/Kong with the prompt:
+  > *"I want you to read this ad and be the author. If I show the next ad I'm going to ask you to write to 100 people, not 1 in 100 would be able to tell you it's written by a different person. Now write this for [demographic/niche]."*
+- The output should read essentially the same with subtle relevance shifts for the target
+- Apply in sequence: body copy → headlines → creative
+- Drop all variants in a CBO, let Meta's AI allocate spend
+
+### Zombie campaigns
+- After running a CBO, Meta will give 80% of variants no spend
+- Take the dead variants you have **high conviction** about
+- Launch them in a separate ad set ("zombie campaign")
+- Typically resurrects 20% as winners that Meta's first allocation passed over
+
+### Don't make ads look like ads
+- Hundreds of millions of people have ad blockers — the polished-ad aesthetic kills performance
+- Study what content **natively performs** in your niche on TikTok/Instagram/YouTube → produce ads that match that aesthetic
+- **Burner account technique:** create a clean Instagram/TikTok account, follow all influencers and pages in your niche, like their content. Your feed becomes a curated view of what's natively winning. Produce ads that match.
+- If you have an organic video with millions of views, **run that exact video as a paid ad** — proven content + paid distribution = the highest-leverage move
+
+## Creative Best Practices
+
+### Image Ads
+- Clear product screenshots showing UI
+- Before/after comparisons
+- Stats and numbers as focal point
+- Human faces (real, not stock)
+- Bold, readable text overlay (keep under 20%)
+
+### Video Ads Structure (15-30 sec)
+1. Hook (0-3 sec): Pattern interrupt, question, or bold statement
+2. Problem (3-8 sec): Relatable pain point
+3. Solution (8-20 sec): Show product/benefit
+4. CTA (20-30 sec): Clear next step
+
+**Production tips:**
+- Captions always (85% watch without sound)
+- Vertical for Stories/Reels, square for feed
+- Native feel outperforms polished
+- First 3 seconds determine if they watch
+
+### Creative Testing Hierarchy
+1. Concept/angle (biggest impact)
+2. Hook/headline
+3. Visual style
+4. Body copy
+5. CTA
+
+---
+
+## Campaign Optimization
+
+### Key Metrics by Objective
+
+| Objective | Primary Metrics |
+|-----------|-----------------|
+| Awareness | CPM, Reach, Video view rate |
+| Consideration | CTR, CPC, Time on site |
+| Conversion | CPA, ROAS, Conversion rate |
+
+### Optimization Levers
+
+**If CPA is too high:**
+1. Check landing page (is the problem post-click?)
+2. Tighten audience targeting
+3. Test new creative angles
+4. Improve ad relevance/quality score
+5. Adjust bid strategy
+
+**If CTR is low:**
+- Creative isn't resonating → test new hooks/angles
+- Audience mismatch → refine targeting
+- Ad fatigue → refresh creative
+
+**If CPM is high:**
+- Audience too narrow → expand targeting
+- High competition → try different placements
+- Low relevance score → improve creative fit
+
+### Bid Strategy Progression
+1. Start with manual or cost caps
+2. Gather conversion data (50+ conversions)
+3. Switch to automated with targets based on historical data
+4. Monitor and adjust targets based on results
+
+---
+
+## Retargeting Strategies
+
+### Funnel-Based Approach
+
+| Funnel Stage | Audience | Message | Goal |
+|--------------|----------|---------|------|
+| Top | Blog readers, video viewers | Educational, social proof | Move to consideration |
+| Middle | Pricing/feature page visitors | Case studies, demos | Move to decision |
+| Bottom | Cart abandoners, trial users | Urgency, objection handling | Convert |
+
+### Retargeting Windows
+
+| Stage | Window | Frequency Cap |
+|-------|--------|---------------|
+| Hot (cart/trial) | 1-7 days | Higher OK |
+| Warm (key pages) | 7-30 days | 3-5x/week |
+| Cold (any visit) | 30-90 days | 1-2x/week |
+
+### Exclusions to Set Up
+- Existing customers (unless upsell)
+- Recent converters (7-14 day window)
+- Bounced visitors (<10 sec)
+- Irrelevant pages (careers, support)
+
+### Retarget with DIFFERENT offers (not the same one)
+
+The conventional retargeting playbook re-shows the same product/offer to people who didn't buy. The Sabri Suby principle: **the #1 reason someone didn't buy is the offer wasn't right for them.** Re-showing the same thing harder doesn't help.
+
+Instead, retarget with **different** products, services, or offers from your catalog:
+- Visitor clicked on protein powder, didn't buy → retarget with creatine (totally different category)
+- Visitor downloaded a lead magnet, didn't book a call → retarget with a different lead magnet on a related topic
+- Visitor viewed pricing, didn't sign up → retarget with a free audit or assessment instead
+
+The lift from this is often dramatic — a 2-3 ROAS audience on the original offer can hit 6+ ROAS on a different offer.
+
+### The 4-component retargeting framework
+
+Build out your retargeting layer with these 4 ad types running simultaneously:
+
+1. **Objection-handling ad** — directly addresses the most common reasons people didn't buy. To find these, **outbound call every lead** who didn't convert and ask why. The verbatim objections become the headline of this ad.
+2. **Proof testimonial carousel** — multi-image/multi-slide carousel of testimonials and proof that supports the claims of your original ad
+3. **Other-offers CBO** — your other best-performing ads for other products/services in one CBO, retargeted to the same audience
+4. **Value-first audit/assessment ad** — wraps your call in a free piece of value. Whether they buy or not, they leave with something useful. Lowers the friction to engage.
+
+These four together, retargeting the same audience that didn't convert from the top-of-funnel ad, dramatically lift the ROAS of the entire funnel.
+
+---
+
+## Landing Page Alignment (the headline-mirror trick)
+
+Ad-to-landing-page congruence is the single most underrated lever in paid ads. Most advertisers spend 90% of effort on ads and 10% on the landing page; flip that ratio.
+
+### Headline mirroring
+
+Meta is the best split-testing tool that exists — your ad headlines are exposed to ~1000x the audience that actually clicks through to your landing page. That means you get statistically-significant data on which headlines work *much faster* on Meta than on your landing page.
+
+The play:
+
+1. Run **20-40 different headlines** as ad variations
+2. Identify the best-performing headline (by CTR + downstream conversion)
+3. **Mirror that winning headline on your landing page** — exact wording in the H1, sub-headline, and lead-in copy of the body
+4. Expect a **15-20% minimum lift** in landing-page conversion rate from this single change
+
+This works because the viewer who clicked is expecting *that specific promise*. When the landing page restates the exact promise verbatim, scent matches and conversion follows. When the landing page pivots to a different angle, bounce rate spikes regardless of how good the page is.
+
+### Three split tests minimum at all times
+
+A standing discipline: **at any given moment, you should have at least 3 split tests running** somewhere in your funnel — ad creative, landing page, offer, or post-conversion flow. If you don't, you've capped your improvement curve.
+
+The math: 3 simultaneous tests × ~10-20% lift each (compounding) = a fundamentally better funnel within a quarter.
+
+## Reporting & Analysis
+
+### Weekly Review
+- Spend vs. budget pacing
+- CPA/ROAS vs. targets
+- Top and bottom performing ads
+- Audience performance breakdown
+- Frequency check (fatigue risk)
+- Landing page conversion rate
+
+### Attribution Considerations
+- Platform attribution is inflated
+- Use UTM parameters consistently
+- Compare platform data to GA4
+- Look at blended CAC, not just platform CPA
+
+### Scaling discipline (net cash > ROAS percentage)
+
+The most common scaling failure: a business at a 40 ROAS spending $5k/month, refusing to scale because "if I spend more, my ROAS will drop." This is the wrong frame.
+
+**Net cash flow > ROAS percentage at the business level:**
+- ROAS dropping from 10 → 5 sounds bad
+- But if spend goes from $10k → $100k, you net dramatically more total profit
+- The number to optimize is **blended ROAS at the business level**, not per-ad-set ROAS
+- Even better: optimize **net free cash flow**, not ROAS at all
+
+**Find your break-even ROAS:**
+1. Calculate the absolute maximum you can pay to acquire a customer and still be profitable (factoring LTV)
+2. That's your break-even ROAS / CPA ceiling
+3. **Scale until you approach that ceiling**, not until your ad-account ROAS drops below an arbitrary preference
+
+**The 3-hour founder review:**
+- Block out **3 hours per month** in the calendar to physically review the numbers yourself
+- Not what your data analyst says. Not what your media buyer says. You, going through the actual data
+- The confidence this generates is irreplaceable — and confidence is what lets you scale with conviction
+- "Data gives you confidence. Confidence gives you speed."
+
+**Outbound-call your leads who didn't convert:**
+- Every lead that downloaded a lead magnet or hit your funnel but didn't buy gets a call
+- Ask why they didn't book, what was confusing, what the actual blocker was
+- These verbatim answers become objection-handling ads (see Retargeting section)
+- Massive insight-to-creative loop that most advertisers skip
+
+---
+
+## Platform Setup
+
+Before launching campaigns, ensure proper tracking and account setup.
+
+### Universal Pre-Launch Checklist
+- [ ] Conversion tracking tested with real conversion
+- [ ] Landing page loads fast (<3 sec)
+- [ ] Landing page mobile-friendly
+- [ ] UTM parameters working
+- [ ] Budget set correctly
+- [ ] Targeting matches intended audience
+
+---
+
+## Google RSA Output Spec (mandatory when generating RSAs)
+
+When the user requests Google Ads RSAs (Responsive Search Ads), output MUST comply with these platform limits and structural requirements. Do not output any RSA that violates them.
+
+### Hard limits per RSA (enforce before responding)
+
+- **Headlines:** exactly **15** per RSA, each **≤ 30 characters** (count characters, including spaces). Render as `1. ... (NN chars)` so the reader can verify.
+- **Descriptions:** exactly **4** per RSA, each **≤ 90 characters**.
+- **Paths:** up to 2 path fields, each **≤ 15 characters**.
+- **Final URL:** present, https.
+- **Pinning:** state any pinned positions explicitly. Default = unpinned unless user asks.
+- **Per-account guardrail:** Google enforces **3 RSAs max per ad group**. When the user asks for >3, group them by ad group.
+
+### Required sidecar artifacts (always include with RSA request)
+
+1. **Ad group structure**, labeled `Ad group structure:` — list each ad group with its theme, target keywords (match types), and which RSAs map to it.
+2. **Negative keyword list**, labeled `Negative keywords:` — minimum **8** entries, group-level vs campaign-level called out.
+3. **Sitelinks** (≥ 4), **Callouts** (≥ 4 ≤25 chars), **Structured snippets** if relevant.
+
+### Medical / CFM compliance (when product context indicates pt-BR medical practice)
+
+If the project's product-marketing context indicates a Brazilian medical practice (CFM-regulated), the following terms are **forbidden** in headlines, descriptions, sitelinks, and callouts:
+
+- Superlatives: `#1`, `melhor`, `o melhor`, `melhor do brasil`, `top`, `referência`
+- Outcome promises: `garantido`, `garantia`, `cura`, `cura definitiva`, `100%`, `resultado garantido`, `livre da dor`
+- Comparative claims vs other doctors/clinics
+
+Use neutral framing: `atendimento`, `consulta`, `avaliação`, `segunda opinião`, `agende sua consulta`, `tire suas dúvidas`. Geo modifier (`Porto Alegre`, `POA`, `Zona Sul POA`) required where the prompt specifies a region.
+
+### Output ORDER (mandatory — emit in this order to avoid truncation)
+
+1. **Ad group structure** (short)
+2. **Negative keywords** (≥8, MANDATORY — emit BEFORE RSAs so it isn't dropped if output runs long)
+3. **Sitelinks** (≥4)
+4. **Callouts** (≥4)
+5. **RSA1, RSA2, RSA3** (largest section, last — safe to truncate gracefully)
+
+### Output template (mandatory shape)
+
+```
+Ad group structure:
+- AG1 [theme]: keywords (match types) → RSA1, RSA2
+- AG2 [theme]: ...
+
+Negative keywords:
+  Campaign-level:
+    - <kw>
+    - <kw>
+    (≥4 here)
+  Ad-group level:
+    - AG1: <kw>, <kw>
+    - AG2: <kw>, <kw>
+    (≥4 more here — TOTAL ≥8 entries)
+
+Sitelinks (≥4):
+  - <title (≤25)> | <desc1 (≤35)> | <desc2 (≤35)> | URL
+
+Callouts (≥4, each ≤25 chars):
+  - <callout>
+
+RSA1 — [ad group name]
+  Final URL: https://...
+  Path1: ...   Path2: ...
+  Headlines (15, each ≤30 chars):
+    1. <headline> (NN chars)
+    ...
+    15. <headline> (NN chars)
+  Descriptions (4, each ≤90 chars):
+    1. <description> (NN chars)
+    ...
+    4. <description> (NN chars)
+  Pinning: H1=none; H2=none; ...   (or explicit pins)
+
+RSA2 — ...
+RSA3 — ...
+```
+
+### Self-check before responding
+
+Before sending the output, run this checklist mentally:
+
+- [ ] Each RSA has exactly 15 headlines, exactly 4 descriptions.
+- [ ] Every headline is ≤30 chars; every description is ≤90 chars. Character counts printed.
+- [ ] Negative keyword list labeled and ≥8 entries.
+- [ ] Ad group structure labeled.
+- [ ] If medical (CFM): no forbidden superlative/outcome words; geo modifier present where required; language is pt-BR.
+
+If any check fails, rewrite before responding. Do not ship partial RSAs.
+
+---
+
+## Common Mistakes to Avoid
+
+### Strategy
+- Launching without conversion tracking
+- Too many campaigns (fragmenting budget)
+- Not giving algorithms enough learning time
+- Optimizing for wrong metric
+
+### Targeting
+- Audiences too narrow or too broad
+- Not excluding existing customers
+- Overlapping audiences competing
+
+### Creative
+- Only one ad per ad set
+- Not refreshing creative (fatigue)
+- Mismatch between ad and landing page
+
+### Budget
+- Spreading too thin across campaigns
+- Making big budget changes (disrupts learning)
+- Stopping campaigns during learning phase
+
+---
+
+## Task-Specific Questions
+
+1. What platform(s) are you currently running or want to start with?
+2. What's your monthly ad budget?
+3. What does a successful conversion look like (and what's it worth)?
+4. Do you have existing creative assets or need to create them?
+5. What landing page will ads point to?
+6. Do you have pixel/conversion tracking set up?
+
+---
+
+## Related Skills
+
+- **income:copywriting**: For landing page copy that converts ad traffic
+- **income:cro**: For optimizing post-click conversion rates
+
+---
+
+### income:pricing
+> [income] Helps design pricing tiers, packaging, and monetization strategy based on value metrics and willingness to pay. Triggers on "pricing", "pricing tiers", "freemium", "how much should I charge", "pricing page", "should I offer a free plan".
+
+# Pricing Strategy
+
+You are an expert in SaaS pricing and monetization strategy. Your goal is to help design pricing that captures value, drives growth, and aligns with customer willingness to pay.
+
+## Before Starting
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Gather this context (ask if not provided):
+
+### 1. Business Context
+- What type of product? (SaaS, marketplace, e-commerce, service)
+- What's your current pricing (if any)?
+- What's your target market? (SMB, mid-market, enterprise)
+- What's your go-to-market motion? (self-serve, sales-led, hybrid)
+
+### 2. Value & Competition
+- What's the primary value you deliver?
+- What alternatives do customers consider?
+- How do competitors price?
+
+### 3. Current Performance
+- What's your current conversion rate?
+- What's your ARPU and churn rate?
+- Any feedback on pricing from customers/prospects?
+
+### 4. Goals
+- Optimizing for growth, revenue, or profitability?
+- Moving upmarket or expanding downmarket?
+
+---
+
+## Pricing Fundamentals
+
+### The Three Pricing Axes
+
+**1. Packaging** — What's included at each tier?
+- Features, limits, support level
+- How tiers differ from each other
+
+**2. Pricing Metric** — What do you charge for?
+- Per user, per usage, flat fee
+- How price scales with value
+
+**3. Price Point** — How much do you charge?
+- The actual dollar amounts
+- Perceived value vs. cost
+
+### Value-Based Pricing
+
+Price should be based on value delivered, not cost to serve:
+
+- **Customer's perceived value** — The ceiling
+- **Your price** — Between alternatives and perceived value
+- **Next best alternative** — The floor for differentiation
+- **Your cost to serve** — Only a baseline, not the basis
+
+**Key insight:** Price between the next best alternative and perceived value.
+
+---
+
+## Value Metrics
+
+### What is a Value Metric?
+
+The value metric is what you charge for—it should scale with the value customers receive.
+
+**Good value metrics:**
+- Align price with value delivered
+- Are easy to understand
+- Scale as customer grows
+- Are hard to game
+
+### Common Value Metrics
+
+| Metric | Best For | Example |
+|--------|----------|---------|
+| Per user/seat | Collaboration tools | Slack, Notion |
+| Per usage | Variable consumption | AWS, Twilio |
+| Per feature | Modular products | HubSpot add-ons |
+| Per contact/record | CRM, email tools | Mailchimp |
+| Per transaction | Payments, marketplaces | Stripe |
+| Flat fee | Simple products | Basecamp |
+
+### Choosing Your Value Metric
+
+Ask: "As a customer uses more of [metric], do they get more value?"
+- If yes → good value metric
+- If no → price doesn't align with value
+
+---
+
+## Tier Structure Overview
+
+### Good-Better-Best Framework
+
+**Good tier (Entry):** Core features, limited usage, low price
+**Better tier (Recommended):** Full features, reasonable limits, anchor price
+**Best tier (Premium):** Everything, advanced features, 2-3x Better price
+
+### Tier Differentiation
+
+- **Feature gating** — Basic vs. advanced features
+- **Usage limits** — Same features, different limits
+- **Support level** — Email → Priority → Dedicated
+- **Access** — API, SSO, custom branding
+
+---
+
+## Pricing Research
+
+### Van Westendorp Method
+
+Four questions that identify acceptable price range:
+1. Too expensive (wouldn't consider)
+2. Too cheap (question quality)
+3. Expensive but might consider
+4. A bargain
+
+Analyze intersections to find optimal pricing zone.
+
+### MaxDiff Analysis
+
+Identifies which features customers value most:
+- Show sets of features
+- Ask: Most important? Least important?
+- Results inform tier packaging
+
+---
+
+## When to Raise Prices
+
+### Signs It's Time
+
+**Market signals:**
+- Competitors have raised prices
+- Prospects don't flinch at price
+- "It's so cheap!" feedback
+
+**Business signals:**
+- Very high conversion rates (>40%)
+- Very low churn (<3% monthly)
+- Strong unit economics
+
+**Product signals:**
+- Significant value added since last pricing
+- Product more mature/stable
+
+### Price Increase Strategies
+
+1. **Grandfather existing** — New price for new customers only
+2. **Delayed increase** — Announce 3-6 months out
+3. **Tied to value** — Raise price but add features
+4. **Plan restructure** — Change plans entirely
+
+---
+
+## Pricing Page Best Practices
+
+### Above the Fold
+- Clear tier comparison table
+- Recommended tier highlighted
+- Monthly/annual toggle
+- Primary CTA for each tier
+
+### Common Elements
+- Feature comparison table
+- Who each tier is for
+- FAQ section
+- Annual discount callout (17-20%)
+- Money-back guarantee
+- Customer logos/trust signals
+
+### Pricing Psychology
+- **Anchoring:** Show higher-priced option first
+- **Decoy effect:** Middle tier should be best value
+- **Charm pricing:** $49 vs. $50 (for value-focused)
+- **Round pricing:** $50 vs. $49 (for premium)
+
+---
+
+## Pricing Checklist
+
+### Before Setting Prices
+- [ ] Defined target customer personas
+- [ ] Researched competitor pricing
+- [ ] Identified your value metric
+- [ ] Conducted willingness-to-pay research
+- [ ] Mapped features to tiers
+
+### Pricing Structure
+- [ ] Chosen number of tiers
+- [ ] Differentiated tiers clearly
+- [ ] Set price points based on research
+- [ ] Created annual discount strategy
+- [ ] Planned enterprise/custom tier
+
+---
+
+## Task-Specific Questions
+
+1. What pricing research have you done?
+2. What's your current ARPU and conversion rate?
+3. What's your primary value metric?
+4. Who are your main pricing personas?
+5. Are you self-serve, sales-led, or hybrid?
+6. What pricing changes are you considering?
+
+---
+
+## Related Skills
+
+- **income:cro**: For optimizing pricing page conversion
+- **income:copywriting**: For pricing page copy
+
+---
+
+### income:product-launch
+> [income] Plans a product launch, feature announcement, or go-to-market release strategy including Product Hunt and post-launch follow-through. Triggers on "launch", "Product Hunt", "go-to-market", "beta launch", "launch checklist", "GTM plan".
+
+# Launch Strategy
+
+You are an expert in SaaS product launches and feature announcements. Your goal is to help users plan launches that build momentum, capture attention, and convert interest into users.
+
+## Before Starting
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+---
+
+## Core Philosophy
+
+The best companies don't just launch once—they launch again and again. Every new feature, improvement, and update is an opportunity to capture attention and engage your audience.
+
+A strong launch isn't about a single moment. It's about:
+- Getting your product into users' hands early
+- Learning from real feedback
+- Making a splash at every stage
+- Building momentum that compounds over time
+
+---
+
+## The ORB Framework
+
+Structure your launch marketing across three channel types. Everything should ultimately lead back to owned channels.
+
+### Owned Channels
+You own the channel (though not the audience). Direct access without algorithms or platform rules.
+
+**Examples:**
+- Email list
+- Blog
+- Podcast
+- Branded community (Slack, Discord)
+- Website/product
+
+**Why they matter:**
+- Get more effective over time
+- No algorithm changes or pay-to-play
+- Direct relationship with audience
+- Compound value from content
+
+**Start with 1-2 based on audience:**
+- Industry lacks quality content → Start a blog
+- People want direct updates → Focus on email
+- Engagement matters → Build a community
+
+**Example - Superhuman:**
+Built demand through an invite-only waitlist and one-on-one onboarding sessions. Every new user got a 30-minute live demo. This created exclusivity, FOMO, and word-of-mouth—all through owned relationships. Years later, their original onboarding materials still drive engagement.
+
+### Rented Channels
+Platforms that provide visibility but you don't control. Algorithms shift, rules change, pay-to-play increases.
+
+**Examples:**
+- Social media (Twitter/X, LinkedIn, Instagram)
+- App stores and marketplaces
+- YouTube
+- Reddit
+
+**How to use correctly:**
+- Pick 1-2 platforms where your audience is active
+- Use them to drive traffic to owned channels
+- Don't rely on them as your only strategy
+
+**Example - Notion:**
+Hacked virality through Twitter, YouTube, and Reddit where productivity enthusiasts were active. Encouraged community to share templates and workflows. But they funneled all visibility into owned assets—every viral post led to signups, then targeted email onboarding.
+
+**Platform-specific tactics:**
+- Twitter/X: Threads that spark conversation → link to newsletter
+- LinkedIn: High-value posts → lead to gated content or email signup
+- Marketplaces (Shopify, Slack): Optimize listing → drive to site for more
+
+Rented channels give speed, not stability. Capture momentum by bringing users into your owned ecosystem.
+
+### Borrowed Channels
+Tap into someone else's audience to shortcut the hardest part—getting noticed.
+
+**Examples:**
+- Guest content (blog posts, podcast interviews, newsletter features)
+- Collaborations (webinars, co-marketing, social takeovers)
+- Speaking engagements (conferences, panels, virtual summits)
+- Influencer partnerships
+
+**Be proactive, not passive:**
+1. List industry leaders your audience follows
+2. Pitch win-win collaborations
+3. Use tools like SparkToro or Listen Notes to find audience overlap
+4. Set up affiliate/referral incentives (for channel partner launches, use a partner-management platform to handle deal registration and commissions)
+
+**Example - TRMNL:**
+Sent a free e-ink display to YouTuber Snazzy Labs—not a paid sponsorship, just hoping he'd like it. He created an in-depth review that racked up 500K+ views and drove $500K+ in sales. They also set up an affiliate program for ongoing promotion.
+
+Borrowed channels give instant credibility, but only work if you convert borrowed attention into owned relationships.
+
+---
+
+## Five-Phase Launch Approach
+
+Launching isn't a one-day event. It's a phased process that builds momentum.
+
+### Phase 1: Internal Launch
+Gather initial feedback and iron out major issues before going public.
+
+**Actions:**
+- Recruit early users one-on-one to test for free
+- Collect feedback on usability gaps and missing features
+- Ensure prototype is functional enough to demo (doesn't need to be production-ready)
+
+**Goal:** Validate core functionality with friendly users.
+
+### Phase 2: Alpha Launch
+Put the product in front of external users in a controlled way.
+
+**Actions:**
+- Create landing page with early access signup form
+- Announce the product exists
+- Invite users individually to start testing
+- MVP should be working in production (even if still evolving)
+
+**Goal:** First external validation and initial waitlist building.
+
+### Phase 3: Beta Launch
+Scale up early access while generating external buzz.
+
+**Actions:**
+- Work through early access list (some free, some paid)
+- Start marketing with teasers about problems you solve
+- Recruit friends, investors, and influencers to test and share
+
+**Consider adding:**
+- Coming soon landing page or waitlist
+- "Beta" sticker in dashboard navigation
+- Email invites to early access list
+- Early access toggle in settings for experimental features
+
+**Goal:** Build buzz and refine product with broader feedback.
+
+### Phase 4: Early Access Launch
+Shift from small-scale testing to controlled expansion.
+
+**Actions:**
+- Leak product details: screenshots, feature GIFs, demos
+- Gather quantitative usage data and qualitative feedback
+- Run user research with engaged users (incentivize with credits)
+- Optionally run product/market fit survey to refine messaging
+
+**Expansion options:**
+- Option A: Throttle invites in batches (5-10% at a time)
+- Option B: Invite all users at once under "early access" framing
+
+**Goal:** Validate at scale and prepare for full launch.
+
+### Phase 5: Full Launch
+Open the floodgates.
+
+**Actions:**
+- Open self-serve signups
+- Start charging (if not already)
+- Announce general availability across all channels
+
+**Launch touchpoints:**
+- Customer emails
+- In-app popups and product tours
+- Website banner linking to launch assets
+- "New" sticker in dashboard navigation
+- Blog post announcement
+- Social posts across platforms
+- Product Hunt, BetaList, Hacker News, etc.
+
+**Goal:** Maximum visibility and conversion to paying users.
+
+---
+
+## Product Hunt Launch Strategy
+
+Product Hunt can be powerful for reaching early adopters, but it's not magic—it requires preparation.
+
+### Pros
+- Exposure to tech-savvy early adopter audience
+- Credibility bump (especially if Product of the Day)
+- Potential PR coverage and backlinks
+
+### Cons
+- Very competitive to rank well
+- Short-lived traffic spikes
+- Requires significant pre-launch planning
+
+### How to Launch Successfully
+
+**Before launch day:**
+1. Build relationships with influential supporters, content hubs, and communities
+2. Optimize your listing: compelling tagline, polished visuals, short demo video
+3. Study successful launches to identify what worked
+4. Engage in relevant communities—provide value before pitching
+5. Prepare your team for all-day engagement
+
+**On launch day:**
+1. Treat it as an all-day event
+2. Respond to every comment in real-time
+3. Answer questions and spark discussions
+4. Encourage your existing audience to engage
+5. Direct traffic back to your site to capture signups
+
+**After launch day:**
+1. Follow up with everyone who engaged
+2. Convert Product Hunt traffic into owned relationships (email signups)
+3. Continue momentum with post-launch content
+
+### Case Studies
+
+**SavvyCal** (Scheduling tool):
+- Optimized landing page and onboarding before launch
+- Built relationships with productivity/SaaS influencers in advance
+- Responded to every comment on launch day
+- Result: #2 Product of the Month
+
+**Reform** (Form builder):
+- Studied successful launches and applied insights
+- Crafted clear tagline, polished visuals, demo video
+- Engaged in communities before launch (provided value first)
+- Treated launch as all-day engagement event
+- Directed traffic to capture signups
+- Result: #1 Product of the Day
+
+---
+
+## Post-Launch Product Marketing
+
+Your launch isn't over when the announcement goes live. Now comes adoption and retention work.
+
+### Immediate Post-Launch Actions
+
+**Educate new users:**
+Set up automated onboarding email sequence introducing key features and use cases.
+
+**Reinforce the launch:**
+Include announcement in your weekly/biweekly/monthly roundup email to catch people who missed it.
+
+**Differentiate against competitors:**
+Publish comparison pages highlighting why you're the obvious choice.
+
+**Update web pages:**
+Add dedicated sections about the new feature/product across your site.
+
+**Offer hands-on preview:**
+Create no-code interactive demo (using tools like Navattic) so visitors can explore before signing up.
+
+### Keep Momentum Going
+It's easier to build on existing momentum than start from scratch. Every touchpoint reinforces the launch.
+
+---
+
+## Ongoing Launch Strategy
+
+Don't rely on a single launch event. Regular updates and feature rollouts sustain engagement.
+
+### How to Prioritize What to Announce
+
+Use this matrix to decide how much marketing each update deserves:
+
+**Major updates** (new features, product overhauls):
+- Full campaign across multiple channels
+- Blog post, email campaign, in-app messages, social media
+- Maximize exposure
+
+**Medium updates** (new integrations, UI enhancements):
+- Targeted announcement
+- Email to relevant segments, in-app banner
+- Don't need full fanfare
+
+**Minor updates** (bug fixes, small tweaks):
+- Changelog and release notes
+- Signal that product is improving
+- Don't dominate marketing
+
+### Announcement Tactics
+
+**Space out releases:**
+Instead of shipping everything at once, stagger announcements to maintain momentum.
+
+**Reuse high-performing tactics:**
+If a previous announcement resonated, apply those insights to future updates.
+
+**Keep engaging:**
+Continue using email, social, and in-app messaging to highlight improvements.
+
+**Signal active development:**
+Even small changelog updates remind customers your product is evolving. This builds retention and word-of-mouth—customers feel confident you'll be around.
+
+---
+
+## Launch Checklist
+
+### Pre-Launch
+- [ ] Landing page with clear value proposition
+- [ ] Email capture / waitlist signup
+- [ ] Early access list built
+- [ ] Owned channels established (email, blog, community)
+- [ ] Rented channel presence (social profiles optimized)
+- [ ] Borrowed channel opportunities identified (podcasts, influencers)
+- [ ] Product Hunt listing prepared (if using)
+- [ ] Launch assets created (screenshots, demo video, GIFs)
+- [ ] Onboarding flow ready
+- [ ] Analytics/tracking in place
+
+### Launch Day
+- [ ] Announcement email to list
+- [ ] Blog post published
+- [ ] Social posts scheduled and posted
+- [ ] Product Hunt listing live (if using)
+- [ ] In-app announcement for existing users
+- [ ] Website banner/notification active
+- [ ] Team ready to engage and respond
+- [ ] Monitor for issues and feedback
+
+### Post-Launch
+- [ ] Onboarding email sequence active
+- [ ] Follow-up with engaged prospects
+- [ ] Roundup email includes announcement
+- [ ] Comparison pages published
+- [ ] Interactive demo created
+- [ ] Gather and act on feedback
+- [ ] Plan next launch moment
+
+---
+
+## Task-Specific Questions
+
+1. What are you launching? (New product, major feature, minor update)
+2. What's your current audience size and engagement?
+3. What owned channels do you have? (Email list size, blog traffic, community)
+4. What's your timeline for launch?
+5. Have you launched before? What worked/didn't work?
+6. Are you considering Product Hunt? What's your preparation status?
+
+---
+
+## Related Skills
+
+- **income:email-marketing**: For launch and onboarding email sequences
+- **income:cro**: For optimizing launch landing pages
+- **income:programmatic-seo**: For comparison pages mentioned in post-launch
+
+---
+
+### income:productized-service
+> [income] Converts dev expertise into fixed-scope, fixed-price productized offers — audits, sprints, retainers — with positioning and a sales page outline. Triggers on "productized service", "package my services", "fixed-price offer", "service offer", "audit as a service".
+
+# income:productized-service
+
+Origin: first-party PAARTH skill (not vendored). For developers who want
+recurring income without custom-quoting every engagement.
+
+## Procedure
+
+1. **Pick the repeatable slice.** List the last 5 problems the user solved for
+   others (or could). Keep only those where: the diagnosis process is identical
+   across clients, delivery fits a fixed timebox, and the outcome is demonstrable
+   in a before/after. One winner only — productization dies from a menu.
+2. **Name the offer as outcome + timebox.** "Performance audit: your Core Web
+   Vitals bottlenecks ranked, in 5 business days." Not "consulting services".
+3. **Fix the scope brutally.** Write the deliverable as a numbered list (max 5
+   items) and an explicit "not included" list at least as long. The "not included"
+   list is the upsell path to a retainer or custom engagement.
+4. **Price by value band, not hours**: entry audit (no-brainer price, lead
+   generator), core offer (the real margin), premium tier (adds implementation or
+   a retainer). Rule of thumb: core = 3-5× entry; premium = 2-3× core, recurring.
+5. **Sales page outline** (hand to income:copywriting if deeper copy is needed):
+   headline = outcome + timebox; 3 proof points; deliverables list; price + who
+   it's NOT for (a real filter — it raises close rates); FAQ (5 max); single CTA
+   (buy or book, never "contact us to discuss").
+6. **Delivery checklist.** Turn the diagnosis process into a reusable internal
+   checklist/scripts so delivery cost drops every time it runs. That margin curve
+   is the whole point of productizing.
+
+## Verification
+
+The offer passes when: a stranger can understand what they get, by when, for how
+much, from the page outline alone; scope has more exclusions than inclusions;
+delivery is documented well enough that a competent peer could run it.
+
+---
+
+### income:programmatic-seo
+> [income] Designs SEO page templates and data pipelines to build many keyword/location-targeted pages at scale without thin-content penalties. Triggers on "programmatic SEO", "pages at scale", "location pages", "comparison pages", "pSEO", "generate 100 pages".
+
+# Programmatic SEO
+
+You are an expert in programmatic SEO—building SEO-optimized pages at scale using templates and data. Your goal is to create pages that rank, provide value, and avoid thin content penalties.
+
+## Initial Assessment
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Before designing a programmatic SEO strategy, understand:
+
+1. **Business Context**
+   - What's the product/service?
+   - Who is the target audience?
+   - What's the conversion goal for these pages?
+
+2. **Opportunity Assessment**
+   - What search patterns exist?
+   - How many potential pages?
+   - What's the search volume distribution?
+
+3. **Competitive Landscape**
+   - Who ranks for these terms now?
+   - What do their pages look like?
+   - Can you realistically compete?
+
+---
+
+## Core Principles
+
+### 1. Unique Value Per Page
+- Every page must provide value specific to that page
+- Not just swapped variables in a template
+- Maximize unique content—the more differentiated, the better
+
+### 2. Proprietary Data Wins
+Hierarchy of data defensibility:
+1. Proprietary (you created it)
+2. Product-derived (from your users)
+3. User-generated (your community)
+4. Licensed (exclusive access)
+5. Public (anyone can use—weakest)
+
+### 3. Clean URL Structure
+**Use subfolders, not subdomains** — subfolders consolidate domain authority while subdomains split it:
+- Good: `yoursite.com/templates/resume/`
+- Bad: `templates.yoursite.com/resume/`
+
+### 4. Genuine Search Intent Match
+Pages must actually answer what people are searching for.
+
+### 5. Quality Over Quantity
+Better to have 100 great pages than 10,000 thin ones.
+
+### 6. Avoid Google Penalties
+- No doorway pages
+- No keyword stuffing
+- No duplicate content
+- Genuine utility for users
+
+---
+
+## The 12 Playbooks (Overview)
+
+| Playbook | Pattern | Example |
+|----------|---------|---------|
+| Templates | "[Type] template" | "resume template" |
+| Curation | "best [category]" | "best website builders" |
+| Conversions | "[X] to [Y]" | "$10 USD to GBP" |
+| Comparisons | "[X] vs [Y]" | "webflow vs wordpress" |
+| Examples | "[type] examples" | "landing page examples" |
+| Locations | "[service] in [location]" | "dentists in austin" |
+| Personas | "[product] for [audience]" | "crm for real estate" |
+| Integrations | "[product A] [product B] integration" | "slack asana integration" |
+| Glossary | "what is [term]" | "what is pSEO" |
+| Translations | Content in multiple languages | Localized content |
+| Directory | "[category] tools" | "ai copywriting tools" |
+| Profiles | "[entity name]" | "stripe ceo" |
+
+---
+
+## Choosing Your Playbook
+
+| If you have... | Consider... |
+|----------------|-------------|
+| Proprietary data | Directories, Profiles |
+| Product with integrations | Integrations |
+| Design/creative product | Templates, Examples |
+| Multi-segment audience | Personas |
+| Local presence | Locations |
+| Tool or utility product | Conversions |
+| Content/expertise | Glossary, Curation |
+| Competitor landscape | Comparisons |
+
+You can layer multiple playbooks (e.g., "Best coworking spaces in San Diego").
+
+---
+
+## Implementation Framework
+
+### 1. Keyword Pattern Research
+
+**Identify the pattern:**
+- What's the repeating structure?
+- What are the variables?
+- How many unique combinations exist?
+
+**Validate demand:**
+- Aggregate search volume
+- Volume distribution (head vs. long tail)
+- Trend direction
+
+### 2. Data Requirements
+
+**Identify data sources:**
+- What data populates each page?
+- Is it first-party, scraped, licensed, public?
+- How is it updated?
+
+### 3. Template Design
+
+**Page structure:**
+- Header with target keyword
+- Unique intro (not just variables swapped)
+- Data-driven sections
+- Related pages / internal links
+- CTAs appropriate to intent
+
+**Ensuring uniqueness:**
+- Each page needs unique value
+- Conditional content based on data
+- Original insights/analysis per page
+
+### 4. Internal Linking Architecture
+
+**Hub and spoke model:**
+- Hub: Main category page
+- Spokes: Individual programmatic pages
+- Cross-links between related spokes
+
+**Avoid orphan pages:**
+- Every page reachable from main site
+- XML sitemap for all pages
+- Breadcrumbs with structured data
+
+### 5. Indexation Strategy
+
+- Prioritize high-volume patterns
+- Noindex very thin variations
+- Manage crawl budget thoughtfully
+- Separate sitemaps by page type
+
+---
+
+## Quality Checks
+
+### Pre-Launch Checklist
+
+**Content quality:**
+- [ ] Each page provides unique value
+- [ ] Answers search intent
+- [ ] Readable and useful
+
+**Technical SEO:**
+- [ ] Unique titles and meta descriptions
+- [ ] Proper heading structure
+- [ ] Schema markup implemented
+- [ ] Page speed acceptable
+
+**Internal linking:**
+- [ ] Connected to site architecture
+- [ ] Related pages linked
+- [ ] No orphan pages
+
+**Indexation:**
+- [ ] In XML sitemap
+- [ ] Crawlable
+- [ ] No conflicting noindex
+
+### Post-Launch Monitoring
+
+Track: Indexation rate, Rankings, Traffic, Engagement, Conversion
+
+Watch for: Thin content warnings, Ranking drops, Manual actions, Crawl errors
+
+---
+
+## Common Mistakes
+
+- **Thin content**: Just swapping city names in identical content
+- **Keyword cannibalization**: Multiple pages targeting same keyword
+- **Over-generation**: Creating pages with no search demand
+- **Poor data quality**: Outdated or incorrect information
+- **Ignoring UX**: Pages exist for Google, not users
+
+---
+
+## Output Format
+
+### Strategy Document
+- Opportunity analysis
+- Implementation plan
+- Content guidelines
+
+### Page Template
+- URL structure
+- Title/meta templates
+- Content outline
+- Schema markup
+
+---
+
+## Task-Specific Questions
+
+1. What keyword patterns are you targeting?
+2. What data do you have (or can acquire)?
+3. How many pages are you planning?
+4. What does your site authority look like?
+5. Who currently ranks for these terms?
+6. What's your technical stack?
+
+---
+
+## Related Skills
+
+- **income:seo-audit**: For auditing programmatic pages after launch
+
+---
+
+### income:sales-outreach
+> [income] Researches a prospect then drafts personalized cold email / LinkedIn outreach with follow-up sequencing. Triggers on "cold outreach", "prospect", "sales email", "outreach sequence", "book a call".
+
+# Draft Outreach
+
+Research first, then draft. This skill never sends generic outreach - it always researches the prospect first to personalize the message. Works standalone with web search, supercharged if a CRM/enrichment MCP is already connected.
+
+## Connectors (Optional)
+
+| If Connected | What It Adds |
+|-----------|--------------|
+| **Enrichment MCP** | Verified email, phone, background details |
+| **CRM MCP** | Prior relationship context, existing contacts |
+| **Email MCP** | Create draft directly in your inbox |
+
+> **No MCPs connected?** Web research works great. I'll output the email text for you to copy.
+
+---
+
+## How It Works
+
+```
++------------------------------------------------------------------+
+|                      DRAFT OUTREACH                               |
+|                                                                   |
+|  Step 1: RESEARCH (always happens first)                         |
+|  - Web search (default)                                           |
+|  - + Enrichment (if an enrichment MCP is connected)               |
+|  - + CRM (if a CRM MCP is connected)                              |
+|                                                                   |
+|  Step 2: DRAFT (based on research)                               |
+|  - Personalized opening (from research)                          |
+|  - Relevant hook (their priorities)                              |
+|  - Clear CTA                                                      |
+|                                                                   |
+|  Step 3: DELIVER (based on connectors)                           |
+|  - Email draft (if an email MCP is connected)                    |
+|  - Copy for LinkedIn (always)                                    |
+|  - Output to user (always)                                        |
++------------------------------------------------------------------+
+```
+
+---
+
+## Output Format
+
+```markdown
+# Outreach Draft: [Person] @ [Company]
+**Generated:** [Date] | **Research Sources:** [Web, Enrichment, CRM]
+
+---
+
+## Research Summary
+
+**Target:** [Name], [Title] at [Company]
+**Hook:** [Why reaching out now - the personalized angle]
+**Goal:** [What you want from this outreach]
+
+---
+
+## Email Draft
+
+**To:** [email if known, or "find email" note]
+**Subject:** [Personalized subject line]
+
+---
+
+[Email body]
+
+---
+
+**Subject Line Alternatives:**
+1. [Option 2]
+2. [Option 3]
+
+---
+
+## LinkedIn Message (if no email)
+
+**Connection Request (< 300 chars):**
+[Short, no-pitch connection request]
+
+**Follow-up Message (after connected):**
+[Value-first message]
+
+---
+
+## Why This Approach
+
+| Element | Based On |
+|---------|----------|
+| Opening | [Research finding that makes it personal] |
+| Hook | [Their priority/pain point] |
+| Proof | [Relevant customer story] |
+| CTA | [Low-friction ask] |
+
+---
+
+## Email Draft Status
+
+[Draft created - check ~~email]
+[Email not connected - copy email above]
+[No email found - use LinkedIn approach]
+
+---
+
+## Follow-up Sequence (Optional)
+
+**Day 3 - Follow-up 1:**
+[Short, new angle]
+
+**Day 7 - Follow-up 2:**
+[Different value prop]
+
+**Day 14 - Break-up:**
+[Final attempt]
+```
+
+---
+
+## Execution Flow
+
+### Step 1: Parse Request
+
+```
+Input patterns:
+- "draft outreach to John Smith at Acme" → Person + company
+- "write cold email to Acme's CTO" → Role + company
+- "reach out to sarah@acme.com" → Email provided
+- "LinkedIn message to [LinkedIn URL]" → Profile provided
+```
+
+### Step 2: Research First (Always)
+
+**Research the prospect before drafting anything:**
+```
+1. Web search for company + person
+2. If an enrichment MCP is connected: get verified contact info, background
+3. If a CRM MCP is connected: check for prior relationship
+```
+
+**Must find before drafting:**
+- Who they are (title, background)
+- What the company does
+- Recent news or trigger
+- Personalization hook
+
+### Step 3: Identify Hook
+
+```
+Priority order for hooks:
+1. Trigger event (funding, hiring, news) → Most timely
+2. Mutual connection → Social proof
+3. Their content (post, article, talk) → Shows you did research
+4. Company initiative → Relevant to their priorities
+5. Role-based pain point → Least personal but still relevant
+```
+
+### Step 4: Draft Message
+
+**Email Structure (AIDA):**
+```
+SUBJECT: [Personalized, <50 chars, no spam words]
+
+[Opening: Personal hook - shows you researched them]
+
+[Interest: Their problem/opportunity in 1-2 sentences]
+
+[Desire: Brief proof point - similar company result]
+
+[Action: Clear, low-friction CTA]
+
+[Signature]
+```
+
+**LinkedIn Connection Request (<300 chars):**
+```
+Hi [Name], [Mutual connection/shared interest/genuine compliment].
+Would love to connect. [No pitch]
+```
+
+**LinkedIn Follow-up Message:**
+```
+Thanks for connecting! [Value-first: insight, article, observation]
+
+[Soft transition to why you reached out]
+
+[Question, not pitch]
+```
+
+### Step 5: Create Email Draft
+
+```
+If an email MCP is connected:
+1. Create draft with to, subject, body
+2. Return draft link
+3. Note: "Draft created - review and send"
+
+If not connected:
+1. Output email text
+2. Note: "Copy to your email client"
+```
+
+---
+
+## Capability by Connector
+
+| Capability | Web Only | + Enrichment MCP | + CRM MCP | + Email MCP |
+|------------|----------|--------------|-------|---------|
+| Personalized opening | Basic | Deep | With history | Same |
+| Verified email | No | Yes | Yes | Yes |
+| Background details | Public only | Full | Full | Full |
+| Prior relationship | No | No | Yes | Yes |
+| Auto-create draft | No | No | No | Yes |
+
+---
+
+## Message Templates by Scenario
+
+### Cold Outreach (No Prior Relationship)
+
+```
+Subject: [Their initiative] + [your angle]
+
+Hi [Name],
+
+[Personal hook based on research - news, content, mutual connection].
+
+[1 sentence on their likely challenge based on role/company].
+
+[Brief proof: "We helped [Similar Company] achieve [Result]".]
+
+Worth a 15-min call to see if relevant?
+
+[Signature]
+```
+
+### Warm Outreach (Have Met / Mutual Connection)
+
+```
+Subject: Following up from [context]
+
+Hi [Name],
+
+[Reference to how you know them / who connected you].
+
+[Why reaching out now - their trigger].
+
+[Specific value you can offer].
+
+[CTA]
+```
+
+### Re-Engagement (Went Dark)
+
+```
+Subject: [Short, curiosity-driven]
+
+Hi [Name],
+
+[Acknowledge time passed without being guilt-trippy].
+
+[New reason to reconnect - their news or your news].
+
+[Simple question to re-open dialogue].
+
+[Signature]
+```
+
+### Post-Event Follow-up
+
+```
+Subject: Great meeting you at [Event]
+
+Hi [Name],
+
+[Specific memory from conversation].
+
+[Value-add: article, intro, resource related to what you discussed].
+
+[Soft CTA for next conversation].
+```
+
+---
+
+## Email Style Guidelines
+
+1. **Be concise but informative** — Get to the point quickly. Busy people skim.
+2. **No markdown formatting** — Never use asterisks, bold (**text**), or other markdown. Write plain text that looks natural in any email client.
+3. **Short paragraphs** — 2-3 sentences max per paragraph. White space is your friend.
+4. **Simple lists** — If listing items, use plain dashes. No fancy formatting.
+
+**Good:**
+```
+Here's what I can share:
+- Case study from a similar company
+- 15-min intro call this week
+- Quick demo if helpful
+```
+
+**Bad:**
+```
+**What I Can Offer:**
+- **Case study** from a similar company
+- **Intro call** this week
+```
+
+---
+
+## What NOT to Do
+
+**Generic openers:**
+- "I hope this email finds you well"
+- "I'm reaching out because..."
+- "I wanted to introduce myself"
+
+**Feature dumps:**
+- Long paragraphs about your product
+- Multiple value props at once
+- No clear CTA
+
+**Fake personalization:**
+- "I noticed you work at [Company]" (obviously)
+- "Congrats on your role" (without context)
+
+**Markdown in emails:**
+- Using **bold** or *italic* asterisks
+- Headers or formatted lists that won't render
+
+**Instead:**
+- Lead with something specific you learned
+- One clear value prop
+- One clear ask
+- Plain text formatting only
+
+---
+
+## Channel Selection
+
+```
+IF verified email available:
+  → Email preferred (higher response rate)
+  → Also provide LinkedIn backup
+
+IF no email:
+  → LinkedIn connection request
+  → Follow-up message template for after connection
+
+IF warm intro possible:
+  → Suggest mutual connection outreach first
+```
+
+---
+
+## Company Configuration [CUSTOMIZE]
+
+```markdown
+## Outreach Settings
+
+- My name: [Your Name]
+- My title: [Your Title]
+- My company: [Company Name]
+- Value prop: [One sentence - what you help with]
+
+## Signature
+[Your preferred email signature]
+
+## Proof Points
+- [Customer 1]: [Result]
+- [Customer 2]: [Result]
+- [Customer 3]: [Result]
+
+## CTA Options
+- Default: "Worth a 15-min call?"
+- Softer: "Open to learning more?"
+- Specific: "Can I send over a quick demo?"
+
+## Tone
+- [Professional / Casual / Direct]
+- Industry-specific language: [Yes/No]
+```
+
+---
+
+## Example
+
+**Input:** "draft outreach to the Head of Engineering at Notion"
+
+**Research finds:**
+- Name: David Tibbitts
+- Recent news: Notion launched AI features
+- Hiring: 5 ML engineer roles open
+- Background: Ex-Facebook, Stanford CS
+
+**Output:**
+
+```markdown
+# Outreach Draft: David Tibbitts @ Notion
+
+## Research Summary
+**Target:** David Tibbitts, Head of Engineering at Notion
+**Hook:** They're scaling AI features and hiring ML talent
+**Goal:** Intro call about AI infrastructure
+
+---
+
+## Email Draft
+
+**To:** david@notion.so
+**Subject:** Notion's AI scaling + a thought
+
+---
+
+Hi David,
+
+Saw Notion's AI rollout is gaining serious traction - congrats.
+With 5 ML roles open, seems like you're scaling fast.
+
+Curious how you're thinking about inference infrastructure
+as usage grows. We helped [Similar Company] cut their AI
+serving costs 40% while improving latency.
+
+Worth a 15-min call to see if relevant to your roadmap?
+
+Best,
+[Name]
+
+---
+
+**Subject Alternatives:**
+1. Notion AI + scaling question
+2. Quick thought on Notion's ML hiring
+
+---
+
+## Email Draft Status
+Draft created - check ~~email
+```
+
+---
+
+### income:seo-audit
+> [income] Audits a site for technical, on-page, and international SEO issues and produces prioritized fixes. Triggers on "SEO audit", "why am I not ranking", "technical SEO", "traffic dropped", "not showing up in Google", "core web vitals".
+
+# SEO Audit
+
+You are an expert in search engine optimization. Your goal is to identify SEO issues and provide actionable recommendations to improve organic search performance.
+
+## Initial Assessment
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Before auditing, understand:
+
+1. **Site Context**
+   - What type of site? (SaaS, e-commerce, blog, etc.)
+   - What's the primary business goal for SEO?
+   - What keywords/topics are priorities?
+
+2. **Current State**
+   - Any known issues or concerns?
+   - Current organic traffic level?
+   - Recent changes or migrations?
+
+3. **Scope**
+   - Full site audit or specific pages?
+   - Technical + on-page, or one focus area?
+   - Access to Search Console / analytics?
+
+---
+
+## Audit Framework
+
+### Schema Markup Detection Limitation
+
+**`web_fetch` and `curl` cannot reliably detect structured data / schema markup.**
+
+Many CMS plugins (AIOSEO, Yoast, RankMath) inject JSON-LD via client-side JavaScript — it won't appear in static HTML or `web_fetch` output (which strips `<script>` tags during conversion).
+
+**To accurately check for schema markup, use one of these methods:**
+1. **Browser tool** — render the page and run: `document.querySelectorAll('script[type="application/ld+json"]')`
+2. **Google Rich Results Test** — https://search.google.com/test/rich-results
+3. **Screaming Frog export** — if the client provides one, use it (SF renders JavaScript)
+
+Reporting "no schema found" based solely on `web_fetch` or `curl` leads to false audit findings — these tools can't see JS-injected schema.
+
+### Priority Order
+1. **Crawlability & Indexation** (can Google find and index it?)
+2. **Technical Foundations** (is the site fast and functional?)
+3. **On-Page Optimization** (is content optimized?)
+4. **Content Quality** (does it deserve to rank?)
+5. **Authority & Links** (does it have credibility?)
+
+---
+
+## Technical SEO Audit
+
+### Crawlability
+
+**Robots.txt**
+- Check for unintentional blocks
+- Verify important pages allowed
+- Check sitemap reference
+
+**XML Sitemap**
+- Exists and accessible
+- Submitted to Search Console
+- Contains only canonical, indexable URLs
+- Updated regularly
+- Proper formatting
+
+**Site Architecture**
+- Important pages within 3 clicks of homepage
+- Logical hierarchy
+- Internal linking structure
+- No orphan pages
+
+**Crawl Budget Issues** (for large sites)
+- Parameterized URLs under control
+- Faceted navigation handled properly
+- Infinite scroll with pagination fallback
+- Session IDs not in URLs
+
+### Indexation
+
+**Index Status**
+- site:domain.com check
+- Search Console coverage report
+- Compare indexed vs. expected
+
+**Indexation Issues**
+- Noindex tags on important pages
+- Canonicals pointing wrong direction
+- Redirect chains/loops
+- Soft 404s
+- Duplicate content without canonicals
+
+**Canonicalization**
+- All pages have canonical tags
+- Self-referencing canonicals on unique pages
+- HTTP → HTTPS canonicals
+- www vs. non-www consistency
+- Trailing slash consistency
+
+### Site Speed & Core Web Vitals
+
+**Core Web Vitals**
+- LCP (Largest Contentful Paint): < 2.5s
+- INP (Interaction to Next Paint): < 200ms
+- CLS (Cumulative Layout Shift): < 0.1
+
+**Speed Factors**
+- Server response time (TTFB)
+- Image optimization
+- JavaScript execution
+- CSS delivery
+- Caching headers
+- CDN usage
+- Font loading
+
+**Tools**
+- PageSpeed Insights
+- WebPageTest
+- Chrome DevTools
+- Search Console Core Web Vitals report
+
+### Mobile-Friendliness
+
+- Responsive design (not separate m. site)
+- Tap target sizes
+- Viewport configured
+- No horizontal scroll
+- Same content as desktop
+- Mobile-first indexing readiness
+
+### Security & HTTPS
+
+- HTTPS across entire site
+- Valid SSL certificate
+- No mixed content
+- HTTP → HTTPS redirects
+- HSTS header (bonus)
+
+### URL Structure
+
+- Readable, descriptive URLs
+- Keywords in URLs where natural
+- Consistent structure
+- No unnecessary parameters
+- Lowercase and hyphen-separated
+
+---
+
+## International SEO & Localization
+
+### Hreflang
+
+Three equivalent placement methods: HTML `<link>` in `<head>`, HTTP `Link` headers, XML sitemap `<xhtml:link>`. If using multiple, they must agree -- conflicting signals cause Google to drop that pair. For 10+ locales, prefer sitemap-based (no page weight, no per-request cost).
+
+**Check for:**
+- Self-referencing entry on every page (page must include itself in the hreflang set)
+- Reciprocal links (if A points to B, B must point back to A -- or both are ignored)
+- Valid codes: ISO 639-1 language + optional ISO 3166-1 Alpha 2 region (e.g., `en`, `en-GB` -- never `en-UK`)
+- `x-default` present, pointing to fallback page (language selector or default locale)
+- All target URLs return 200, are indexable, and match their canonical URL
+- No duplicate language-region codes pointing to different URLs
+
+**Common errors:** Missing self-referencing entry (all hreflang ignored). No return tag / one-directional (pair dropped). Invalid codes like `en-UK` (use `en-GB`). Hreflang target is non-canonical, 404, or blocked (cluster discarded). HTML and sitemap annotations disagree (conflicting pair dropped).
+
+**At scale:** `<xhtml:link>` children don't count toward 50K URL sitemap limit, but the 50MB file size limit becomes the bottleneck (plan 2K-5K URLs per file with full hreflang). Focus hreflang on pages receiving wrong-language traffic -- not required on every page. For Bing: supplement with `<html lang>` and `<meta http-equiv="content-language">` (Bing treats hreflang as a weak signal).
+
+### Canonicalization for Multilingual Sites
+
+- Each locale page must self-canonical (e.g., `/ar/page` canonicals to `/ar/page`)
+- Never cross-locale canonical (French to English) -- suppresses the non-canonical locale entirely
+- Canonical URL must appear in the hreflang set -- if not, all hreflang is ignored
+- Canonical overrides hreflang when they conflict
+- Protocol/domain must be consistent across canonical, hreflang, and sitemap (`https` + same domain variant)
+- Paginated locale pages: self-referencing canonical per page (never canonical page 2+ to page 1)
+
+**Common mistakes:** all locales canonical to English (kills indexing), canonical URL not in hreflang set (silently ignored), protocol mismatch between canonical and hreflang, CMS setting deep page canonical to homepage.
+
+### International Sitemaps
+
+**Check for:**
+- `xmlns:xhtml` namespace on `<urlset>`, each `<url>` includes `<xhtml:link>` for all locales including itself
+- `x-default` alternate included; all URLs absolute (full protocol + domain)
+- Sitemap index in Search Console and robots.txt; split by content type, not by locale
+
+**Next.js caveat:** `alternates.languages` does NOT auto-include a self-referencing `<xhtml:link>` for the `<loc>` URL -- you must add the current locale explicitly.
+
+### Locale URL Structure
+
+**Recommended:** Subdirectories (`/en/`, `/ar/`). **Acceptable:** Subdomains or ccTLDs. **Not recommended:** URL parameters (`?lang=en`).
+
+**Check for:**
+- Consistent locale prefix strategy; all locales prefixed (hiding locale from URLs prevents Google from distinguishing versions)
+- Root URL handled as `x-default` with redirect, or serves default locale content
+- No IP/Accept-Language content negotiation (Googlebot: US IPs, no Accept-Language header)
+- Trailing slash + case consistency across locale paths, canonicals, hreflang, and sitemaps
+- 301 redirects from non-canonical format to canonical
+
+**Note:** Google's International Targeting report in Search Console is deprecated. Geotargeting relies on hreflang, content signals, and linking patterns.
+
+### Content Quality Across Locales
+
+**Translation quality:**
+- AI-translated content is not inherently spam (Google's 2025 stance), but scaled low-value translations can trigger scaled content abuse policy
+- Google uses visible content to determine language -- translate ALL page content (title, description, headings, body), not just boilerplate
+- Translating only template/nav while main content stays in original language creates duplicates
+
+**Thin locale pages:**
+- Helpful content system is site-wide -- many thin locale pages can suppress rankings for strong pages too
+- Don't noindex thin locales (wastes crawl budget) or cross-locale canonical (conflicts with hreflang)
+- Best approach: don't create locale pages you cannot make genuinely helpful
+
+**Check for:**
+- All locale pages have fully translated main content (not just UI chrome)
+- No near-identical content across locales ("Duplicate, Google chose different canonical" in GSC)
+- Hreflang only for locales with genuine content and search demand
+- Localized signals: currency, phone format, addresses where applicable
+- Broken hreflang links (404s, redirects) waste crawl budget AND invalidate hreflang clusters
+
+---
+
+## On-Page SEO Audit
+
+### Title Tags
+
+**Check for:**
+- Unique titles for each page
+- Primary keyword near beginning
+- 50-60 characters (visible in SERP)
+- Compelling and click-worthy
+- Brand name placement (end, usually)
+
+**Common issues:**
+- Duplicate titles
+- Too long (truncated)
+- Too short (wasted opportunity)
+- Keyword stuffing
+- Missing entirely
+
+### Meta Descriptions
+
+**Check for:**
+- Unique descriptions per page
+- 150-160 characters
+- Includes primary keyword
+- Clear value proposition
+- Call to action
+
+**Common issues:**
+- Duplicate descriptions
+- Auto-generated garbage
+- Too long/short
+- No compelling reason to click
+
+### Heading Structure
+
+**Check for:**
+- One H1 per page
+- H1 contains primary keyword
+- Logical hierarchy (H1 → H2 → H3)
+- Headings describe content
+- Not just for styling
+
+**Common issues:**
+- Multiple H1s
+- Skip levels (H1 → H3)
+- Headings used for styling only
+- No H1 on page
+
+### Content Optimization
+
+**Primary Page Content**
+- Keyword in first 100 words
+- Related keywords naturally used
+- Sufficient depth/length for topic
+- Answers search intent
+- Better than competitors
+
+**Thin Content Issues**
+- Pages with little unique content
+- Tag/category pages with no value
+- Doorway pages
+- Duplicate or near-duplicate content
+
+### Image Optimization
+
+**Check for:**
+- Descriptive file names
+- Alt text on all images
+- Alt text describes image
+- Compressed file sizes
+- Modern formats (WebP)
+- Lazy loading implemented
+- Responsive images
+
+### Internal Linking
+
+**Check for:**
+- Important pages well-linked
+- Descriptive anchor text
+- Logical link relationships
+- No broken internal links
+- Reasonable link count per page
+
+**Common issues:**
+- Orphan pages (no internal links)
+- Over-optimized anchor text
+- Important pages buried
+- Excessive footer/sidebar links
+
+### Keyword Targeting
+
+**Per Page**
+- Clear primary keyword target
+- Title, H1, URL aligned
+- Content satisfies search intent
+- Not competing with other pages (cannibalization)
+
+**Site-Wide**
+- Keyword mapping document
+- No major gaps in coverage
+- No keyword cannibalization
+- Logical topical clusters
+
+---
+
+## Content Quality Assessment
+
+### E-E-A-T Signals
+
+**Experience**
+- First-hand experience demonstrated
+- Original insights/data
+- Real examples and case studies
+
+**Expertise**
+- Author credentials visible
+- Accurate, detailed information
+- Properly sourced claims
+
+**Authoritativeness**
+- Recognized in the space
+- Cited by others
+- Industry credentials
+
+**Trustworthiness**
+- Accurate information
+- Transparent about business
+- Contact information available
+- Privacy policy, terms
+- Secure site (HTTPS)
+
+### Content Depth
+
+- Comprehensive coverage of topic
+- Answers follow-up questions
+- Better than top-ranking competitors
+- Updated and current
+
+### User Engagement Signals
+
+- Time on page
+- Bounce rate in context
+- Pages per session
+- Return visits
+
+---
+
+## Common Issues by Site Type
+
+### SaaS/Product Sites
+- Product pages lack content depth
+- Blog not integrated with product pages
+- Missing comparison/alternative pages
+- Feature pages thin on content
+- No glossary/educational content
+
+### E-commerce
+- Thin category pages
+- Duplicate product descriptions
+- Missing product schema
+- Faceted navigation creating duplicates
+- Out-of-stock pages mishandled
+
+### Content/Blog Sites
+- Outdated content not refreshed
+- Keyword cannibalization
+- No topical clustering
+- Poor internal linking
+- Missing author pages
+
+### Multilingual / Multi-Regional Sites
+- Hreflang errors (missing return tags, invalid codes, no self-reference)
+- Canonical conflicting with hreflang (cross-locale canonical suppresses indexing)
+- Thin locale pages dragging down site-wide quality signal
+- Only boilerplate translated, main content identical across locales
+- No x-default fallback declared
+- Sitemap missing hreflang alternates or missing reciprocal entries
+- IP-based redirects hiding content from Googlebot
+- Framework locale mode hiding locale from URLs
+
+### Local Business
+- Inconsistent NAP
+- Missing local schema
+- No Google Business Profile optimization
+- Missing location pages
+- No local content
+
+---
+
+## Output Format
+
+### Audit Report Structure
+
+**Executive Summary**
+- Overall health assessment
+- Top 3-5 priority issues
+- Quick wins identified
+
+**Technical SEO Findings**
+For each issue:
+- **Issue**: What's wrong
+- **Impact**: SEO impact (High/Medium/Low)
+- **Evidence**: How you found it
+- **Fix**: Specific recommendation
+- **Priority**: 1-5 or High/Medium/Low
+
+**On-Page SEO Findings**
+Same format as above
+
+**Content Findings**
+Same format as above
+
+**Prioritized Action Plan**
+1. Critical fixes (blocking indexation/ranking)
+2. High-impact improvements
+3. Quick wins (easy, immediate benefit)
+4. Long-term recommendations
+
+---
+
+## Tools Referenced
+
+**Free Tools**
+- Google Search Console (essential)
+- Google PageSpeed Insights
+- Bing Webmaster Tools
+- Rich Results Test (**use this for schema validation — it renders JavaScript**)
+- Mobile-Friendly Test
+- Schema Validator
+
+> **Note on schema detection:** `web_fetch` strips `<script>` tags (including JSON-LD) and cannot detect JS-injected schema. Use the browser tool, Rich Results Test, or Screaming Frog instead — they render JavaScript and capture dynamically-injected markup. See the Schema Markup Detection Limitation section above.
+
+**Paid Tools** (if available)
+- Screaming Frog
+- Ahrefs / Semrush
+- Sitebulb
+- ContentKing
+
+---
+
+## Task-Specific Questions
+
+1. What pages/keywords matter most?
+2. Do you have Search Console access?
+3. Any recent changes or migrations?
+4. Who are your top organic competitors?
+5. What's your current organic traffic baseline?
+
+---
+
+## Related Skills
+
+- **income:programmatic-seo**: For building SEO pages at scale
+- **income:cro**: For optimizing pages for conversion (not just ranking)
+
+---
+
+### income:social-content
+> [income] Creates, repurposes, and schedules social media content (posts, threads, short-form video scripts) and runs social listening. Triggers on "LinkedIn post", "Twitter thread", "content calendar", "what should I post", "TikTok video", "social media strategy".
+
+# Social Content
+
+You are an expert social media strategist. Your goal is to help create engaging content that builds audience, drives engagement, and supports business goals.
+
+## Before Creating Content
+
+**Check for product marketing context first:**
+If the project has a product-marketing context file, read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+
+Gather this context (ask if not provided):
+
+### 1. Goals
+- What's the primary objective? (Brand awareness, leads, traffic, community)
+- What action do you want people to take?
+- Are you building personal brand, company brand, or both?
+
+### 2. Audience
+- Who are you trying to reach?
+- What platforms are they most active on?
+- What content do they engage with?
+
+### 3. Brand Voice
+- What's your tone? (Professional, casual, witty, authoritative)
+- Any topics to avoid?
+- Any specific terminology or style guidelines?
+
+### 4. Resources
+- How much time can you dedicate to social?
+- Do you have existing content to repurpose?
+- Can you create video content?
+
+---
+
+## Platform Quick Reference
+
+| Platform | Best For | Frequency | Key Format |
+|----------|----------|-----------|------------|
+| LinkedIn | B2B, thought leadership | 3-5x/week | Carousels, stories |
+| Twitter/X | Tech, real-time, community | 3-10x/day | Threads, hot takes |
+| Instagram | Visual brands, lifestyle | 1-2 posts + Stories daily | Reels, carousels |
+| TikTok | Brand awareness, younger audiences | 1-4x/day | Short-form video |
+| Facebook | Communities, local businesses | 1-2x/day | Groups, native video |
+
+---
+
+## Content Pillars Framework
+
+Build your content around 3-5 pillars that align with your expertise and audience interests.
+
+### Example for a SaaS Founder
+
+| Pillar | % of Content | Topics |
+|--------|--------------|--------|
+| Industry insights | 30% | Trends, data, predictions |
+| Behind-the-scenes | 25% | Building the company, lessons learned |
+| Educational | 25% | How-tos, frameworks, tips |
+| Personal | 15% | Stories, values, hot takes |
+| Promotional | 5% | Product updates, offers |
+
+### Pillar Development Questions
+
+For each pillar, ask:
+1. What unique perspective do you have?
+2. What questions does your audience ask?
+3. What content has performed well before?
+4. What can you create consistently?
+5. What aligns with business goals?
+
+---
+
+## Hook Formulas
+
+The first line determines whether anyone reads the rest.
+
+### Curiosity Hooks
+- "I was wrong about [common belief]."
+- "The real reason [outcome] happens isn't what you think."
+- "[Impressive result] — and it only took [surprisingly short time]."
+
+### Story Hooks
+- "Last week, [unexpected thing] happened."
+- "I almost [big mistake/failure]."
+- "3 years ago, I [past state]. Today, [current state]."
+
+### Value Hooks
+- "How to [desirable outcome] (without [common pain]):"
+- "[Number] [things] that [outcome]:"
+- "Stop [common mistake]. Do this instead:"
+
+### Contrarian Hooks
+- "Unpopular opinion: [bold statement]"
+- "[Common advice] is wrong. Here's why:"
+- "I stopped [common practice] and [positive result]."
+
+---
+
+## Content Repurposing System
+
+Turn one piece of content into many. The best social content isn't created from scratch — it's extracted from longer-form pillar content and adapted to each platform.
+
+### Blog Post → Social Content
+
+| Platform | Format |
+|----------|--------|
+| LinkedIn | Key insight + link in comments |
+| LinkedIn | Carousel of main points |
+| Twitter/X | Thread of key takeaways |
+| Instagram | Carousel with visuals |
+| Instagram | Reel summarizing the post |
+
+### Podcast / Video → Social Content
+
+Extract "content atoms" — self-contained moments from any long-form content that work on their own:
+
+| Atom Type | What to Look For | Best Platform |
+|-----------|-----------------|---------------|
+| Quotable moment | A bold claim, hot take, or memorable line (15-60 sec) | Twitter/X, LinkedIn, TikTok |
+| Story arc | A complete mini-story with setup, conflict, resolution (60-90 sec) | Instagram Reels, TikTok, YouTube Shorts |
+| Tactical tip | A specific how-to or framework explained clearly (30-60 sec) | LinkedIn, YouTube Shorts |
+| Controversial take | A contrarian opinion that sparks debate | Twitter/X, LinkedIn |
+| Data/stat callout | A surprising number or research finding | LinkedIn carousel, Twitter/X |
+| Behind-the-scenes | Authentic, unpolished moments | Instagram Stories, TikTok |
+
+**Podcast repurposing workflow:**
+1. **Get transcript** — use Whisper, Descript, or your podcast host's transcription
+2. **Mark timestamps** — flag the 5-10 best moments while listening or scanning transcript
+3. **Extract clips** — pull video/audio clips for each moment (Descript, Opus Clip, or manual)
+4. **Write standalone captions** — each clip needs context; don't assume the viewer heard the rest
+5. **Add subtitles** — most social video is watched without sound
+6. **Schedule across 1-2 weeks** — spread a single episode across multiple posts
+
+**Per episode, aim for:**
+- 3-5 short video clips or audiograms (15-60 sec) for Reels/TikTok/Shorts
+- 1-2 LinkedIn text posts from key insights
+- 1 Twitter/X thread of takeaways
+- 1 carousel summarizing the main framework or list
+- 1 newsletter section or blog post from the best segment
+
+### Webinar / Live Event → Social Content
+
+| Extract | Format |
+|---------|--------|
+| Key slides with commentary | LinkedIn carousel |
+| Q&A highlights | Twitter/X thread |
+| Speaker quotes | Quote graphics for Instagram/LinkedIn |
+| Audience reactions/poll results | Engagement posts |
+| Full recording → short clips | Reels, TikTok, Shorts |
+
+### Newsletter → Social Content
+
+| Extract | Format |
+|---------|--------|
+| Main insight | LinkedIn post |
+| Curated links with commentary | Twitter/X thread |
+| Data or stat | Quote graphic |
+| Hot take or opinion | Twitter/X post, LinkedIn |
+
+### Repurposing Workflow
+
+1. **Create pillar content** (blog, video, podcast, webinar, newsletter)
+2. **Extract content atoms** (5-10 per piece — quotes, stories, tips, data)
+3. **Adapt to each platform** (format, length, and tone)
+4. **Write standalone captions** (each post must work without context)
+5. **Schedule across the week** (spread distribution, don't dump all at once)
+6. **Update and reshare** (evergreen content can repeat every 3-6 months)
+
+---
+
+## Content Calendar Structure
+
+### Weekly Planning Template
+
+| Day | LinkedIn | Twitter/X | Instagram |
+|-----|----------|-----------|-----------|
+| Mon | Industry insight | Thread | Carousel |
+| Tue | Behind-scenes | Engagement | Story |
+| Wed | Educational | Tips tweet | Reel |
+| Thu | Story post | Thread | Educational |
+| Fri | Hot take | Engagement | Story |
+
+### Batching Strategy (2-3 hours weekly)
+
+1. Review content pillar topics
+2. Write 5 LinkedIn posts
+3. Write 3 Twitter threads + daily tweets
+4. Create Instagram carousel + Reel ideas
+5. Schedule everything
+6. Leave room for real-time engagement
+
+---
+
+## Engagement Strategy
+
+### Daily Engagement Routine (30 min)
+
+1. Respond to all comments on your posts (5 min)
+2. Comment on 5-10 posts from target accounts (15 min)
+3. Share/repost with added insight (5 min)
+4. Send 2-3 DMs to new connections (5 min)
+
+### Quality Comments
+
+- Add new insight, not just "Great post!"
+- Share a related experience
+- Ask a thoughtful follow-up question
+- Respectfully disagree with nuance
+
+### Building Relationships
+
+- Identify 20-50 accounts in your space
+- Consistently engage with their content
+- Share their content with credit
+- Eventually collaborate (podcasts, co-created content)
+
+---
+
+## Analytics & Optimization
+
+### Metrics That Matter
+
+**Awareness:** Impressions, Reach, Follower growth rate
+
+**Engagement:** Engagement rate, Comments (higher value than likes), Shares/reposts, Saves
+
+**Conversion:** Link clicks, Profile visits, DMs received, Leads attributed
+
+### Weekly Review
+
+- Top 3 performing posts (why did they work?)
+- Bottom 3 posts (what can you learn?)
+- Follower growth trend
+- Engagement rate trend
+- Best posting times (from data)
+
+### Optimization Actions
+
+**If engagement is low:**
+- Test new hooks
+- Post at different times
+- Try different formats
+- Increase engagement with others
+
+**If reach is declining:**
+- Avoid external links in post body
+- Increase posting frequency
+- Engage more in comments
+- Test video/visual content
+
+---
+
+## Content Ideas by Situation
+
+### When You're Starting Out
+- Document your journey
+- Share what you're learning
+- Curate and comment on industry content
+- Engage heavily with established accounts
+
+### When You're Stuck
+- Repurpose old high-performing content
+- Ask your audience what they want
+- Comment on industry news
+- Share a failure or lesson learned
+
+---
+
+## Scheduling Best Practices
+
+### When to Schedule vs. Post Live
+
+**Schedule:** Core content posts, Threads, Carousels, Evergreen content
+
+**Post live:** Real-time commentary, Responses to news/trends, Engagement with others
+
+### Queue Management
+
+- Maintain 1-2 weeks of scheduled content
+- Review queue weekly for relevance
+- Leave gaps for spontaneous posts
+- Adjust timing based on performance data
+
+---
+
+## Reverse Engineering Viral Content
+
+Instead of guessing, analyze what's working for top creators in your niche:
+
+1. **Find creators** — 10-20 accounts with high engagement
+2. **Collect data** — 500+ posts for analysis
+3. **Analyze patterns** — Hooks, formats, CTAs that work
+4. **Codify playbook** — Document repeatable patterns
+5. **Layer your voice** — Apply patterns with authenticity
+6. **Convert** — Bridge attention to business results
+
+---
+
+## Short-Form Video (TikTok, Reels, Shorts)
+
+Short-form video is the highest-reach format on every major platform. These frameworks apply whether you're creating for TikTok, Instagram Reels, or YouTube Shorts.
+
+### Platform Specs
+
+| Platform | Optimal Length | Aspect Ratio | Key Difference |
+|----------|---------------|--------------|----------------|
+| TikTok | 15-60 sec | 9:16 | Trending sounds, raw/authentic feel |
+| Reels | 15-30 sec | 9:16 | Polished content, rewards saves/shares |
+| Shorts | 30-60 sec | 9:16 | YouTube SEO applies, searchable titles |
+
+### The 3-Second Rule
+
+You have 3 seconds to stop the scroll. Every video needs three simultaneous hooks:
+
+```
+[VISUAL HOOK] + [VERBAL HOOK] + [TEXT OVERLAY]
+```
+
+All three should hit in the first second.
+
+### Video Structures
+
+**Problem-Solution (15-30 sec):**
+```
+[0-3s]  Hook: State the problem
+[3-10s] Agitate: Why it matters
+[10-25s] Solution: Your method/product/tip
+[25-30s] CTA: What to do next
+```
+
+**List Format (30-60 sec):**
+```
+[0-3s]  Hook: "X things that [outcome]"
+[3-50s] Items: One every 5-8 seconds
+[50-60s] CTA
+```
+
+**Tutorial (30-60 sec):**
+```
+[0-3s]  Hook: Show the end result first
+[3-8s]  Overview: "Here's how..."
+[8-50s] Steps: Quick, clear instructions
+[50-60s] Result + CTA
+```
+
+### Caption & Subtitle Best Practices
+
+Captions increase watch time by 25-40%. Most social video is watched without sound.
+
+- **MAX 2 lines** on screen at once
+- **3-5 words per line**
+- Bold, sans-serif font with black outline
+- **Highlight key words** in a different color
+- Match timing to speech exactly
+
+Tools: CapCut (free), Descript, Captions.ai, Premiere Pro
+
+### Content Ideas by Type
+
+| Business Type | Video Ideas |
+|---------------|-------------|
+| SaaS | Feature demos (show outcome first), before/after, "Watch me do X in Y seconds" |
+| E-commerce | Unboxing, comparisons, how it's made, customer reviews |
+| Services | Process reveals, client transformations, myth-busting |
+| Personal brand | Lessons learned, controversial takes, day-in-the-life |
+
+### Common Mistakes
+
+1. **Slow hooks** — don't build up to the point
+2. **No text overlay** — many watch without sound
+3. **Poor audio** — bad audio kills retention instantly
+4. **Too long** — if it can be shorter, make it shorter
+5. **No CTA** — tell viewers what to do
+6. **Ignoring comments** — engagement in first hour matters
+
+---
+
+## Task-Specific Questions
+
+1. What platform(s) are you focusing on?
+2. What's your current posting frequency?
+3. Do you have existing content to repurpose?
+4. What content has performed well in the past?
+5. How much time can you dedicate weekly?
+6. Are you building personal brand, company brand, or both?
+
+---
+
+## Related Skills
+
+- **income:copywriting**: For longer-form content that feeds social
+- **income:product-launch**: For coordinating social with launches
+- **income:email-marketing**: For nurturing social audience via email
+
+---
+
+### income:validate-idea
+> [income] Brutal-honesty startup/product idea validation — payment signals over opinions, demand evidence, kill criteria. Triggers on "validate my idea", "is this worth building", "market validation", "demand check".
+
+# Idea Validation
+
+The #1 reason startups fail is "no market need." Validation isn't about asking people if they'd use something — it's about observing whether they'll pay, sign up, or take action. This skill helps you test demand before writing a single line of code.
+
+## Core Principles
+
+- Ideas are free. Validated demand is valuable. Never skip validation because you're excited.
+- "Would you use this?" is a useless question. "Will you pay $X right now?" is the only one that matters.
+- The goal of validation is to fail fast and cheap — not to confirm what you already believe.
+- You don't need to build anything to validate. Landing pages, waitlists, and conversations come first.
+- Validation is not a one-time event. You re-validate at every stage: idea, MVP, pricing, features.
+
+## Pressure-Test Your Idea
+
+Before running experiments, pressure-test the idea itself. These six questions expose fatal flaws fast — answer them honestly, not optimistically.
+
+### Which Questions to Answer
+
+| Your Stage | Focus On |
+|-----------|----------|
+| Pre-product (just an idea) | Q1, Q2, Q3 |
+| Have a prototype or early users | Q2, Q4, Q5 |
+| Have paying customers | Q4, Q5, Q6 |
+
+### The Six Questions
+
+**Q1 — Demand Reality:** What evidence do you have — beyond your own experience — that someone else actually wants this? Not "I think people need it." What have you seen, heard, or measured?
+
+**Q2 — Status Quo:** What are people in your field doing right now to handle this — even badly? What does that workaround cost them in time, money, or errors?
+
+**Q3 — Desperate Specificity:** Name one specific person who needs this most. Not "dentists" — which dentist, at which practice, with what problem? If you can't name someone, you haven't found your customer yet.
+
+**Q4 — Narrowest Wedge:** What's the smallest version of this someone would pay for this week — not after you build the platform? One screen, one workflow, one outcome.
+
+**Q5 — Observation:** Have you watched a colleague struggle with this task without helping them? What surprised you about how they actually do it vs. how you assumed?
+
+**Q6 — Future-Fit:** How does your industry change in 3 years, and does that make this tool more essential or less?
+
+> **Interest is not demand.** Waitlist signups are not demand. Someone would be genuinely upset if it disappeared — that's demand.
+
+> **"Everyone in my field needs this"** means you haven't found anyone specific yet. The more universal you think the need is, the less validated it actually is.
+
+> **The status quo is your real competitor** — not the other startup. It's the spreadsheet-and-email workaround people already live with. You have to be dramatically better than "good enough."
+
+---
+
+## Validation Levels
+
+### Level 1: Problem Validation (Do People Have This Problem?)
+
+Before you validate your solution, validate that the problem exists and is painful enough to pay for.
+
+**Where to look for evidence:**
+
+| Source | What to Look For |
+|--------|-----------------|
+| Reddit, forums, communities | People complaining about the problem repeatedly |
+| Google Trends | Search volume for problem-related terms |
+| Competitor reviews (G2, Capterra) | 1-3 star reviews mentioning unmet needs |
+| Twitter/X | People publicly frustrated with current solutions |
+| Your own experience | You've felt this pain yourself (strongest signal) |
+
+**Tell AI:**
+```
+Research the problem of [describe the problem].
+Find evidence that people are actively looking for solutions:
+- Search volume for related terms
+- Reddit/forum threads where people discuss this pain
+- Competitors that exist (even partial solutions)
+- How much people currently pay to solve this (or workarounds they use)
+Summarize: Is this a real, painful, frequent problem?
+```
+
+### Level 2: Solution Validation (Will People Want YOUR Solution?)
+
+**The Mom Test** — Never ask leading questions. Instead:
+
+| Bad Question | Good Question |
+|-------------|--------------|
+| "Would you use an app that does X?" | "How do you currently handle X?" |
+| "Would you pay for this?" | "What do you spend on solving X today?" |
+| "Do you think this is a good idea?" | "Tell me about the last time X was a problem." |
+| "Would this be useful?" | "What have you tried? What didn't work?" |
+
+**Conversation template:**
+```
+1. "What's the hardest part about [area]?"
+2. "Tell me about the last time that happened."
+3. "How did you deal with it?"
+4. "What didn't work about that solution?"
+5. "If you could wave a magic wand, what would change?"
+6. "How much time/money does this cost you today?"
+```
+
+Talk to 10-15 potential customers. If 8+ describe the same pain with intensity, you have signal.
+
+### Level 3: Willingness to Pay (Will They Open Their Wallets?)
+
+The strongest validation signals, ranked:
+
+| Signal | Strength |
+|--------|----------|
+| They pre-pay before the product exists | Strongest |
+| They sign up for a waitlist with a credit card | Very strong |
+| They sign up for a waitlist with email | Strong |
+| They click a "Buy" button (fake door test) | Moderate |
+| They say "I'd definitely pay for that" | Weak |
+| They say "That's a cool idea" | Worthless |
+
+---
+
+## For Domain Experts: Your Network Is Your Validation Lab
+
+If you're a domain expert building for other people in your field, you already have what most founders spend months trying to get: direct access to target customers.
+
+- **Skip the cold outreach.** Message 10 peers you actually know: "Hey, how do you handle [pain]? I'm thinking about building something."
+- **You've already had 1,000 customer conversations.** Mine your memory: what do colleagues complain about at conferences, in group chats, over lunch?
+- **Your professional associations are focus groups.** Post in the group: "Quick question — how long does [task] take you?" Count the replies.
+- **Validate in days, not weeks.** You don't need to "find" your market. You're standing in it.
+
+Before you build anything, use this same network to identify which pain is worth solving and to line up your first reference customers — that's the validation lab most founders never had.
+
+---
+
+## Smoke Tests (Validate Without Building)
+
+### Landing Page Test
+
+Create a landing page describing your product. Drive traffic. Measure signups.
+
+**Tell AI:**
+```
+Create a landing page for [product idea] that:
+- Clearly describes the problem and solution
+- Has a CTA: "Join the waitlist" or "Get early access"
+- Collects email addresses
+- Optionally asks 1-2 qualifying questions (role, company size)
+Target: 100 visitors, measure signup rate.
+```
+
+**Benchmarks:**
+- < 5% signup rate → Weak interest. Rethink positioning or audience.
+- 5-15% signup rate → Moderate interest. Worth exploring further.
+- 15%+ signup rate → Strong signal. Build an MVP.
+
+### Fake Door Test
+
+Add a button or link for a feature that doesn't exist yet. Measure clicks.
+
+```
+1. Create a CTA for the feature: "Try [Feature Name]"
+2. When clicked, show: "This feature is coming soon!
+   Sign up to be the first to know."
+3. Collect email.
+4. Measure click rate.
+```
+
+### Pre-Sale Test
+
+Offer the product at a discount before it exists. If people pay, you have validation.
+
+```
+"[Product] launches in [timeframe]. Get 50% off as a founding member.
+$X/month (normally $Y/month). Cancel anytime."
+```
+
+If 10+ strangers pay, build it. If 0 pay, pivot.
+
+---
+
+## Go / No-Go Decision Framework
+
+After running validation experiments, score your idea:
+
+```
+Validation Scorecard:
+                                          Score (1-5)
+Problem frequency (daily=5, yearly=1):    ___
+Problem intensity (hair on fire=5):       ___
+Willingness to pay (pre-paid=5):          ___
+Market size (>$1B TAM=5):                 ___
+Your unique advantage (deep=5):           ___
+Current solutions (none/bad=5):           ___
+                                   Total: ___/30
+
+25-30: Strong go. Build the MVP.
+18-24: Promising. Run one more validation experiment.
+12-17: Weak. Pivot the angle or audience.
+<12:   No go. Find a different problem.
+```
+
+---
+
+## Where to Find People to Validate With
+
+| Channel | Cost | Speed | Quality |
+|---------|------|-------|---------|
+| Your personal network | Free | Fast | Medium (biased) |
+| Reddit / niche communities | Free | Medium | High (real users) |
+| Twitter/X DMs to people with the problem | Free | Medium | High |
+| Facebook/LinkedIn groups | Free | Medium | Medium |
+| Google Ads to landing page | $50-200 | Fast | High (intent-based) |
+| Cold email to prospects | Free | Slow | High |
+| Indie Hackers / HN | Free | Medium | Medium |
+
+**Tell AI:**
+```
+Help me find 5 specific online communities where [target audience]
+hangs out and discusses [problem area]. For each, give me:
+- The community name and link
+- How active it is
+- Rules about self-promotion
+- A non-spammy way to start conversations about [problem]
+```
+
+---
+
+## Validation Timeline
+
+```
+Week 1: Problem research + 5 customer conversations
+Week 2: 5 more conversations + landing page live
+Week 3: Drive traffic to landing page (100+ visitors)
+Week 4: Analyze results, make go/no-go decision
+
+Total cost: $0-200
+Total time: 10-15 hours
+```
+
+---
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Building before validating | Spend $0 and 2 weeks on validation before writing any code |
+| Asking friends and family | Talk to strangers who match your target customer |
+| Asking "Would you use this?" | Ask about their current behavior and spending |
+| Taking "That's a cool idea" as validation | Only actions count: signups, pre-payments, clicks |
+| Validating once and stopping | Re-validate at every stage (pricing, features, positioning) |
+| Giving up after 3 conversations | Talk to at least 10-15 people before deciding |
+| Over-validating (analysis paralysis) | Set a deadline. Decide by week 4 |
+
+---
+
+## Success Looks Like
+
+- Clear evidence of demand before writing a single line of code
+- 10+ customer conversations documented with recurring pain points
+- Landing page with measurable signup rate
+- Go/no-go decision backed by data, not gut feeling
+- Confidence that you're building something people will pay for
+
+---
+
+### income:youtube-strategy
+> [income] Data-driven YouTube channel and video concept ideation — titles, hooks, packaging, niche analysis. Triggers on \"youtube video idea\", \"channel strategy\", \"video title\", \"thumbnail concept\".
+
+# YouTube Strategy
+
+Generate and validate YouTube video ideas aligned with a channel's content pillars, audience, and priority tiers. This skill never hands back a single "here's an idea" — it produces a ranked slate so the user picks the strongest bet.
+
+> Adapted from the `yt-ideation` skill in [jeremylongshore/claude-code-plugins-plus-skills](https://github.com/jeremylongshore/claude-code-plugins-plus-skills) (MIT). Works standalone with web search; supercharged if a research or trends MCP is already connected.
+
+## Connectors (Optional)
+
+| If Connected | What It Adds |
+|-----------|--------------|
+| **Web search / trends MCP** | Live search-demand and trend-direction signal per idea |
+| **YouTube data / analytics MCP** | Real channel history, past-video performance, competitor uploads |
+
+> **No MCPs connected?** Web search plus general knowledge of the niche works fine — validation just leans more on judgment than live data.
+
+## Before You Start
+
+Get from the user:
+
+1. **Focus area** — the tool, niche, or topic to ideate around (e.g. "AI tools for professionals", "recent software updates", "productivity workflows").
+2. **Research data** (optional) — any existing niche analysis, competitor notes, or audience research to ground the ideation in data rather than gut feel.
+3. **Constraints** (optional) — anything that shapes what's makeable (e.g. "only short-form", "needs to be filmable this week", "must tie to a launch").
+
+If the focus is already given, confirm and proceed — don't re-ask what's already answered.
+
+## Step 1: Load Context
+
+Before generating ideas, understand:
+
+- **Content pillars** — the channel's core recurring topics.
+- **Audience** — who watches, and their skill/experience level.
+- **Content types** — which formats already work (tutorials, reviews, updates, comparisons).
+- **Trending vs. evergreen balance** — how much of the channel leans timely vs. long-lasting.
+
+## Step 2: Generate 15-20 Raw Ideas
+
+Use these four ideation methods together:
+
+**Gap Analysis** (if research data is available)
+- Content gaps versus competitors
+- High-demand, low-competition topics
+- Complex concepts that need an accessible translation
+
+**Trend Riding**
+- Recent tool updates or feature launches
+- Industry developments relevant to the audience
+- Viral topics that can be made practical
+
+**Format Innovation**
+- Existing topics reframed into a new format (comparison, mega-guide, use-case compilation)
+- Formats competitors in the niche aren't using
+- Series potential (multi-part tutorials)
+
+**Audience Needs**
+- Questions the audience is actually asking (comments, communities, forums)
+- Problems viewers hit with the tools/topics in question
+- "How do I..." queries specific to the niche
+
+For each idea, capture:
+
+- **Working title**
+- **Content tier** — Tier 1 (growth content) or Tier 2 (supporting content)
+- **Content type** — full tutorial, feature tutorial, update video, use-case video, comparison, etc.
+- **One-line angle** — what makes this take unique
+- **Timeliness** — trending/urgent or evergreen
+
+**Priority distribution:** aim for 60-70% Tier 1 (the growth engine) and 30-40% Tier 2 (supporting content).
+
+## Step 3: Quick Self-Filter
+
+Before validating, run every idea through:
+
+- Does it serve the target audience? (must be yes)
+- Can it be practically demonstrated? (prefer yes)
+- Does it support the content funnel — is there an asset to give away?
+- Is it filmable in the channel's current format?
+
+Drop ideas that fail, and note why for transparency.
+
+## Step 4: Validate Ideas
+
+For each surviving idea, assess:
+
+- **Search demand** — via web search / trends MCP if connected, otherwise informed estimate
+- **Competition level** — existing videos and the quality bar to beat
+- **Trend direction** — rising, stable, or declining
+- **Audience fit** — accessibility and practical value
+
+Score each idea 1-10 on opportunity. If a Task-style sub-agent capability is available, split validation into small batches (e.g. 5 ideas at a time) rather than doing it all serially.
+
+## Step 5: Present Ranked Results
+
+```markdown
+Here are your validated video ideas, ranked by opportunity:
+
+| # | Title | Tier | Type | Demand | Competition | Score |
+|---|-------|------|------|--------|-------------|-------|
+| 1 | [title] | Tier 1 | Feature Tutorial | High | Low | 9.2 |
+| 2 | [title] | Tier 1 | Update Video | High | Medium | 8.5 |
+...
+
+Top recommendation: [title] - [1 sentence why]
+
+Which ideas do you want to develop further (title/hook/packaging pass)?
+```
+
+Offer the user the option to: pick 1-3 ideas to develop further, generate more ideas in a different direction, refine a specific idea, or go back to research.
+
+## Key Principles
+
+- **Tier 1 first** — always prioritize growth content (tutorials, use cases, updates); it drives channel growth.
+- **Audience-appropriate** — every idea must pass the "would the target viewer find this useful?" test.
+- **Practical over theoretical** — favor ideas where the viewer walks away with something they can *do*.
+- **CTA-ready** — strong ideas include a natural asset giveaway (template, workflow, resource) tying back to the creator's business.
+- **Data-informed** — use research data when it exists; gut-feel ideation is the fallback, not the default.
 
 ---
 
@@ -1449,7 +5988,7 @@ Output: the exact commit / file / line / flag that triggers the bug.
 ---
 
 ### learn
-> Persistent per-project learnings. Add a learning, list all learnings, or search. Backed by ~/.superagent/learnings/<project-hash>.jsonl.
+> Persistent per-project learnings. Add a learning, list all learnings, or search. Backed by ~/.paarth/learnings/<project-hash>.jsonl.
 
 # Learn
 
@@ -1467,7 +6006,7 @@ Output: the exact commit / file / line / flag that triggers the bug.
 
 Shell out to the helper:
 ```bash
-superagent-learn $ARGUMENTS
+paarth-learn $ARGUMENTS
 ```
 
 ## Output
@@ -1476,16 +6015,16 @@ superagent-learn $ARGUMENTS
 - `search` → prints matching lines.
 
 ## Verification
-Learnings file exists at `~/.superagent/learnings/<sha256-12-of-cwd>.jsonl` after add.
+Learnings file exists at `~/.paarth/learnings/<sha256-12-of-cwd>.jsonl` after add.
 
 ---
 
 ### observability
-> JSONL spans + metrics for SuperAgent. Read the trace tree of any session, aggregate counter/gauge/histogram metrics with p50/p95/p99, and flag anomalies via rolling mean + 2σ. Triggers on "show the trace", "metrics for today", "what's slow", "anomaly", "p95 latency".
+> JSONL spans + metrics for PAARTH. Read the trace tree of any session, aggregate counter/gauge/histogram metrics with p50/p95/p99, and flag anomalies via rolling mean + 2σ. Triggers on "show the trace", "metrics for today", "what's slow", "anomaly", "p95 latency".
 
 # observability
 
-Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. Hooks emit spans on every tool call and metrics on every token-bearing event. Files live under `~/.superagent/obs/` and rotate daily.
+Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. Hooks emit spans on every tool call and metrics on every token-bearing event. Files live under `~/.paarth/obs/` and rotate daily.
 
 ## When to use
 
@@ -1497,29 +6036,29 @@ Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. 
 
 1. **Inspect a single trace.** Pass the traceId you care about:
    ```bash
-   superagent-trace t-abc12345
+   paarth-trace t-abc12345
    ```
    Output is an ASCII parent-child tree with per-span duration. Bottlenecks (duration ≥ p95 of the op AND > 2× mean) are flagged `(bottleneck)`.
 2. **Aggregate metrics over a range.**
    ```bash
-   superagent-metrics today
-   superagent-metrics week --json | jq .
+   paarth-metrics today
+   paarth-metrics week --json | jq .
    ```
    Counters → SUM, gauges → LAST value (insertion-order tiebreak), histograms → p50/p95/p99. Anomaly flag: rolling mean + 2σ over the last 100 samples.
 3. **Find a traceId.** The latest span's traceId is the most recent route:
    ```bash
-   tail -n 1 ~/.superagent/obs/spans.jsonl | jq -r .traceId
+   tail -n 1 ~/.paarth/obs/spans.jsonl | jq -r .traceId
    ```
 4. **Rotate manually if needed** (Stop hook does this daily already):
    ```bash
-   superagent-obs-rotate
+   paarth-obs-rotate
    ```
 
 ## Files
 
-- Active: `~/.superagent/obs/spans.jsonl` and `metrics.jsonl`.
+- Active: `~/.paarth/obs/spans.jsonl` and `metrics.jsonl`.
 - Rotated: `spans.<YYYYMMDD>.jsonl` and `metrics.<YYYYMMDD>.jsonl` (>30 days = pruned).
-- Marker: `~/.superagent/obs/.last-rotate-<YYYYMMDD>` (presence = already rotated today).
+- Marker: `~/.paarth/obs/.last-rotate-<YYYYMMDD>` (presence = already rotated today).
 
 ## Six canonical metric names
 
@@ -1534,7 +6073,7 @@ Lifted from the v3 design spec §7.3 — when emitting, prefer these names so da
 
 ## Trace ID propagation
 
-The `superagent` skill sets `SA_TRACE_ID` at chain start. Downstream bins inherit it through the environment; if unset, the tracker.sh hook generates a fresh root span id. Cross-session boundary = new traceId. Don't try to span across SessionStart.
+The `paarth` skill sets `SA_TRACE_ID` at chain start. Downstream bins inherit it through the environment; if unset, the tracker.sh hook generates a fresh root span id. Cross-session boundary = new traceId. Don't try to span across SessionStart.
 
 ## Performance budget
 
@@ -1609,6 +6148,405 @@ All 6 questions answered (no "TBD"). Recommendation explicit.
 
 ---
 
+### paarth
+> Master entrypoint. Takes a task, classifies it, composes a skill chain, announces the plan, executes. Use whenever the user types /paarth <task> or says "use paarth for X".
+
+# PAARTH Router
+
+> **Ethos:** Verify or die. Rewind, don't correct. Memory compounds. Leverage over toil. Local first.
+
+## When to use
+- User invokes `/paarth <task>`.
+- User says "paarth this", "full power mode", "activate all agents".
+- Any complex task where you're unsure which skills to chain.
+
+## Procedure
+
+**1. Detect backend (always).** First call only:
+```bash
+backend=$(paarth-switch status 2>/dev/null | awk '/^mode:/ {print $2}')
+[ -z "$backend" ] && backend="anthropic"
+```
+If `backend=local`, run in **lite mode**: skip step 2 context load, cap chain at 3 skills, shorter announce format, prefer `agent-skills:*` skills (more deterministic step-by-step) over open-ended ones. Local models handle structured checklists better than free-form reasoning.
+
+**2. Load context (cloud only).** Skip on local backend. Otherwise run once per session:
+```bash
+command -v mempalace >/dev/null 2>&1 && mempalace wake-up 2>/dev/null | head -n "${PAARTH_WAKE_LINES:-40}" || true
+```
+
+**3. Optimize (brain step 0).** Rewrite the raw task into a tight directive before classifying. Strip the `? ` confirm prefix first if present (see step 6), then:
+```bash
+if command -v paarth-optimize >/dev/null 2>&1; then
+  paarth-optimize "$TASK"
+fi
+```
+Output is JSON `{original, optimized, notes, changed}`. If `changed` is true, use `optimized` as the working task for every later step — classify, announce, execute — and show it in the announce block. If the optimizer is missing, errors, or returns `changed: false`, continue with the raw task. Kill switch: `PAARTH_OPTIMIZE=0`. Never silently swap intent — the optimizer only strips filler and restructures; if its output looks semantically different from what the user asked, fall back to the raw task and say so.
+
+**4. Classify.** Run the classifier on the (optimized) task:
+```bash
+if command -v paarth-classify >/dev/null 2>&1; then
+  paarth-classify "$TASK"
+else
+  echo '{"chain":[],"hint":null}'
+fi
+```
+Output is JSON `{chain: [...], hint: [...|null]}`. **If classifier missing or chain empty:** fall back to keyword matching against the available skills list shown in your system reminders — including the `agent-skills:*` namespace (16 skills imported from agent-skills covering define → plan → build → verify → ship). Pick top-3 by description overlap and ask user.
+
+**5. Announce.** Print to the user:
+```
+PAARTH routing plan for: "<task>"
+Optimized: <optimized task — only when the optimizer changed it>
+Backend: <anthropic|local:model-name>
+Chain: skill1 → skill2 → skill3
+Rationale: <one line why each skill was selected>
+Estimated effort: <rough>
+Proceed? (yes / edit / skip N / run-only N)
+```
+On local backend, omit Rationale and Estimated effort lines — keep announce ≤4 lines total.
+
+**6. Auto-execute (default).** Do NOT ask "Proceed?". The user opted in by invoking PAARTH. Skip the confirmation gate and start running the chain immediately.
+
+**Opt-in confirm prefix.** If `$ARGUMENTS` starts with `? ` (literal question mark + space), strip the prefix before classifying and run in **confirm mode** for this call only — show the chain and wait for `yes/edit/skip N/run-only N`. Pre-process (works in bash and zsh):
+```bash
+TASK="$ARGUMENTS"
+CONFIRM="auto"
+if [ "${TASK:0:2}" = "? " ]; then
+  CONFIRM="yes"
+  TASK="${TASK#? }"
+fi
+```
+
+**Force-confirm (override auto, even without `?` prefix):**
+- Task or chain contains a destructive op: `ship`, `deploy`, `push`, `force`, `delete`, `drop`, `rm`, `migrate down`, `revert`, `reset --hard`.
+- Chain includes `cso` or `security-review` (findings should be reviewed first).
+- Local backend AND chain length > 3 (offer to trim or confirm full plan).
+- Classifier returned empty/`mempalace-wake` only AND keyword-match has no high-confidence single skill.
+
+**7. Execute.** For each skill in the chain, invoke via the Skill tool in order, working from the optimized task. Between skills, summarize the artifact produced in one sentence. If a skill fails or user says "stop", halt and report.
+
+**8. Log.** After completion (or halt), append to `~/.paarth/brain/routes.jsonl` (auto-create if missing):
+```bash
+mkdir -p ~/.paarth/brain
+# then append the route record
+```
+```json
+{"ts": "<iso>", "task_hash": "<sha256-12>", "task": "<first 120 chars>", "chain": [...], "outcome": "done|halt|fail", "user_override": "yes|no", "backend": "<anthropic|local>", "optimized": true|false}
+```
+
+## Skill namespaces
+
+The roster is organized into namespaces. Pick from any:
+
+- **Bare names** — core PAARTH skills (`ship`, `review`, `cso`, `simplify`, `investigate`, `learn`, plan-* family, `auto-fallback`, `paarth-switch`, `free-llm`, etc.)
+- **`agent-skills:*`** — Addy Osmani's production engineering skills (16 skills): `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `context-engineering`, `source-driven-development`, `frontend-ui-engineering`, `api-and-interface-design`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `performance-optimization`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `deprecation-and-migration`, `documentation-and-adrs`. Step-by-step + verifiable; preferred when a process must be followed exactly (especially on local models).
+- **`superpowers:*`** — Claude Code superpowers (TDD, debugging, brainstorming, plan execution).
+- **`claude-mem:*`, `caveman:*`, `vercel:*`, `ui-ux-pro-max:*`** — domain plugins.
+
+When a core skill and an `agent-skills:*` skill overlap (e.g. `simplify` vs `agent-skills:incremental-implementation` for refactor work), the bare-name PAARTH skill wins by default. Prefer the `agent-skills:*` version explicitly when the user wants step-by-step rigor or when running on a local model.
+
+## Local-backend rules (when `backend=local`)
+
+Local models (Qwen, Llama, DeepSeek via free-claude-code proxy) need extra discipline:
+
+- **Cap chains at 3 skills.** Longer chains lose coherence on weaker models.
+- **No mempalace pre-load.** Saves ~4k tokens of context the model can't use well.
+- **Prefer `agent-skills:*`** for build/verify/ship tasks — their explicit checklists translate better than free-form skill prose.
+- **Skip `claude-api` skill** — it's Anthropic-SDK-specific and confuses non-Anthropic backends. Suggest `free-llm` if user wants AI-app guidance.
+- **Single-skill route by default** for trivial questions — don't chain just to chain.
+- **Don't promise tool reliability.** If a skill needs a specific MCP (Chrome DevTools, Notion, etc.), tell the user to verify it's connected before running.
+
+## Fallback — classifier uncertain
+If classifier is missing or returns an empty chain:
+1. Read the available skills list from your system reminders.
+2. Match user's task keywords against skill descriptions (prefer exact verb matches: "build" → builds, "fix" → debugging, "ship" → ship).
+3. Show top-3 candidates and let user pick.
+4. Never invent a skill name not in the list.
+
+## What stays manual
+- Plan Mode (Shift+Tab twice) — user's call.
+- Rewind (Esc Esc) — user's call.
+- Permission grants — `/permissions`.
+- Backend switch — user runs `/paarth-switch to <model>` or `back`.
+
+## Verification
+After each skill runs, require the skill's own output. For build/fix chains, the final `verification-before-completion` (or `agent-skills:test-driven-development` Verification block on local backend) must pass before declaring done.
+
+---
+
+### paarth-learn-loop
+> PAARTH learning loop. Promotes recurring done-routes into pattern records, decays stale ones, and feeds them back to the classifier. Use whenever the user wants to teach PAARTH which chains worked, prune old patterns, or inspect/protect specific routes. Triggers on "promote pattern", "learn this routing", "decay patterns", "list patterns", "protect pattern".
+
+# paarth-learn-loop
+
+The PAARTH classifier becomes self-improving in v2.4. Every Stop hook runs `paarth-patterns promote` (extracts repeated done-routes into pattern records) and `paarth-patterns decay` (exponentially decays inactive ones). The classifier reads `~/.paarth/brain/patterns.jsonl` and prepends matched chains when `successRate ≥ 0.6` and `useCount ≥ 5`.
+
+## When to use
+
+- User says "remember this pattern" / "promote this route" / "learn this".
+- User wants to inspect, protect, or prune the pattern store.
+- After a session where you discovered a chain that should survive into future sessions.
+
+## Procedure
+
+1. **List current patterns** to ground the user:
+   ```bash
+   paarth-patterns list
+   ```
+2. **Manual promote** if the user wants the latest routes folded in immediately (Stop hook already does this on session end):
+   ```bash
+   paarth-patterns promote
+   ```
+3. **Protect a high-value pattern** so decay won't drop it below 0.3:
+   ```bash
+   paarth-patterns protect p-<id>
+   ```
+4. **Manual prune** to clean noise below a custom threshold:
+   ```bash
+   paarth-patterns prune --below 0.3
+   ```
+
+## Files
+
+- Store: `~/.paarth/brain/patterns.jsonl` (append-only JSONL).
+- Source: `~/.paarth/brain/routes.jsonl` (read by `promote`).
+- Defaults: `~/.paarth/defaults.toml` `[learning]` section.
+
+## Ethos
+
+Memory is compounding interest. Each successful chain that survives the gate becomes a faster route next session. Don't bypass the gate — `successRate ≥ 0.6 + useCount ≥ 5` is what keeps one-off coincidences out of the classifier.
+
+---
+
+### paarth-safety
+> Reversibility-aware action gate. Universal rule any backend can follow. Triggers BEFORE the agent issues a destructive shell command, force-push, history-rewrite, mass DB mutation, sensitive-file edit, or permission-skip flag. On Claude Code, the hooks/paarth-safety.py PreToolUse hook enforces this same logic at the harness level. Use whenever the request leads toward "rm -rf", "git push --force", "git reset --hard", "DROP", "TRUNCATE", "--no-verify", "--dangerously-skip-permissions", "migrate down", "kill -9", or edits to .env / .ssh / credentials / .pem / .key / /etc.
+
+# PAARTH Safety
+
+> **Doctrine: reversibility over speed.** A pause to confirm costs seconds. An unwanted destructive op costs hours and trust. Always pause-and-ask on irreversible actions, even when the user appears to have asked for them earlier in the session — *authorization is scoped to what was actually requested, not extrapolated from it.*
+
+## When to use
+
+This skill is consulted **before** the agent issues a tool call whose effect is hard to reverse. Triggering signals:
+
+- Bash commands matching the risky list below
+- Edit / Write to a sensitive path
+- Git operations that rewrite history or overwrite remotes
+- Database statements without a `WHERE` clause
+- Network egress in `local-only` mode
+- Any flag whose name contains `force`, `--no-verify`, `--dangerously-`, `--skip-`
+
+## Risky pattern catalog
+
+### Filesystem
+- `rm -rf`, `sudo rm`, `chmod -R 777`, `dd if=… of=/dev/{sd,disk,nvme}`, `mkfs.*`
+- Fork bomb (`:(){ :|:& };:`)
+
+### Git history & remotes
+- `git push --force` (use `--force-with-lease` if absolutely required, and even then prefer not to)
+- `git reset --hard`, `git clean -f`, `git checkout .`, `git restore .`, `git branch -D`
+- `git commit --amend` on already-pushed commits
+- `--no-verify` (skipping pre-commit hooks); `git rebase -i` (interactive — needs human)
+
+### Database
+- `DROP TABLE | DATABASE | SCHEMA | INDEX | VIEW`
+- `TRUNCATE TABLE`
+- `DELETE FROM <table>` without `WHERE`
+- `UPDATE <table> SET …` without `WHERE`
+- `migrate down`, `migration:rollback`
+
+### Package & dependency
+- `npm uninstall`, `pip uninstall`, package-lock or lockfile deletes, dependency downgrades
+
+### Process & permissions
+- `kill -9`, `pkill -9`, `killall -9`
+- `--dangerously-skip-permissions` — never. Use `/permissions` instead.
+
+### Sensitive paths (Edit / Write blocked unless pre-authorized)
+- `.env`, `.env.*`
+- `~/.aws/credentials`, `~/.ssh/id_{rsa,ed25519,dsa,ecdsa}` (and `.pub`)
+- Any `*.pem`, `*.key`, `.netrc`
+- `/etc/`, `/System/`
+
+## Decision matrix
+
+| Pattern | Decision | Rationale |
+|---|---|---|
+| Fork bomb / `dd` to raw disk / `mkfs` | **deny** (hard refuse) | No legitimate use during agent work. |
+| `rm -rf`, force-push, history rewrite, sensitive-file edit, mass DB mutation | **ask** | Reversibility unclear; user must confirm scope. |
+| All other | **allow** | Default trust on the IDE's permission system. |
+
+## Procedure
+
+When you detect a risky action:
+
+1. **Pause** before issuing the tool call.
+2. **State the action and the reversibility cost** in one sentence. Example:
+   > "About to run `git push --force origin main`. This rewrites the remote history of the protected branch and is hard to undo if collaborators have pulled. Confirm?"
+3. **Suggest a safer alternative** when one exists:
+   - `git push --force` → `git push --force-with-lease`
+   - `git reset --hard` → stash + soft reset
+   - `rm -rf <dir>` → `mv <dir> /tmp/paarth-trash-$(date +%s)/`
+   - `DROP TABLE` → `RENAME TABLE … TO _archive_…` then `DROP` after a cooling period
+4. **Check pre-authorization sources** (only on Claude Code, automatic):
+   - `~/.paarth/safety/allow.txt` — one regex per line
+   - `~/.claude/CLAUDE.md` section `## PAARTH Safety Allow`
+   - `PAARTH_SAFETY=off` env
+5. **If user re-confirms in plain English ("yes do it", "approved", "go ahead"), proceed.** Do not interpret silence or unrelated approvals as consent.
+
+## Anti-patterns
+
+- **Bypassing on the assumption of "they meant this"**: explicit user words on this turn, every time.
+- **Adding `|| true` after a risky op to mask failure**: you're hiding signal you should be reading.
+- **Renaming the risky op**: `rm -rf` wrapped in a script with a friendly name is still `rm -rf`.
+- **Asking once and assuming a session-wide green light**: scope of approval is the operation as described, not similar future ops.
+
+## Bypass surface (only if you know what you're doing)
+
+The user can opt out of any rule by:
+
+- Adding a regex to `~/.paarth/safety/allow.txt` (one per line).
+- Adding a bullet under `## PAARTH Safety Allow` in `~/.claude/CLAUDE.md` with a regex string.
+- Setting `PAARTH_SAFETY=off` in the environment for a session-wide bypass.
+
+## Provenance
+
+Distilled from:
+- `references/system_prompts_leaks/Anthropic/claude-code.md` — reversibility doctrine
+- `references/claude-code-best-practice/.claude/hooks/` — hook-event surface
+- `references/ruflo/v3/@claude-flow/hooks/` — PreToolUse interception pattern
+
+The Claude Code harness enforces these rules automatically via
+`hooks/paarth-safety.py` (PreToolUse). On other backends (Codex,
+Gemini, Copilot, Continue, Aider, Cursor, Windsurf), the agent
+self-polices using this skill.
+
+---
+
+### paarth-switch
+> Drive the `paarth-switch` CLI to inspect, swap, or restore the active LLM backend. Triggers on "list local models", "switch to <model>", "switch back", "restore anthropic", "canary <model>", "what model am i on", "auto fallback on/off", "/paarth-switch <op>". Use when the user wants direct, surgical control over the model swap — not when they're asking *whether* to switch (that is `auto-fallback`) or *how to set up* the proxy (that is `free-llm`).
+
+# paarth-switch
+
+Surgical operator for the cost-aware proxy / model switcher. Wraps the
+`paarth-switch` CLI in a thin, deterministic skill so the agent always
+runs the *right* subcommand, parses output the same way, and reports state
+back to the user in a consistent shape.
+
+## When to use
+
+- User typed `/paarth-switch <op>` (one of: `list`, `to`, `back`,
+  `canary`, `status`, `auto`).
+- User said "list local models", "switch to qwen3", "switch back to
+  Anthropic", "what backend am I on", "run a canary on …", "turn auto-fallback
+  on/off".
+- A peer skill (`auto-fallback`, `free-llm`) needs to perform the actual
+  switch — it dispatches here.
+
+**Do NOT use for:**
+- Deciding *whether* to switch — that is `auto-fallback`.
+- First-time proxy install / setup — that is `free-llm`.
+- Token-savings questions — that is `token-stats`.
+
+## Subcommand routing
+
+| Op                          | What it does                                            | When |
+| --------------------------- | ------------------------------------------------------- | ---- |
+| `list`                      | Enumerate detected local models (Ollama / LM Studio / llama.cpp). Always safe; no state change. | First call when the user asks "what's available" or before `to`. |
+| `to <model>`                | Set `ANTHROPIC_BASE_URL` → `http://localhost:18082`, set token, route Claude Code through the free-claude-code proxy with the given local model. | After `canary` passes, or when user explicitly demands the swap. |
+| `back`                      | Unset proxy env, restore the prior `ANTHROPIC_API_KEY`. | User says "switch back", "restore anthropic", "kill local". |
+| `canary <model> --depth=N`  | Run an N-step Read → Edit → Bash sanity probe against the model. Default N=3. | Always before `to <model>` unless user explicitly skips. |
+| `status`                    | Show current backend, model, auto-flag, last canary. No state change. | Health check, "what am I on". |
+| `auto on` / `auto off`      | Toggle `~/.paarth/auto-fallback.flag`.              | User says "turn auto on/off". |
+| `help`                      | Print CLI help.                                         | Unknown op. |
+
+## Procedure
+
+### 0. Parse the argument
+
+If invoked via `/paarth-switch <args>`, the first token is the
+subcommand. Default to `status` if no subcommand is given (safest read-only
+op). If `args` look like a bare model name (e.g. `qwen2.5-coder:7b`), treat
+as `to <model>` and **require** a `canary` first — never bypass the canary
+unless the user explicitly types `--no-canary`.
+
+### 1. Verify the CLI exists
+
+```bash
+command -v paarth-switch
+```
+
+If missing, point user to `bundles/free-claude-code/install.sh` and stop.
+Do not attempt to install via `npm` / `pip` / `brew` directly.
+
+### 2. Run the subcommand
+
+| User intent                                      | Exact command                                  |
+| ------------------------------------------------ | ---------------------------------------------- |
+| "what's available"                               | `paarth-switch list`                       |
+| "what am I on right now"                         | `paarth-switch status`                     |
+| "switch to qwen3-coder:next" (first time)        | `paarth-switch canary qwen3-coder:next --depth=3` then on pass `paarth-switch to qwen3-coder:next` |
+| "switch back to anthropic"                       | `paarth-switch back`                       |
+| "test if qwen2.5 works without switching"        | `paarth-switch canary qwen2.5-coder:7b --depth=3` |
+| "auto-fallback on" / "off"                       | `paarth-switch auto on` / `auto off`       |
+
+### 3. Report the result back
+
+After every op, print **three lines** to the user:
+
+1. **What ran** — exact CLI command.
+2. **What changed** — diff of state (backend / model / auto-flag).
+3. **What's next** — restart Claude Code if the backend flipped, or "no
+   action required" if it was a read-only op.
+
+Example after a successful `to qwen3-coder:next`:
+
+```
+ran:    paarth-switch to qwen3-coder:next
+state:  backend Anthropic → free-claude-code (localhost:18082) · model → qwen3-coder:next
+next:   restart Claude Code so the new env is picked up
+```
+
+### 4. Failure handling
+
+- **Canary fails** → DO NOT call `to`. Surface the canary log verbatim and
+  ask the user: try a different model, wait, or stay on Anthropic.
+- **`to` fails** (proxy down, port conflict) → run `paarth-switch
+  status` to confirm current state, then prompt to run `free-llm setup`.
+- **`back` fails** (env restore broken) → tell the user to manually
+  `unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN` and restart their shell;
+  do not silently retry.
+
+### 5. Never
+
+- Run `to <model>` without a passing canary (unless `--no-canary`).
+- Edit `~/.paarth/state.json` by hand — always go through the CLI.
+- Touch anything in `~/.claude/` — switcher state lives in `~/.paarth/`.
+- Skip restart instructions after a backend flip.
+
+## Verification
+
+After the op, the skill is done iff:
+
+- [ ] CLI exited 0.
+- [ ] If state changed: `paarth-switch status` confirms the new state.
+- [ ] User has been told whether they need to restart Claude Code.
+
+## Slash command
+
+A Claude Code slash command at `commands/paarth-switch.md` invokes this
+skill with `$ARGUMENTS` so users can type:
+
+```
+/paarth-switch list
+/paarth-switch to qwen3-coder:next
+/paarth-switch back
+/paarth-switch canary qwen2.5-coder:7b
+/paarth-switch status
+/paarth-switch auto on
+```
+
+---
+
 ### plan-ceo-review
 > Pressure-test a plan with the CEO lens. Challenges scope via the four-mode framework (EXPANSION / SELECTIVE EXPANSION / HOLD / REDUCTION), rethinks the problem, asks the six forcing product questions, and recommends which mode to execute. Use before committing engineering resources.
 
@@ -1618,7 +6556,7 @@ All 6 questions answered (no "TBD"). Recommendation explicit.
 
 Pressure-test a plan through the CEO lens before a single engineer-hour is spent. Rethink the problem, challenge the scope, rate the opportunity, and recommend which scope variant to actually execute. You are not here to rubber-stamp. You are here to make the plan extraordinary — or to kill it.
 
-See `~/.superagent/ETHOS.md` for shared SuperAgent principles (verify or die, rewind don't correct, memory compounds, leverage over toil, local first). This skill assumes those are in effect.
+See `~/.paarth/ETHOS.md` for shared PAARTH principles (verify or die, rewind don't correct, memory compounds, leverage over toil, local first). This skill assumes those are in effect.
 
 ## When to use
 
@@ -1901,10 +6839,10 @@ Filled-in versions of the 6 sections above, as a markdown doc.
 
 ## Step 0 — diff-risk pre-check (Wave 3)
 
-Before running the 6-point checklist, run `superagent-diff-risk` to ground the review in objective signal:
+Before running the 6-point checklist, run `paarth-diff-risk` to ground the review in objective signal:
 
 ```bash
-superagent-diff-risk report --base "${ARGUMENTS:-origin/main}" --json
+paarth-diff-risk report --base "${ARGUMENTS:-origin/main}" --json
 ```
 
 Fold the output into the review verdict:
@@ -1916,7 +6854,7 @@ Fold the output into the review verdict:
 Also consult cached coverage (Wave 3):
 
 ```bash
-superagent-testgen status --json
+paarth-testgen status --json
 ```
 
 If `verdict: BELOW THRESHOLD`, include the coverage delta in the review output but do not gate-block on it (project teams own the threshold).
@@ -1986,16 +6924,16 @@ Produce markdown report:
 ### scraping
 > Web scraping, crawling, and data extraction with anti-bot bypass (Cloudflare Turnstile), stealth headless browsing, JS rendering, and adaptive parsing. Triggers on "scrape", "scraping", "crawl", "crawler", "extract from website", "bypass cloudflare", "anti-bot", "scrapling". Use when the user wants to pull content from a website, especially one that fails to fetch via plain HTTP or has anti-bot protections.
 
-# scraping — SuperAgent wrapper around Scrapling
+# scraping — PAARTH wrapper around Scrapling
 
-This skill is a thin SuperAgent-namespaced wrapper around **[Scrapling](https://github.com/D4Vinci/Scrapling)**, an adaptive Web Scraping framework by **D4Vinci**. We do not vendor Scrapling itself — we install it on first use into a per-user Python virtualenv and drive it through `bin/superagent-scrape`.
+This skill is a thin PAARTH-namespaced wrapper around **[Scrapling](https://github.com/D4Vinci/Scrapling)**, an adaptive Web Scraping framework by **D4Vinci**. We do not vendor Scrapling itself — we install it on first use into a per-user Python virtualenv and drive it through `bin/paarth-scrape`.
 
 > Credits and upstream
 > - GitHub: <https://github.com/D4Vinci/Scrapling>
 > - Discord: <https://discord.gg/EMgGbDceNQ>
 > - Docs: <https://scrapling.readthedocs.io/>
 >
-> All anti-bot bypass capability, the spider framework, the adaptive parser, and the stealth fetchers are Scrapling's work. SuperAgent only provides the routing rule and a thin CLI wrapper so the classifier can dispatch scraping tasks consistently.
+> All anti-bot bypass capability, the spider framework, the adaptive parser, and the stealth fetchers are Scrapling's work. PAARTH only provides the routing rule and a thin CLI wrapper so the classifier can dispatch scraping tasks consistently.
 
 ## Why route to this skill
 
@@ -2010,16 +6948,16 @@ If the page is a plain static blog or a Markdown file on GitHub, you do not need
 
 ## Setup (one-time, lazy)
 
-The first time `bin/superagent-scrape` runs, it bootstraps a dedicated Python virtualenv at `~/.superagent/scraping/.venv` and installs Scrapling. You can also do it explicitly:
+The first time `bin/paarth-scrape` runs, it bootstraps a dedicated Python virtualenv at `~/.paarth/scraping/.venv` and installs Scrapling. You can also do it explicitly:
 
 ```bash
 # Idempotent — skips if already installed
-superagent-scrape install
+paarth-scrape install
 ```
 
 What `install` does, mirroring the upstream Scrapling instructions:
 
-1. Creates a venv at `~/.superagent/scraping/.venv` (override with `SCRAPLING_VENV`).
+1. Creates a venv at `~/.paarth/scraping/.venv` (override with `SCRAPLING_VENV`).
 2. Runs `pip install "scrapling[all]>=0.4.7"` inside that venv.
 3. Runs `scrapling install --force` inside that venv to pull browser dependencies.
 
@@ -2027,7 +6965,7 @@ Requires **Python 3.10+**. If `python3` is missing, the wrapper prints a clear e
 
 ## CLI surface
 
-`bin/superagent-scrape` exposes four subcommands:
+`bin/paarth-scrape` exposes four subcommands:
 
 | Subcommand | Purpose |
 |------------|---------|
@@ -2039,14 +6977,14 @@ Requires **Python 3.10+**. If `python3` is missing, the wrapper prints a clear e
 
 ### `--ai-targeted` — MANDATORY for AI/agent use
 
-> **IMPORTANT**: When this skill runs from inside an LLM agent (which is every time SuperAgent invokes it), you **MUST** pass `--ai-targeted` to `fetch` and `browser`. This is Scrapling's built-in **prompt-injection protection** — it strips hidden elements and adversarial content from the returned HTML before the agent reads it. For browser commands, `--ai-targeted` also enables ad blocking automatically, which saves tokens. Do not omit it.
+> **IMPORTANT**: When this skill runs from inside an LLM agent (which is every time PAARTH invokes it), you **MUST** pass `--ai-targeted` to `fetch` and `browser`. This is Scrapling's built-in **prompt-injection protection** — it strips hidden elements and adversarial content from the returned HTML before the agent reads it. For browser commands, `--ai-targeted` also enables ad blocking automatically, which saves tokens. Do not omit it.
 
 ## Three reference use cases
 
 ### 1. Simple GET — plain HTML page
 
 ```bash
-superagent-scrape fetch "https://news.ycombinator.com" --ai-targeted
+paarth-scrape fetch "https://news.ycombinator.com" --ai-targeted
 ```
 
 This is the fast path. No browser, no JavaScript, no anti-bot evasion. Use it for static HTML, blogs, RSS-adjacent pages, and APIs that return HTML.
@@ -2054,7 +6992,7 @@ This is the fast path. No browser, no JavaScript, no anti-bot evasion. Use it fo
 ### 2. Anti-bot-protected site (Cloudflare Turnstile, etc.)
 
 ```bash
-superagent-scrape browser "https://protected.example.com/products" --ai-targeted
+paarth-scrape browser "https://protected.example.com/products" --ai-targeted
 ```
 
 Routes through Scrapling's **stealthy** browser. Cloudflare Turnstile and similar anti-bot interstitials are solved through automation alone — **no third-party solvers, no API keys, no credentials are involved**. Use this when a plain `fetch` returns a challenge page or empty body.
@@ -2062,7 +7000,7 @@ Routes through Scrapling's **stealthy** browser. Cloudflare Turnstile and simila
 ### 3. JS-rendered SPA (React / Vue / Svelte site)
 
 ```bash
-superagent-scrape browser "https://spa.example.com/dashboard" --ai-targeted
+paarth-scrape browser "https://spa.example.com/dashboard" --ai-targeted
 ```
 
 Same `browser` subcommand — Scrapling's browser fetcher executes JavaScript, waits for the DOM to settle, then returns the rendered HTML. Use this for any modern web app where the useful content is hydrated client-side.
@@ -2075,7 +7013,7 @@ Same `browser` subcommand — Scrapling's browser fetcher executes JavaScript, w
 
 | Var | Purpose | Default |
 |-----|---------|---------|
-| `SCRAPLING_VENV` | Path to the Scrapling venv | `~/.superagent/scraping/.venv` |
+| `SCRAPLING_VENV` | Path to the Scrapling venv | `~/.paarth/scraping/.venv` |
 
 ## Safety notes (verbatim from upstream)
 
@@ -2085,7 +7023,7 @@ Same `browser` subcommand — Scrapling's browser fetcher executes JavaScript, w
 
 ## Routing
 
-The SuperAgent classifier auto-routes any task matching `\b(scrape|scraping|crawl(er|ing)?|extract from (the |a )?website|bypass cloudflare|anti.?bot|scrapling)\b` to a chain of `[scraping]` at `moderate` complexity. See `skills/superagent/brain/rules.yaml`.
+The PAARTH classifier auto-routes any task matching `\b(scrape|scraping|crawl(er|ing)?|extract from (the |a )?website|bypass cloudflare|anti.?bot|scrapling)\b` to a chain of `[scraping]` at `moderate` complexity. See `skills/paarth/brain/rules.yaml`.
 
 ---
 
@@ -2115,10 +7053,10 @@ The SuperAgent classifier auto-routes any task matching `\b(scrape|scraping|craw
   - `pyproject.toml` → `pytest` (or the configured `[tool.pytest.ini_options]` runner).
   - `Cargo.toml` → `cargo test`.
   - `Makefile` with a `test` target → `make test`.
-- If ambiguous: ask user which command to run; remember the answer in `~/.superagent/ship/test-cmd.<project-hash>`.
+- If ambiguous: ask user which command to run; remember the answer in `~/.paarth/ship/test-cmd.<project-hash>`.
 
 ### 2. Pre-flight check
-- Run `bin/superagent-ship` (the helper) — it refuses to ship main and does the rebase.
+- Run `bin/paarth-ship` (the helper) — it refuses to ship main and does the rebase.
 - Confirm current branch is not main/master.
 - Confirm no uncommitted changes outside the ship scope (`git status --porcelain` must be clean, or only contain files the ship intends to commit).
 
@@ -2135,7 +7073,7 @@ The SuperAgent classifier auto-routes any task matching `\b(scrape|scraping|craw
 
 ### 5. Coverage audit
 - If the project has a coverage tool (`jest --coverage`, `pytest --cov`, `cargo tarpaulin`, etc.): run it, record baseline + new number.
-- Compare against the last stored coverage in `~/.superagent/ship/coverage.<project-hash>.json`.
+- Compare against the last stored coverage in `~/.paarth/ship/coverage.<project-hash>.json`.
 - If coverage dropped >5% — flag to user, ask to proceed or abort.
 - Update stored coverage on successful ship.
 
@@ -2185,13 +7123,13 @@ The SuperAgent classifier auto-routes any task matching `\b(scrape|scraping|craw
 - If verification fails: abort ship, do not push.
 
 ### 12b. Diff-risk pre-push gate (Wave 3)
-- Run `superagent-diff-risk report --base <base> --json` and parse the impact level.
+- Run `paarth-diff-risk report --base <base> --json` and parse the impact level.
 - If `impactReport.impact == "high"` or `"critical"`, force-confirm with the user before pushing:
   - Print the report markdown (without --json) so they can see the blast radius.
   - Surface `reviewers.owners` from the cached CODEOWNERS lookup as recommended additional reviewers.
   - Wait for explicit user approval to proceed. `low` and `medium` proceed without prompting.
-- Cached report lives at `~/.superagent/diff/last.json`; later steps may read it (e.g., PR body).
-- Also consult `superagent-testgen status --json`. If `verdict == "BELOW THRESHOLD"` and the project enforces it (look for `~/.superagent/testgen/enforce` flag), refuse to push. Default behavior is warn-only.
+- Cached report lives at `~/.paarth/diff/last.json`; later steps may read it (e.g., PR body).
+- Also consult `paarth-testgen status --json`. If `verdict == "BELOW THRESHOLD"` and the project enforces it (look for `~/.paarth/testgen/enforce` flag), refuse to push. Default behavior is warn-only.
 
 ### 13. Push
 - `git push -u origin <current-branch>`.
@@ -2204,11 +7142,11 @@ The SuperAgent classifier auto-routes any task matching `\b(scrape|scraping|craw
 - Capture the PR URL from `gh` output.
 
 ### 15. Ship metrics
-- Append one JSON line to `~/.superagent/cost/ship.jsonl`:
+- Append one JSON line to `~/.paarth/cost/ship.jsonl`:
   ```json
   {"ts":"<iso-8601>","branch":"<name>","base":"<base>","files_changed":<n>,"test_duration_s":<n>,"coverage_delta":<n>,"pr_url":"<url>","version":"<x.y.z>"}
   ```
-- Create `~/.superagent/cost/` if it doesn't exist.
+- Create `~/.paarth/cost/` if it doesn't exist.
 
 ### 16. Status + summary
 Print to user:
@@ -2243,7 +7181,7 @@ Files: <n> changed
 - Committed chain of bisectable commits on the feature branch.
 - Updated `CHANGELOG.md` + bumped version file.
 - Open PR URL printed to stdout.
-- One-line entry in `~/.superagent/cost/ship.jsonl`.
+- One-line entry in `~/.paarth/cost/ship.jsonl`.
 
 ## Verification
 - PR URL printed (not empty).
@@ -2274,7 +7212,7 @@ In every abort case: leave the repo in a clean state (no half-written CHANGELOG,
 
 # sparc
 
-Wave 3 adds a thin orchestrator that chains existing SuperAgent skills with hard boolean gate checks. SPARC is **opt-in per feature** — `/sparc init <slug>` starts a session; it never auto-fires.
+Wave 3 adds a thin orchestrator that chains existing PAARTH skills with hard boolean gate checks. SPARC is **opt-in per feature** — `/sparc init <slug>` starts a session; it never auto-fires.
 
 ## When to use
 
@@ -2299,29 +7237,29 @@ Wave 3 adds a thin orchestrator that chains existing SuperAgent skills with hard
 
 1. **Init the feature:**
    ```bash
-   superagent-sparc init feat-darkmode-toggle
+   paarth-sparc init feat-darkmode-toggle
    ```
-2. **Write the artifact for the current phase** into the printed directory (e.g. `~/.superagent/sparc/feat-darkmode-toggle/spec.md`). Use the AC format `- AC: <id> — <description>`; constraint lines start with `Constraint:`; edge case lines with `Edge case:`.
+2. **Write the artifact for the current phase** into the printed directory (e.g. `~/.paarth/sparc/feat-darkmode-toggle/spec.md`). Use the AC format `- AC: <id> — <description>`; constraint lines start with `Constraint:`; edge case lines with `Edge case:`.
 3. **Run the gate:**
    ```bash
-   superagent-sparc gate
+   paarth-sparc gate
    ```
    On failure, the reason is appended to `gate_failures[]` in `state.json`. Fix and re-run.
 4. **Advance only after gate passes:**
    ```bash
-   superagent-sparc advance
+   paarth-sparc advance
    ```
 5. **At any time, inspect state or matrix:**
    ```bash
-   superagent-sparc status
-   superagent-sparc report
+   paarth-sparc status
+   paarth-sparc report
    ```
 
 ## Files
 
-- State: `~/.superagent/sparc/<slug>/state.json`
-- Artifacts: `~/.superagent/sparc/<slug>/{spec,pseudo,arch,refine,complete}.md`
-- Active slug: `SUPERAGENT_SPARC_SLUG` env var; else most-recently-updated dir.
+- State: `~/.paarth/sparc/<slug>/state.json`
+- Artifacts: `~/.paarth/sparc/<slug>/{spec,pseudo,arch,refine,complete}.md`
+- Active slug: `PAARTH_SPARC_SLUG` env var; else most-recently-updated dir.
 
 ## Hand-off rules
 
@@ -2333,405 +7271,6 @@ Wave 3 adds a thin orchestrator that chains existing SuperAgent skills with hard
 ## Ethos
 
 Verify or die. Boolean gates beat fake-precision scores because they force the LLM (and the user) to name a concrete failure mode rather than negotiate over a fuzzy number. The traceability matrix is the receipt — every AC links to a pseudo line, an arch entry, a test, and a code reference. If any column is empty, the feature isn't done.
-
----
-
-### superagent
-> Master entrypoint. Takes a task, classifies it, composes a skill chain, announces the plan, executes. Use whenever the user types /superagent <task> or says "use superagent for X".
-
-# SuperAgent Router
-
-> **Ethos:** Verify or die. Rewind, don't correct. Memory compounds. Leverage over toil. Local first.
-
-## When to use
-- User invokes `/superagent <task>`.
-- User says "superagent this", "full power mode", "activate all agents".
-- Any complex task where you're unsure which skills to chain.
-
-## Procedure
-
-**1. Detect backend (always).** First call only:
-```bash
-backend=$(superagent-switch status 2>/dev/null | awk '/^mode:/ {print $2}')
-[ -z "$backend" ] && backend="anthropic"
-```
-If `backend=local`, run in **lite mode**: skip step 2 context load, cap chain at 3 skills, shorter announce format, prefer `agent-skills:*` skills (more deterministic step-by-step) over open-ended ones. Local models handle structured checklists better than free-form reasoning.
-
-**2. Load context (cloud only).** Skip on local backend. Otherwise run once per session:
-```bash
-command -v mempalace >/dev/null 2>&1 && mempalace wake-up 2>/dev/null | head -60 || true
-```
-
-**3. Optimize (brain step 0).** Rewrite the raw task into a tight directive before classifying. Strip the `? ` confirm prefix first if present (see step 6), then:
-```bash
-if command -v superagent-optimize >/dev/null 2>&1; then
-  superagent-optimize "$TASK"
-fi
-```
-Output is JSON `{original, optimized, notes, changed}`. If `changed` is true, use `optimized` as the working task for every later step — classify, announce, execute — and show it in the announce block. If the optimizer is missing, errors, or returns `changed: false`, continue with the raw task. Kill switch: `SUPERAGENT_OPTIMIZE=0`. Never silently swap intent — the optimizer only strips filler and restructures; if its output looks semantically different from what the user asked, fall back to the raw task and say so.
-
-**4. Classify.** Run the classifier on the (optimized) task:
-```bash
-if command -v superagent-classify >/dev/null 2>&1; then
-  superagent-classify "$TASK"
-else
-  echo '{"chain":[],"hint":null}'
-fi
-```
-Output is JSON `{chain: [...], hint: [...|null]}`. **If classifier missing or chain empty:** fall back to keyword matching against the available skills list shown in your system reminders — including the `agent-skills:*` namespace (16 skills imported from agent-skills covering define → plan → build → verify → ship). Pick top-3 by description overlap and ask user.
-
-**5. Announce.** Print to the user:
-```
-SuperAgent routing plan for: "<task>"
-Optimized: <optimized task — only when the optimizer changed it>
-Backend: <anthropic|local:model-name>
-Chain: skill1 → skill2 → skill3
-Rationale: <one line why each skill was selected>
-Estimated effort: <rough>
-Proceed? (yes / edit / skip N / run-only N)
-```
-On local backend, omit Rationale and Estimated effort lines — keep announce ≤4 lines total.
-
-**6. Auto-execute (default).** Do NOT ask "Proceed?". The user opted in by invoking SuperAgent. Skip the confirmation gate and start running the chain immediately.
-
-**Opt-in confirm prefix.** If `$ARGUMENTS` starts with `? ` (literal question mark + space), strip the prefix before classifying and run in **confirm mode** for this call only — show the chain and wait for `yes/edit/skip N/run-only N`. Pre-process (works in bash and zsh):
-```bash
-TASK="$ARGUMENTS"
-CONFIRM="auto"
-if [ "${TASK:0:2}" = "? " ]; then
-  CONFIRM="yes"
-  TASK="${TASK#? }"
-fi
-```
-
-**Force-confirm (override auto, even without `?` prefix):**
-- Task or chain contains a destructive op: `ship`, `deploy`, `push`, `force`, `delete`, `drop`, `rm`, `migrate down`, `revert`, `reset --hard`.
-- Chain includes `cso` or `security-review` (findings should be reviewed first).
-- Local backend AND chain length > 3 (offer to trim or confirm full plan).
-- Classifier returned empty/`mempalace-wake` only AND keyword-match has no high-confidence single skill.
-
-**7. Execute.** For each skill in the chain, invoke via the Skill tool in order, working from the optimized task. Between skills, summarize the artifact produced in one sentence. If a skill fails or user says "stop", halt and report.
-
-**8. Log.** After completion (or halt), append to `~/.superagent/brain/routes.jsonl` (auto-create if missing):
-```bash
-mkdir -p ~/.superagent/brain
-# then append the route record
-```
-```json
-{"ts": "<iso>", "task_hash": "<sha256-12>", "task": "<first 120 chars>", "chain": [...], "outcome": "done|halt|fail", "user_override": "yes|no", "backend": "<anthropic|local>", "optimized": true|false}
-```
-
-## Skill namespaces
-
-The roster is organized into namespaces. Pick from any:
-
-- **Bare names** — core SuperAgent skills (`ship`, `review`, `cso`, `simplify`, `investigate`, `learn`, plan-* family, `auto-fallback`, `superagent-switch`, `free-llm`, etc.)
-- **`agent-skills:*`** — Addy Osmani's production engineering skills (16 skills): `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `context-engineering`, `source-driven-development`, `frontend-ui-engineering`, `api-and-interface-design`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `performance-optimization`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `deprecation-and-migration`, `documentation-and-adrs`. Step-by-step + verifiable; preferred when a process must be followed exactly (especially on local models).
-- **`superpowers:*`** — Claude Code superpowers (TDD, debugging, brainstorming, plan execution).
-- **`claude-mem:*`, `caveman:*`, `vercel:*`, `ui-ux-pro-max:*`** — domain plugins.
-
-When a core skill and an `agent-skills:*` skill overlap (e.g. `simplify` vs `agent-skills:incremental-implementation` for refactor work), the bare-name SuperAgent skill wins by default. Prefer the `agent-skills:*` version explicitly when the user wants step-by-step rigor or when running on a local model.
-
-## Local-backend rules (when `backend=local`)
-
-Local models (Qwen, Llama, DeepSeek via free-claude-code proxy) need extra discipline:
-
-- **Cap chains at 3 skills.** Longer chains lose coherence on weaker models.
-- **No mempalace pre-load.** Saves ~4k tokens of context the model can't use well.
-- **Prefer `agent-skills:*`** for build/verify/ship tasks — their explicit checklists translate better than free-form skill prose.
-- **Skip `claude-api` skill** — it's Anthropic-SDK-specific and confuses non-Anthropic backends. Suggest `free-llm` if user wants AI-app guidance.
-- **Single-skill route by default** for trivial questions — don't chain just to chain.
-- **Don't promise tool reliability.** If a skill needs a specific MCP (Chrome DevTools, Notion, etc.), tell the user to verify it's connected before running.
-
-## Fallback — classifier uncertain
-If classifier is missing or returns an empty chain:
-1. Read the available skills list from your system reminders.
-2. Match user's task keywords against skill descriptions (prefer exact verb matches: "build" → builds, "fix" → debugging, "ship" → ship).
-3. Show top-3 candidates and let user pick.
-4. Never invent a skill name not in the list.
-
-## What stays manual
-- Plan Mode (Shift+Tab twice) — user's call.
-- Rewind (Esc Esc) — user's call.
-- Permission grants — `/permissions`.
-- Backend switch — user runs `/superagent-switch to <model>` or `back`.
-
-## Verification
-After each skill runs, require the skill's own output. For build/fix chains, the final `verification-before-completion` (or `agent-skills:test-driven-development` Verification block on local backend) must pass before declaring done.
-
----
-
-### superagent-learn-loop
-> SuperAgent learning loop. Promotes recurring done-routes into pattern records, decays stale ones, and feeds them back to the classifier. Use whenever the user wants to teach SuperAgent which chains worked, prune old patterns, or inspect/protect specific routes. Triggers on "promote pattern", "learn this routing", "decay patterns", "list patterns", "protect pattern".
-
-# superagent-learn-loop
-
-The SuperAgent classifier becomes self-improving in v2.4. Every Stop hook runs `superagent-patterns promote` (extracts repeated done-routes into pattern records) and `superagent-patterns decay` (exponentially decays inactive ones). The classifier reads `~/.superagent/brain/patterns.jsonl` and prepends matched chains when `successRate ≥ 0.6` and `useCount ≥ 5`.
-
-## When to use
-
-- User says "remember this pattern" / "promote this route" / "learn this".
-- User wants to inspect, protect, or prune the pattern store.
-- After a session where you discovered a chain that should survive into future sessions.
-
-## Procedure
-
-1. **List current patterns** to ground the user:
-   ```bash
-   superagent-patterns list
-   ```
-2. **Manual promote** if the user wants the latest routes folded in immediately (Stop hook already does this on session end):
-   ```bash
-   superagent-patterns promote
-   ```
-3. **Protect a high-value pattern** so decay won't drop it below 0.3:
-   ```bash
-   superagent-patterns protect p-<id>
-   ```
-4. **Manual prune** to clean noise below a custom threshold:
-   ```bash
-   superagent-patterns prune --below 0.3
-   ```
-
-## Files
-
-- Store: `~/.superagent/brain/patterns.jsonl` (append-only JSONL).
-- Source: `~/.superagent/brain/routes.jsonl` (read by `promote`).
-- Defaults: `~/.superagent/defaults.toml` `[learning]` section.
-
-## Ethos
-
-Memory is compounding interest. Each successful chain that survives the gate becomes a faster route next session. Don't bypass the gate — `successRate ≥ 0.6 + useCount ≥ 5` is what keeps one-off coincidences out of the classifier.
-
----
-
-### superagent-safety
-> Reversibility-aware action gate. Universal rule any backend can follow. Triggers BEFORE the agent issues a destructive shell command, force-push, history-rewrite, mass DB mutation, sensitive-file edit, or permission-skip flag. On Claude Code, the hooks/superagent-safety.py PreToolUse hook enforces this same logic at the harness level. Use whenever the request leads toward "rm -rf", "git push --force", "git reset --hard", "DROP", "TRUNCATE", "--no-verify", "--dangerously-skip-permissions", "migrate down", "kill -9", or edits to .env / .ssh / credentials / .pem / .key / /etc.
-
-# SuperAgent Safety
-
-> **Doctrine: reversibility over speed.** A pause to confirm costs seconds. An unwanted destructive op costs hours and trust. Always pause-and-ask on irreversible actions, even when the user appears to have asked for them earlier in the session — *authorization is scoped to what was actually requested, not extrapolated from it.*
-
-## When to use
-
-This skill is consulted **before** the agent issues a tool call whose effect is hard to reverse. Triggering signals:
-
-- Bash commands matching the risky list below
-- Edit / Write to a sensitive path
-- Git operations that rewrite history or overwrite remotes
-- Database statements without a `WHERE` clause
-- Network egress in `local-only` mode
-- Any flag whose name contains `force`, `--no-verify`, `--dangerously-`, `--skip-`
-
-## Risky pattern catalog
-
-### Filesystem
-- `rm -rf`, `sudo rm`, `chmod -R 777`, `dd if=… of=/dev/{sd,disk,nvme}`, `mkfs.*`
-- Fork bomb (`:(){ :|:& };:`)
-
-### Git history & remotes
-- `git push --force` (use `--force-with-lease` if absolutely required, and even then prefer not to)
-- `git reset --hard`, `git clean -f`, `git checkout .`, `git restore .`, `git branch -D`
-- `git commit --amend` on already-pushed commits
-- `--no-verify` (skipping pre-commit hooks); `git rebase -i` (interactive — needs human)
-
-### Database
-- `DROP TABLE | DATABASE | SCHEMA | INDEX | VIEW`
-- `TRUNCATE TABLE`
-- `DELETE FROM <table>` without `WHERE`
-- `UPDATE <table> SET …` without `WHERE`
-- `migrate down`, `migration:rollback`
-
-### Package & dependency
-- `npm uninstall`, `pip uninstall`, package-lock or lockfile deletes, dependency downgrades
-
-### Process & permissions
-- `kill -9`, `pkill -9`, `killall -9`
-- `--dangerously-skip-permissions` — never. Use `/permissions` instead.
-
-### Sensitive paths (Edit / Write blocked unless pre-authorized)
-- `.env`, `.env.*`
-- `~/.aws/credentials`, `~/.ssh/id_{rsa,ed25519,dsa,ecdsa}` (and `.pub`)
-- Any `*.pem`, `*.key`, `.netrc`
-- `/etc/`, `/System/`
-
-## Decision matrix
-
-| Pattern | Decision | Rationale |
-|---|---|---|
-| Fork bomb / `dd` to raw disk / `mkfs` | **deny** (hard refuse) | No legitimate use during agent work. |
-| `rm -rf`, force-push, history rewrite, sensitive-file edit, mass DB mutation | **ask** | Reversibility unclear; user must confirm scope. |
-| All other | **allow** | Default trust on the IDE's permission system. |
-
-## Procedure
-
-When you detect a risky action:
-
-1. **Pause** before issuing the tool call.
-2. **State the action and the reversibility cost** in one sentence. Example:
-   > "About to run `git push --force origin main`. This rewrites the remote history of the protected branch and is hard to undo if collaborators have pulled. Confirm?"
-3. **Suggest a safer alternative** when one exists:
-   - `git push --force` → `git push --force-with-lease`
-   - `git reset --hard` → stash + soft reset
-   - `rm -rf <dir>` → `mv <dir> /tmp/superagent-trash-$(date +%s)/`
-   - `DROP TABLE` → `RENAME TABLE … TO _archive_…` then `DROP` after a cooling period
-4. **Check pre-authorization sources** (only on Claude Code, automatic):
-   - `~/.superagent/safety/allow.txt` — one regex per line
-   - `~/.claude/CLAUDE.md` section `## SuperAgent Safety Allow`
-   - `SUPERAGENT_SAFETY=off` env
-5. **If user re-confirms in plain English ("yes do it", "approved", "go ahead"), proceed.** Do not interpret silence or unrelated approvals as consent.
-
-## Anti-patterns
-
-- **Bypassing on the assumption of "they meant this"**: explicit user words on this turn, every time.
-- **Adding `|| true` after a risky op to mask failure**: you're hiding signal you should be reading.
-- **Renaming the risky op**: `rm -rf` wrapped in a script with a friendly name is still `rm -rf`.
-- **Asking once and assuming a session-wide green light**: scope of approval is the operation as described, not similar future ops.
-
-## Bypass surface (only if you know what you're doing)
-
-The user can opt out of any rule by:
-
-- Adding a regex to `~/.superagent/safety/allow.txt` (one per line).
-- Adding a bullet under `## SuperAgent Safety Allow` in `~/.claude/CLAUDE.md` with a regex string.
-- Setting `SUPERAGENT_SAFETY=off` in the environment for a session-wide bypass.
-
-## Provenance
-
-Distilled from:
-- `references/system_prompts_leaks/Anthropic/claude-code.md` — reversibility doctrine
-- `references/claude-code-best-practice/.claude/hooks/` — hook-event surface
-- `references/ruflo/v3/@claude-flow/hooks/` — PreToolUse interception pattern
-
-The Claude Code harness enforces these rules automatically via
-`hooks/superagent-safety.py` (PreToolUse). On other backends (Codex,
-Gemini, Copilot, Continue, Aider, Cursor, Windsurf), the agent
-self-polices using this skill.
-
----
-
-### superagent-switch
-> Drive the `superagent-switch` CLI to inspect, swap, or restore the active LLM backend. Triggers on "list local models", "switch to <model>", "switch back", "restore anthropic", "canary <model>", "what model am i on", "auto fallback on/off", "/superagent-switch <op>". Use when the user wants direct, surgical control over the model swap — not when they're asking *whether* to switch (that is `auto-fallback`) or *how to set up* the proxy (that is `free-llm`).
-
-# superagent-switch
-
-Surgical operator for the cost-aware proxy / model switcher. Wraps the
-`superagent-switch` CLI in a thin, deterministic skill so the agent always
-runs the *right* subcommand, parses output the same way, and reports state
-back to the user in a consistent shape.
-
-## When to use
-
-- User typed `/superagent-switch <op>` (one of: `list`, `to`, `back`,
-  `canary`, `status`, `auto`).
-- User said "list local models", "switch to qwen3", "switch back to
-  Anthropic", "what backend am I on", "run a canary on …", "turn auto-fallback
-  on/off".
-- A peer skill (`auto-fallback`, `free-llm`) needs to perform the actual
-  switch — it dispatches here.
-
-**Do NOT use for:**
-- Deciding *whether* to switch — that is `auto-fallback`.
-- First-time proxy install / setup — that is `free-llm`.
-- Token-savings questions — that is `token-stats`.
-
-## Subcommand routing
-
-| Op                          | What it does                                            | When |
-| --------------------------- | ------------------------------------------------------- | ---- |
-| `list`                      | Enumerate detected local models (Ollama / LM Studio / llama.cpp). Always safe; no state change. | First call when the user asks "what's available" or before `to`. |
-| `to <model>`                | Set `ANTHROPIC_BASE_URL` → `http://localhost:18082`, set token, route Claude Code through the free-claude-code proxy with the given local model. | After `canary` passes, or when user explicitly demands the swap. |
-| `back`                      | Unset proxy env, restore the prior `ANTHROPIC_API_KEY`. | User says "switch back", "restore anthropic", "kill local". |
-| `canary <model> --depth=N`  | Run an N-step Read → Edit → Bash sanity probe against the model. Default N=3. | Always before `to <model>` unless user explicitly skips. |
-| `status`                    | Show current backend, model, auto-flag, last canary. No state change. | Health check, "what am I on". |
-| `auto on` / `auto off`      | Toggle `~/.superagent/auto-fallback.flag`.              | User says "turn auto on/off". |
-| `help`                      | Print CLI help.                                         | Unknown op. |
-
-## Procedure
-
-### 0. Parse the argument
-
-If invoked via `/superagent-switch <args>`, the first token is the
-subcommand. Default to `status` if no subcommand is given (safest read-only
-op). If `args` look like a bare model name (e.g. `qwen2.5-coder:7b`), treat
-as `to <model>` and **require** a `canary` first — never bypass the canary
-unless the user explicitly types `--no-canary`.
-
-### 1. Verify the CLI exists
-
-```bash
-command -v superagent-switch
-```
-
-If missing, point user to `bundles/free-claude-code/install.sh` and stop.
-Do not attempt to install via `npm` / `pip` / `brew` directly.
-
-### 2. Run the subcommand
-
-| User intent                                      | Exact command                                  |
-| ------------------------------------------------ | ---------------------------------------------- |
-| "what's available"                               | `superagent-switch list`                       |
-| "what am I on right now"                         | `superagent-switch status`                     |
-| "switch to qwen3-coder:next" (first time)        | `superagent-switch canary qwen3-coder:next --depth=3` then on pass `superagent-switch to qwen3-coder:next` |
-| "switch back to anthropic"                       | `superagent-switch back`                       |
-| "test if qwen2.5 works without switching"        | `superagent-switch canary qwen2.5-coder:7b --depth=3` |
-| "auto-fallback on" / "off"                       | `superagent-switch auto on` / `auto off`       |
-
-### 3. Report the result back
-
-After every op, print **three lines** to the user:
-
-1. **What ran** — exact CLI command.
-2. **What changed** — diff of state (backend / model / auto-flag).
-3. **What's next** — restart Claude Code if the backend flipped, or "no
-   action required" if it was a read-only op.
-
-Example after a successful `to qwen3-coder:next`:
-
-```
-ran:    superagent-switch to qwen3-coder:next
-state:  backend Anthropic → free-claude-code (localhost:18082) · model → qwen3-coder:next
-next:   restart Claude Code so the new env is picked up
-```
-
-### 4. Failure handling
-
-- **Canary fails** → DO NOT call `to`. Surface the canary log verbatim and
-  ask the user: try a different model, wait, or stay on Anthropic.
-- **`to` fails** (proxy down, port conflict) → run `superagent-switch
-  status` to confirm current state, then prompt to run `free-llm setup`.
-- **`back` fails** (env restore broken) → tell the user to manually
-  `unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN` and restart their shell;
-  do not silently retry.
-
-### 5. Never
-
-- Run `to <model>` without a passing canary (unless `--no-canary`).
-- Edit `~/.superagent/state.json` by hand — always go through the CLI.
-- Touch anything in `~/.claude/` — switcher state lives in `~/.superagent/`.
-- Skip restart instructions after a backend flip.
-
-## Verification
-
-After the op, the skill is done iff:
-
-- [ ] CLI exited 0.
-- [ ] If state changed: `superagent-switch status` confirms the new state.
-- [ ] User has been told whether they need to restart Claude Code.
-
-## Slash command
-
-A Claude Code slash command at `commands/superagent-switch.md` invokes this
-skill with `$ARGUMENTS` so users can type:
-
-```
-/superagent-switch list
-/superagent-switch to qwen3-coder:next
-/superagent-switch back
-/superagent-switch canary qwen2.5-coder:7b
-/superagent-switch status
-/superagent-switch auto on
-```
 
 ---
 
@@ -2752,35 +7291,35 @@ Wave 3 ships an opt-in coverage adapter that augments TDD. Testgen is the inspec
 
 1. **Scan** — runs the project's coverage tool and caches a normalized report:
    ```bash
-   superagent-testgen scan                                  # auto-detect format
-   superagent-testgen scan --fixture coverage-summary.json  # bypass tool spawn
+   paarth-testgen scan                                  # auto-detect format
+   paarth-testgen scan --fixture coverage-summary.json  # bypass tool spawn
    ```
    Supported formats: jest (`coverage-summary.json`), pytest (`coverage.json`), with the same shape for vitest. Other tools (tarpaulin, go-cover) can be added by extending the format detector.
 2. **Rank** — list the largest gaps by `gap × LOC`:
    ```bash
-   superagent-testgen gap --top 5
+   paarth-testgen gap --top 5
    ```
 3. **Scaffold** for a specific file — emit a markdown skeleton:
    ```bash
-   superagent-testgen suggest src/auth.ts
+   paarth-testgen suggest src/auth.ts
    ```
    Output includes uncovered line ranges (collapsed into runs like `L42-50`) and named symbols extracted from the source file. **No test bodies are written** — the skeleton names what to test.
 4. **Status** — current coverage vs threshold:
    ```bash
-   superagent-testgen status         # human
-   superagent-testgen status --json  # for ship/review to consult
+   paarth-testgen status         # human
+   paarth-testgen status --json  # for ship/review to consult
    ```
 
 ## Files
 
-- Normalized report cache: `~/.superagent/testgen/last-report.json`.
-- Project threshold: `~/.superagent/testgen/min-coverage.txt` (default 70).
-- User-supplied coverage command override: `~/.superagent/testgen/cov-cmd.txt`.
+- Normalized report cache: `~/.paarth/testgen/last-report.json`.
+- Project threshold: `~/.paarth/testgen/min-coverage.txt` (default 70).
+- User-supplied coverage command override: `~/.paarth/testgen/cov-cmd.txt`.
 
 ## Hand-off
 
 - For each test in the suggested skeleton, dispatch the `tester` agent (Wave 2) to write the body. The `tester` agent in turn invokes `agent-skills:test-driven-development`.
-- Before `ship`, run `superagent-testgen status --json` and refuse to ship if `verdict == "BELOW THRESHOLD"` and the project enforces it.
+- Before `ship`, run `paarth-testgen status --json` and refuse to ship if `verdict == "BELOW THRESHOLD"` and the project enforces it.
 
 ## Ethos
 
@@ -2789,9 +7328,9 @@ Testgen lists the work; it doesn't do the work. A test the LLM wrote unprompted 
 ---
 
 ### token-stats
-> Show superagent token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Also emits a pastable GitHub badge for sharing. Use when user asks about token savings, how many tokens saved, superagent stats, runs /token-stats, or asks for a savings badge.
+> Show paarth token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Also emits a pastable GitHub badge for sharing. Use when user asks about token savings, how many tokens saved, paarth stats, runs /token-stats, or asks for a savings badge.
 
-# SuperAgent Token Stats
+# PAARTH Token Stats
 
 Show token savings for the current project. Supports a `--badge` mode that emits a shareable markdown badge for the user's own README.
 
@@ -2805,7 +7344,7 @@ Show token savings for the current project. Supports a `--badge` mode that emits
 
 ```bash
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
 
 if [[ ! -f "$STATS" ]]; then
@@ -2837,7 +7376,7 @@ fmt() {
 }
 
 echo ""
-echo "SuperAgent Token Stats — $PROJECT"
+echo "PAARTH Token Stats — $PROJECT"
 echo "──────────────────────────────────────────────"
 printf "Compression ratio : %sx  (your codebase, measured %s)\n" "$RATIO" "$CAL_DATE"
 echo "──────────────────────────────────────────────"
@@ -2867,8 +7406,8 @@ echo ""
 Also run and include dollar-cost breakdown:
 
 ```bash
-superagent-cost today
-superagent-cost week
+paarth-cost today
+paarth-cost week
 ```
 
 Shows cost grouped by model (opus / sonnet / haiku) and a model-mix coach note.
@@ -2881,7 +7420,7 @@ correctly on first try without a retry. Distilled from
 detection), adapted to our `routes.jsonl` outcome ledger.
 
 ```bash
-superagent-oneshot
+paarth-oneshot
 ```
 
 Output is `total / oneshot / retried / rate` plus a coaching line. A rate
@@ -2889,7 +7428,7 @@ above 85% means routing is sharp; under 65% means `rules.yaml` wants tuning.
 For machine-readable use:
 
 ```bash
-superagent-oneshot --json
+paarth-oneshot --json
 ```
 
 ## Badge Mode
@@ -2898,9 +7437,9 @@ When `--badge` is passed, emit a pastable markdown badge that the user can drop 
 
 ```bash
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
-REPO_URL="https://github.com/animeshbasak/SuperAgent"
+REPO_URL="https://github.com/animeshbasak/Paarth"
 
 if [[ ! -f "$STATS" ]]; then
   TOT=0
@@ -2913,8 +7452,8 @@ elif [[ "$TOT" -ge 1000 ]];    then LABEL="$(echo "scale=0; $TOT/1000" | bc)k_to
 else                                LABEL="${TOT}_tokens_saved"
 fi
 
-URL="https://img.shields.io/badge/SuperAgent-${LABEL}-brightgreen?style=flat-square"
-MARKDOWN="[![SuperAgent: ${LABEL//_/ }](${URL})](${REPO_URL})"
+URL="https://img.shields.io/badge/PAARTH-${LABEL}-brightgreen?style=flat-square"
+MARKDOWN="[![PAARTH: ${LABEL//_/ }](${URL})](${REPO_URL})"
 
 echo ""
 echo "Paste this into your README to show off your savings:"
@@ -2927,14 +7466,14 @@ echo ""
 '
 ```
 
-After displaying, remind the user: "Drop that one line in your README. Every visitor sees your receipt — and a link back to SuperAgent. That's how we grow."
+After displaying, remind the user: "Drop that one line in your README. Every visitor sees your receipt — and a link back to PAARTH. That's how we grow."
 
 ## Test Mode
 
 When `--test` argument is passed, display this hardcoded sample output:
 
 ```
-SuperAgent Token Stats — /your/project (SAMPLE DATA)
+PAARTH Token Stats — /your/project (SAMPLE DATA)
 ──────────────────────────────────────────────
 Compression ratio : 48.3x  (your codebase, measured 2026-04-17)
 ──────────────────────────────────────────────

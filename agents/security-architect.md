@@ -8,7 +8,7 @@ hooks:
     - matcher: "Bash|Edit|Write|MultiEdit|NotebookEdit"
       hooks:
         - type: command
-          command: python3 "$HOME/.claude/superagent-safety.py"
+          command: python3 "$HOME/.claude/paarth-safety.py"
 ---
 
 # Security Architect

@@ -2,13 +2,13 @@
 # test/test-sparc-report.sh — traceability matrix output
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-sparc"
+BIN="$SCRIPT_DIR/../bin/paarth-sparc"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
 
 HOME="$TMPHOME" "$BIN" init feat-rep >/dev/null
-DIR="$TMPHOME/.superagent/sparc/feat-rep"
+DIR="$TMPHOME/.paarth/sparc/feat-rep"
 
 cat > "$DIR/spec.md" <<EOF
 # Spec

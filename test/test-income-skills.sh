@@ -4,7 +4,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$SCRIPT_DIR/.."
-AIDEF="$ROOT/bin/superagent-aidefence"
+AIDEF="$ROOT/bin/paarth-aidefence"
 
 DIRS=("$ROOT"/skills/income-*/)
 COUNT=0

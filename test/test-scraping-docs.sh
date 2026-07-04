@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 SKILL="$ROOT/skills/scraping/SKILL.md"
-BIN="$ROOT/bin/superagent-scrape"
+BIN="$ROOT/bin/paarth-scrape"
 
 # ── SKILL.md presence + frontmatter ─────────────────────────────────────────
 [[ -f "$SKILL" ]] || { echo "FAIL: $SKILL missing"; exit 1; }
@@ -33,7 +33,7 @@ grep -q 'discord.gg' "$SKILL" \
 [[ -x "$BIN" ]]   || { echo "FAIL: $BIN not executable"; exit 1; }
 
 HELP_OUT="$("$BIN" --help 2>&1)" \
-  || { echo "FAIL: 'superagent-scrape --help' exited non-zero"; exit 1; }
+  || { echo "FAIL: 'paarth-scrape --help' exited non-zero"; exit 1; }
 
 for sub in install fetch browser status; do
   if ! grep -q -- "$sub" <<<"$HELP_OUT"; then
@@ -43,14 +43,14 @@ for sub in install fetch browser status; do
 done
 
 # ── classifier routes scraping prompts to a chain containing 'scraping' ────
-if ! command -v "$ROOT/bin/superagent-classify" >/dev/null 2>&1 \
-     && [[ ! -x "$ROOT/bin/superagent-classify" ]]; then
-  echo "FAIL: superagent-classify not found at $ROOT/bin/superagent-classify"
+if ! command -v "$ROOT/bin/paarth-classify" >/dev/null 2>&1 \
+     && [[ ! -x "$ROOT/bin/paarth-classify" ]]; then
+  echo "FAIL: paarth-classify not found at $ROOT/bin/paarth-classify"
   exit 1
 fi
 
-ROUTE_OUT="$("$ROOT/bin/superagent-classify" "scrape this page for product prices" 2>&1)" \
-  || { echo "FAIL: superagent-classify failed on scraping prompt"; echo "$ROUTE_OUT"; exit 1; }
+ROUTE_OUT="$("$ROOT/bin/paarth-classify" "scrape this page for product prices" 2>&1)" \
+  || { echo "FAIL: paarth-classify failed on scraping prompt"; echo "$ROUTE_OUT"; exit 1; }
 
 # Pull the chain array and check membership without depending on jq's presence
 # (the classifier already requires jq, so it's safe to use here).

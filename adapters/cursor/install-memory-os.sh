@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cursor adapter for SuperAgent memory-os.
+# Cursor adapter for PAARTH memory-os.
 # Registers the MCP server in cursor_settings.json and emits a project rule
 # (.cursor/rules/memory-os.mdc) carrying the Ground Truth Hierarchy.
 #
@@ -25,7 +25,7 @@ CURSOR_RULES_DIR="$TARGET/.cursor/rules"
 RULE_FILE="$CURSOR_RULES_DIR/memory-os.mdc"
 
 echo ""
-echo -e "${CYAN}SuperAgent memory-os → Cursor${NC}"
+echo -e "${CYAN}PAARTH memory-os → Cursor${NC}"
 echo "Project: $TARGET"
 echo ""
 
@@ -41,7 +41,7 @@ MCP_BIN="$(mo_ensure_mcp_installed | tail -1)"
 # 2. Register in user-level Cursor config (project-level cursor_settings.json
 #    is not standard; user config covers all projects).
 if [[ -d "$(dirname "$CURSOR_CONFIG_USER")" ]]; then
-  mo_register_mcp_in_json "$CURSOR_CONFIG_USER" "superagent-memory" "$MCP_BIN"
+  mo_register_mcp_in_json "$CURSOR_CONFIG_USER" "paarth-memory" "$MCP_BIN"
 else
   mo_warn "Cursor config dir not found at $(dirname "$CURSOR_CONFIG_USER"); skipping MCP registration."
   mo_info "When Cursor is installed, re-run this script."
@@ -53,14 +53,14 @@ GT_BLOCK="$(mo_gt_block)"
 
 cat > "$RULE_FILE" <<EOF
 ---
-description: SuperAgent memory-os — Ground Truth Hierarchy and memory tool usage policy.
+description: PAARTH memory-os — Ground Truth Hierarchy and memory tool usage policy.
 globs: ["**/*"]
 alwaysApply: true
 ---
 
-# SuperAgent Memory-OS
+# PAARTH Memory-OS
 
-This project is wired into the SuperAgent memory-os MCP server.
+This project is wired into the PAARTH memory-os MCP server.
 
 Tools available: \`memory_recall\`, \`memory_write\`, \`memory_list\`, \`memory_pin\`, \`memory_forget\`.
 

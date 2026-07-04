@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# test/test-verbosity.sh — smoke tests for superagent-verbosity
+# test/test-verbosity.sh — smoke tests for paarth-verbosity
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-verbosity"
+BIN="$SCRIPT_DIR/../bin/paarth-verbosity"
 
 TMPDIR_WORK=$(mktemp -d)
 trap 'rm -rf "$TMPDIR_WORK"' EXIT
@@ -107,7 +107,7 @@ EOF
 
 MISSING="$TMPDIR_WORK/does_not_exist.jsonl"
 
-echo "Running superagent-verbosity smoke tests..."
+echo "Running paarth-verbosity smoke tests..."
 echo ""
 
 # ── Test 1: recommend returns valid JSON with level key ───────────────────────

@@ -2,7 +2,7 @@
 # test/test-testgen-suggest.sh — markdown skeleton names tests for uncovered ranges + named symbols
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-testgen"
+BIN="$SCRIPT_DIR/../bin/paarth-testgen"
 FIXTURES="$SCRIPT_DIR/fixtures/testgen"
 
 TMPHOME=$(mktemp -d)

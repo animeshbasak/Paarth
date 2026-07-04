@@ -1,16 +1,16 @@
 ---
 name: sparc
-description: Slash dispatcher for the SPARC 5-phase pipeline. Forwards args to bin/superagent-sparc.
+description: Slash dispatcher for the SPARC 5-phase pipeline. Forwards args to bin/paarth-sparc.
 ---
 
 # /sparc
 
-Routes the user's subcommand to `bin/superagent-sparc`. See [sparc](../skills/sparc/SKILL.md) for the full procedure.
+Routes the user's subcommand to `bin/paarth-sparc`. See [sparc](../skills/sparc/SKILL.md) for the full procedure.
 
 ## Usage
 
 ```
-/sparc init <slug>                       # scaffold ~/.superagent/sparc/<slug>/
+/sparc init <slug>                       # scaffold ~/.paarth/sparc/<slug>/
 /sparc gate                              # evaluate current phase gate
 /sparc advance                           # bump phase (refuses unless gate passed)
 /sparc report                            # traceability matrix output

@@ -2,7 +2,7 @@
 # test/test-hook-notification.sh — info gets dropped, error gets passed through
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK="$SCRIPT_DIR/../hooks/superagent-notification.py"
+HOOK="$SCRIPT_DIR/../hooks/paarth-notification.py"
 
 INFO='{"hook_event_name":"Notification","notification_level":"info","notification_message":"build started"}'
 OUT_INFO=$(python3 "$HOOK" <<<"$INFO")

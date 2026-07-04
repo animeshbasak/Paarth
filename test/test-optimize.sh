@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# test/test-optimize.sh — smoke tests for superagent-optimize output shape + behavior
+# test/test-optimize.sh — smoke tests for paarth-optimize output shape + behavior
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OPTIMIZE="$SCRIPT_DIR/../bin/superagent-optimize"
+OPTIMIZE="$SCRIPT_DIR/../bin/paarth-optimize"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
@@ -42,7 +42,7 @@ assert_contains() {
   fi
 }
 
-echo "Running superagent-optimize smoke tests..."
+echo "Running paarth-optimize smoke tests..."
 echo ""
 
 # ── Test 1: emits valid JSON ──────────────────────────────────────────────────
@@ -88,8 +88,8 @@ output=$(HOME="$TMPHOME" "$OPTIMIZE" "<task-notification><status>completed</stat
 changed=$(echo "$output" | python3 -c "import sys,json; print(json.load(sys.stdin)['changed'])")
 assert "XML payload passthrough" "$changed" "False"
 
-# ── Test 9: kill switch SUPERAGENT_OPTIMIZE=0 ─────────────────────────────────
-output=$(HOME="$TMPHOME" SUPERAGENT_OPTIMIZE=0 "$OPTIMIZE" "could you please add a login button" 2>&1)
+# ── Test 9: kill switch PAARTH_OPTIMIZE=0 ─────────────────────────────────
+output=$(HOME="$TMPHOME" PAARTH_OPTIMIZE=0 "$OPTIMIZE" "could you please add a login button" 2>&1)
 opt=$(echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['changed'], d['optimized']==d['original'])")
 assert "kill switch disables rewrite" "$opt" "False True"
 
@@ -98,8 +98,8 @@ rc=0
 HOME="$TMPHOME" "$OPTIMIZE" >/dev/null 2>&1 || rc=$?
 assert "no args exits 1" "$rc" "1"
 
-# ── Test 11: optimization logged to ~/.superagent/brain/optimizations.jsonl ───
-log="$TMPHOME/.superagent/brain/optimizations.jsonl"
+# ── Test 11: optimization logged to ~/.paarth/brain/optimizations.jsonl ───
+log="$TMPHOME/.paarth/brain/optimizations.jsonl"
 [[ -f "$log" ]] && log_ok="yes" || log_ok="no"
 assert "log file created" "$log_ok" "yes"
 last=$(tail -1 "$log" | python3 -c "import sys,json; d=json.load(sys.stdin); print('ts' in d and 'changed' in d)")

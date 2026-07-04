@@ -28,19 +28,19 @@
 {"id": 19, "prompt": "prepare this repo for a release and push the tag", "archetype": "release", "expected_chain": ["mempalace-wake", "review", "ship"]}
 {"id": 20, "prompt": "debug the test that's flaky on CI", "archetype": "bug", "expected_chain": ["mempalace-wake", "systematic-debugging", "test-driven-development", "agent:coder", "verification-before-completion"]}
 # id=20: 'debug' added to bug signal. bug rule fires -> [sys-dbg, tdd] + vbc (build archetype).
-{"id": 21, "prompt": "switch to qwen3-coder:next", "archetype": "switch", "expected_chain": ["mempalace-wake", "superagent-switch"]}
-# id=21: new switch rule routes direct CLI ops (switch/list/canary/auto) to the dedicated superagent-switch skill.
-{"id": 22, "prompt": "list local models", "archetype": "switch", "expected_chain": ["mempalace-wake", "superagent-switch"]}
+{"id": 21, "prompt": "switch to qwen3-coder:next", "archetype": "switch", "expected_chain": ["mempalace-wake", "paarth-switch"]}
+# id=21: new switch rule routes direct CLI ops (switch/list/canary/auto) to the dedicated paarth-switch skill.
+{"id": 22, "prompt": "list local models", "archetype": "switch", "expected_chain": ["mempalace-wake", "paarth-switch"]}
 {"id": 23, "prompt": "use framer-motion to animate the dropdown", "archetype": "framer-motion", "expected_chain": ["mempalace-wake", "framer-motion", "verification-before-completion"]}
 # id=23: framer-motion is a build archetype, so vbc is appended.
 {"id": 24, "prompt": "wrap the modal in animate presence with exit animation", "archetype": "framer-motion", "expected_chain": ["mempalace-wake", "framer-motion", "verification-before-completion"]}
-# id=25-26: superagent-safety should fire on risky shell strings even when embedded in instructions.
-{"id": 25, "prompt": "rm -rf node_modules and reinstall", "archetype": "risky-action", "expected_chain": ["mempalace-wake", "superagent-safety"]}
-{"id": 26, "prompt": "git push --force origin main please", "archetype": "risky-action", "expected_chain": ["mempalace-wake", "superagent-safety"]}
+# id=25-26: paarth-safety should fire on risky shell strings even when embedded in instructions.
+{"id": 25, "prompt": "rm -rf node_modules and reinstall", "archetype": "risky-action", "expected_chain": ["mempalace-wake", "paarth-safety"]}
+{"id": 26, "prompt": "git push --force origin main please", "archetype": "risky-action", "expected_chain": ["mempalace-wake", "paarth-safety"]}
 {"id": 27, "prompt": "track my daily Anthropic spend and warn me at 90% budget", "archetype": "cost", "expected_chain": ["mempalace-wake", "token-stats", "cost-budget", "auto-fallback"]}
 {"id": 28, "prompt": "show last 5 routes and their outcomes", "archetype": "meta", "expected_chain": ["mempalace-wake", "token-stats"]}
-{"id": 29, "prompt": "promote this routing pattern so we don't have to rediscover it next time", "archetype": "learning", "expected_chain": ["mempalace-wake", "superagent-learn-loop", "learn"]}
-{"id": 30, "prompt": "auto-approve git push --force-with-lease in this repo", "archetype": "permission", "expected_chain": ["mempalace-wake", "superagent-safety"]}
+{"id": 29, "prompt": "promote this routing pattern so we don't have to rediscover it next time", "archetype": "learning", "expected_chain": ["mempalace-wake", "paarth-learn-loop", "learn"]}
+{"id": 30, "prompt": "auto-approve git push --force-with-lease in this repo", "archetype": "permission", "expected_chain": ["mempalace-wake", "paarth-safety"]}
 {"id": 31, "prompt": "downgrade to sonnet when we hit 90% of daily plan", "archetype": "cost", "expected_chain": ["mempalace-wake", "auto-fallback", "cost-budget"]}
 {"id": 32, "prompt": "threat-model the auth flow for the new tenant API", "archetype": "security", "expected_chain": ["mempalace-wake", "agent:security-architect"]}
 {"id": 33, "prompt": "show me the trace for the last classifier route", "archetype": "obs", "expected_chain": ["mempalace-wake", "observability"]}

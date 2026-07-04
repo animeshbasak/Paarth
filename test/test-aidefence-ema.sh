@@ -2,12 +2,12 @@
 # test/test-aidefence-ema.sh — feedback drives EMA so confidence shifts on repeated inaccurate verdicts
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-aidefence"
+BIN="$SCRIPT_DIR/../bin/paarth-aidefence"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/aidefence"
-cp "$SCRIPT_DIR/../skills/aidefence/patterns.json" "$TMPHOME/.superagent/aidefence/patterns.json"
+mkdir -p "$TMPHOME/.paarth/aidefence"
+cp "$SCRIPT_DIR/../skills/aidefence/patterns.json" "$TMPHOME/.paarth/aidefence/patterns.json"
 
 # Baseline confidence for io-001 (which matches "ignore previous instructions")
 BASE_JSON=$(HOME="$TMPHOME" "$BIN" scan "ignore previous instructions")

@@ -1,4 +1,4 @@
-# Plan: Integrate 4 Reference Repos into SuperAgent
+# Plan: Integrate 4 Reference Repos into PAARTH
 
 **Date:** 2026-05-04
 **Sources:** `references/{ruflo, codeburn, system_prompts_leaks, claude-code-best-practice}`
@@ -8,19 +8,19 @@
 
 ## Cross-cutting signal
 
-| Theme | ruflo | codeburn | cc-best-practice | sys-prompts | Superagent today |
+| Theme | ruflo | codeburn | cc-best-practice | sys-prompts | Paarth today |
 |---|---|---|---|---|---|
 | Hooks infra | ✅ 17 hooks | — | ✅ 27 events | ✅ reversibility-gating | ❌ none |
 | Cost-aware routing | ✅ 3-tier (Booster→Haiku→Sonnet) | ✅ pricing engine | — | — | ⚠️ `auto-fallback` skill only |
-| Task classifier | — | ✅ 13-cat deterministic | — | — | ⚠️ `superagent-classify` (rules-based) |
+| Task classifier | — | ✅ 13-cat deterministic | — | — | ⚠️ `paarth-classify` (rules-based) |
 | Agent memory | ✅ ReasoningBank/SONA | — | ✅ `agent-memory/<name>/` | ✅ 4-pillar typed | ⚠️ mempalace, no per-skill |
 | MCP grouping | ✅ ADR-035 | — | ✅ `.mcp.json` | — | ❌ no `.mcp.json` |
 | Reversibility gate | — | — | — | ✅ Claude-Code-style | ⚠️ implicit |
 | Provider/IDE adapter | — | ✅ 18 session parsers | — | — | ⚠️ 7 IDE adapters, no telemetry |
 
-**Strongest converging signal: HOOKS.** 3 of 4 sources independently advocate hooks/gating. Superagent has none. Highest leverage.
+**Strongest converging signal: HOOKS.** 3 of 4 sources independently advocate hooks/gating. Paarth has none. Highest leverage.
 
-**Second signal: per-agent typed memory.** 2 of 4 sources. Superagent has mempalace globally but not scoped per-skill.
+**Second signal: per-agent typed memory.** 2 of 4 sources. Paarth has mempalace globally but not scoped per-skill.
 
 ---
 
@@ -32,7 +32,7 @@
    - Port `hooks.json` schema + `hooks.py` Python framework
    - Wire into `adapters/claude/install.sh`
    - Events to enable first: `PreToolUse` (safety gate), `PostToolUse` (route logging), `SessionStart` (mempalace wake), `Stop` (route flush)
-   - Files to create: `superagent/.claude/hooks/{hooks.json,scripts/hooks.py}`
+   - Files to create: `paarth/.claude/hooks/{hooks.json,scripts/hooks.py}`
    - Ref: claude-code-best-practice agent report
 
 2. **Reversibility-aware action gate** ← `system_prompts_leaks/Anthropic/claude-code.md`
@@ -51,11 +51,11 @@
    - Tier 1: WASM/local <1ms ($0) — for trivial classify/format
    - Tier 2: Haiku 4.5 ~500ms ($0.0002) — for simple tasks
    - Tier 3: Sonnet 4.6 / Opus 4.7 ($0.003-0.015) — for complex
-   - Wire into `superagent-switch` and `auto-fallback` skill
-   - Add a "tier" field to `superagent-classify` output
+   - Wire into `paarth-switch` and `auto-fallback` skill
+   - Add a "tier" field to `paarth-classify` output
 
 5. **Per-skill agent memory** ← `claude-code-best-practice/.claude/agent-memory/`
-   - Convention: `~/.superagent/agent-memory/<skill-name>/MEMORY.md`
+   - Convention: `~/.paarth/agent-memory/<skill-name>/MEMORY.md`
    - Skills append learnings; mempalace indexes them
    - Templates in `skills/*/MEMORY.md.template`
 
@@ -115,4 +115,4 @@ Week 3+ (P2):
 
 1. Hooks language: Python (matches cc-best-practice) or shell? Python wins for portability across adapters.
 2. P0 scope: ship all 3 P0 items together, or hooks-only first?
-3. Per-skill memory: store in `~/.superagent/` (current convention) or `~/.claude/agent-memory/` (claude-only)?
+3. Per-skill memory: store in `~/.paarth/` (current convention) or `~/.claude/agent-memory/` (claude-only)?

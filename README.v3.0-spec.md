@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="docs/media/hero-superagent.svg" alt="SuperAgent — the routing brain that lives between your AI and your code" width="900" />
+<img src="docs/media/hero-paarth.svg" alt="PAARTH — the routing brain that lives between your AI and your code" width="900" />
 
 ### One brain. Seven IDEs. 32 skills. 45/45 routing accuracy.
 
 **Self-improving classifier. Per-prompt injection defense. 5-phase methodology gates. Per-diff risk scoring. Free local fallback. No rate limits.**
 
-[![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
+[![Stars](https://img.shields.io/github/stars/animeshbasak/PAARTH?style=social)](https://github.com/animeshbasak/Paarth)
 [![Platforms](https://img.shields.io/badge/platforms-8-blue)](#works-with-every-ai-coding-tool-you-use)
 [![Bench](https://img.shields.io/badge/bench-45%2F45%20PASS-brightgreen)](#receipts)
 [![Skills](https://img.shields.io/badge/skills-32-purple)](#the-29-skill-roster)
@@ -15,8 +15,8 @@
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ```bash
-git clone https://github.com/animeshbasak/SuperAgent
-bash SuperAgent/install.sh
+git clone https://github.com/animeshbasak/Paarth
+bash PAARTH/install.sh
 ```
 
 </div>
@@ -25,7 +25,7 @@ bash SuperAgent/install.sh
 
 ## 30-second pitch
 
-SuperAgent is the layer between you and your AI coding tool. You write a task once. The brain classifies it against 32 skills, picks a chain, scans the prompt for injection, dispatches specialist work to 5 agent personas, enforces methodology gates when complexity warrants, scores every diff for blast radius before push, watches your budget, learns which chains actually worked, falls through to a free local model when limits hit — and writes the same instructions out to Cursor, Codex, Copilot, Gemini, Continue.dev, Windsurf, Aider, and Claude Code in their native formats.
+PAARTH is the layer between you and your AI coding tool. You write a task once. The brain classifies it against 32 skills, picks a chain, scans the prompt for injection, dispatches specialist work to 5 agent personas, enforces methodology gates when complexity warrants, scores every diff for blast radius before push, watches your budget, learns which chains actually worked, falls through to a free local model when limits hit — and writes the same instructions out to Cursor, Codex, Copilot, Gemini, Continue.dev, Windsurf, Aider, and Claude Code in their native formats.
 
 **One config. Seven IDEs. Zero drift.**
 
@@ -47,8 +47,8 @@ Default-off where they add risk (AIDefence, Autopilot, SPARC); on where they're 
 ## Install (~30 seconds, ~120 MB)
 
 ```bash
-git clone https://github.com/animeshbasak/SuperAgent
-cd SuperAgent
+git clone https://github.com/animeshbasak/Paarth
+cd PAARTH
 bash install.sh
 ```
 
@@ -58,17 +58,17 @@ bash install.sh
 
 ```bash
 # Routing brain answers correctly
-superagent-classify "review my PR for SQL injection"
+paarth-classify "review my PR for SQL injection"
 #  → {"chain":["mempalace-wake","review","simplify","cso","security-review","agent:reviewer"], …}
 
 # Cost tracker reads your real Anthropic spend
-superagent-cost today
+paarth-cost today
 
 # Learning loop store is alive
-superagent-patterns list
+paarth-patterns list
 
 # Diff scorer rates the current branch
-superagent-diff-risk report
+paarth-diff-risk report
 ```
 
 If all four return without error, the install worked. The full smoke run is in [`test/`](test/) — 58 scripts, ~5 seconds end-to-end.
@@ -84,7 +84,7 @@ If all four return without error, the install worked. The full smoke run is in [
                                  │
                                  ▼
        ┌─────────────────────────────────────────────────────────┐
-       │  ① CLASSIFY      superagent-classify                    │
+       │  ① CLASSIFY      paarth-classify                    │
        │     rules.yaml  +  patterns.jsonl (learning loop)       │
        │     → chain: [systematic-debugging, TDD, verification]  │
        │     → complexity · categories · history hint            │
@@ -93,7 +93,7 @@ If all four return without error, the install worked. The full smoke run is in [
                             ▼
        ┌─────────────────────────────────────────────────────────┐
        │  ② DEFEND        UserPromptSubmit hook                  │
-       │     superagent-safety (always) + aidefence (opt-in)     │
+       │     paarth-safety (always) + aidefence (opt-in)     │
        │     → blocks rm -rf, --force, DROP, prompt injection    │
        │     → critical → deny · high → ask · PII → log          │
        └────────────────────┬────────────────────────────────────┘
@@ -120,12 +120,12 @@ If all four return without error, the install worked. The full smoke run is in [
        ┌─────────────────────────────────────────────────────────┐
        │  ⑤ OBSERVE       JSONL spans + metrics + traces         │
        │     Every Stop: distill corrections + promote patterns  │
-       │     superagent-trace <id>  · superagent-metrics today   │
+       │     paarth-trace <id>  · paarth-metrics today   │
        │     Daily rotation · 30d retention                      │
        └─────────────────────────────────────────────────────────┘
 ```
 
-Every layer is a real, replaceable file. Every decision is logged to `~/.superagent/brain/routes.jsonl` so you can audit your own routing.
+Every layer is a real, replaceable file. Every decision is logged to `~/.paarth/brain/routes.jsonl` so you can audit your own routing.
 
 ---
 
@@ -135,17 +135,17 @@ Every layer is a real, replaceable file. Every decision is logged to `~/.superag
 
 | Skill | When it fires |
 |---|---|
-| `superagent` | Master router — classifies, composes chain, picks backend |
-| `superagent-brain` | PROACTIVELY auto-routes every build / fix / explore / design / review / ship task |
-| `superagent-safety` | Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
-| `superagent-switch` | Manual model swap with canary preflight |
+| `paarth` | Master router — classifies, composes chain, picks backend |
+| `paarth-brain` | PROACTIVELY auto-routes every build / fix / explore / design / review / ship task |
+| `paarth-safety` | Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
+| `paarth-switch` | Manual model swap with canary preflight |
 | `auto-fallback` | Cost-aware switch to local LLM + 3-tier router |
 
 ### v2.4 — Wave 1 Foundation (2)
 
 | Skill | When it fires |
 |---|---|
-| `superagent-learn-loop` | Patterns.jsonl learning loop — promote / decay / protect / prune |
+| `paarth-learn-loop` | Patterns.jsonl learning loop — promote / decay / protect / prune |
 | `cost-budget` | Per-day Anthropic budget alerts + auto-downgrade.flag at 90% spend |
 
 ### v2.5 — Wave 2 Autonomous & Safe (3)
@@ -195,26 +195,26 @@ Every layer is a real, replaceable file. Every decision is logged to `~/.superag
 | Skill | When it fires |
 |---|---|
 | `simplify` | Review changed code for reuse, quality, efficiency |
-| `learn` | Persistent per-project learnings (`~/.superagent/learnings/`) |
+| `learn` | Persistent per-project learnings (`~/.paarth/learnings/`) |
 | `office-hours` | YC-style product intake (6 forcing questions) |
 | `fanout` | Run 2+ skills in parallel and merge their reports |
 | `token-stats` | Token savings stats per project (mempalace + graphify) |
 | `free-llm` | Set up free-claude-code proxy + provider routing |
 | `bench` | Run the classifier bench and print the score |
 
-Plus **6 specialist dispatch agents** under [`agents/`](agents/): `architect`, `coder`, `reviewer`, `security-architect`, `tester`, `superagent-brain`. The classifier picks a specialist when chain length > 4 or complexity = complex.
+Plus **6 specialist dispatch agents** under [`agents/`](agents/): `architect`, `coder`, `reviewer`, `security-architect`, `tester`, `paarth-brain`. The classifier picks a specialist when chain length > 4 or complexity = complex.
 
 ---
 
 ## What's new in v3.0.0 — References Integration Pack
 
-> The v3 capstone. Three upstream projects in `references/` distilled into native SuperAgent skills + bins.
+> The v3 capstone. Three upstream projects in `references/` distilled into native PAARTH skills + bins.
 
 | Source project | Skill + bin | What it does |
 |---|---|---|
-| [**Scrapling**](https://github.com/D4Vinci/Scrapling) (D4Vinci) | `scraping` + `bin/superagent-scrape` | Anti-bot-aware web scraping (Cloudflare Turnstile bypass) via Scrapling's Python framework. Per-user venv at `~/.superagent/scraping/.venv`. Lazy install. `--ai-targeted` prompt-injection protection preserved. |
-| [**Octogent**](https://github.com/hesamsheikh/octogent) (Hesam Sheikh) | `agent-pool` + `bin/superagent-pool` | Multi-Claude-Code parallel-session orchestration. `spawn` emits cooperative directives (no daemon, no process forking). State at `~/.superagent/pool/`. Distinguishes from Wave 2 specialist agents (those dispatch *roles* in one session; pool dispatches *parallel sessions* with separate context windows). |
-| [**jcode**](https://github.com/1jehuang/jcode) (1jehuang) | `dynamic-skills` + `bin/superagent-reload` | Bash equivalent of jcode's PLAN_MCP_SKILLS Phase 1 — `list`/`sync`/`diff`/`status` for skill dirs. Honestly documents the limit: Claude Code doesn't expose a runtime skill-reload API to hooks, so the bin updates files; the user triggers the rescan via `/reload` or session restart. |
+| [**Scrapling**](https://github.com/D4Vinci/Scrapling) (D4Vinci) | `scraping` + `bin/paarth-scrape` | Anti-bot-aware web scraping (Cloudflare Turnstile bypass) via Scrapling's Python framework. Per-user venv at `~/.paarth/scraping/.venv`. Lazy install. `--ai-targeted` prompt-injection protection preserved. |
+| [**Octogent**](https://github.com/hesamsheikh/octogent) (Hesam Sheikh) | `agent-pool` + `bin/paarth-pool` | Multi-Claude-Code parallel-session orchestration. `spawn` emits cooperative directives (no daemon, no process forking). State at `~/.paarth/pool/`. Distinguishes from Wave 2 specialist agents (those dispatch *roles* in one session; pool dispatches *parallel sessions* with separate context windows). |
+| [**jcode**](https://github.com/1jehuang/jcode) (1jehuang) | `dynamic-skills` + `bin/paarth-reload` | Bash equivalent of jcode's PLAN_MCP_SKILLS Phase 1 — `list`/`sync`/`diff`/`status` for skill dirs. Honestly documents the limit: Claude Code doesn't expose a runtime skill-reload API to hooks, so the bin updates files; the user triggers the rescan via `/reload` or session restart. |
 
 Distilled, not vendored. Each upstream credited in its SKILL.md + this CHANGELOG.
 
@@ -226,13 +226,13 @@ Distilled, not vendored. Each upstream credited in its SKILL.md + this CHANGELOG
 
 | Pillar | What it does | CLI |
 |---|---|---|
-| **SPARC** | 5 phases — Specification → Pseudocode → Architecture → Refinement → Completion. Boolean gates per phase (no 0.0-1.0 fake-precision scores). Traceability matrix links every AC to a pseudo line, an arch entry, a test, and a status. | `superagent-sparc {init,gate,advance,report,status}` |
-| **Testgen** | Coverage adapter (jest, vitest, pytest, tarpaulin, go-cover). Gap detection ranked by `gap × LOC`. `suggest <file>` emits a markdown skeleton with uncovered ranges and named symbols — never writes test bodies. | `superagent-testgen {scan,gap,suggest,status}` |
-| **Diff-risk** | 7-type classifier (verbatim port from ruflo) + IMPACT_KEYWORDS scoring + 5 risk-factor booleans (high-churn, security paths, large diff, cross-module, DB migration) + CODEOWNERS reviewer recommendation. Pure git+file parsing — no GitHub API. | `superagent-diff-risk {classify,impact,reviewers,report}` |
+| **SPARC** | 5 phases — Specification → Pseudocode → Architecture → Refinement → Completion. Boolean gates per phase (no 0.0-1.0 fake-precision scores). Traceability matrix links every AC to a pseudo line, an arch entry, a test, and a status. | `paarth-sparc {init,gate,advance,report,status}` |
+| **Testgen** | Coverage adapter (jest, vitest, pytest, tarpaulin, go-cover). Gap detection ranked by `gap × LOC`. `suggest <file>` emits a markdown skeleton with uncovered ranges and named symbols — never writes test bodies. | `paarth-testgen {scan,gap,suggest,status}` |
+| **Diff-risk** | 7-type classifier (verbatim port from ruflo) + IMPACT_KEYWORDS scoring + 5 risk-factor booleans (high-churn, security paths, large diff, cross-module, DB migration) + CODEOWNERS reviewer recommendation. Pure git+file parsing — no GitHub API. | `paarth-diff-risk {classify,impact,reviewers,report}` |
 
 `review` skill now runs `diff-risk` before the 6-point checklist. `ship` skill force-confirms before push when impact is `high` or `critical`.
 
-[Full Wave 3 plan](docs/superpowers/plans/2026-05-13-superagent-v3-wave3-methodology.md) · [v2.4 Wave 1 plan](docs/superpowers/plans/2026-05-08-superagent-v3-wave1-foundation.md) · [v2.5 Wave 2 plan](docs/superpowers/plans/2026-05-13-superagent-v3-wave2-autonomous.md)
+[Full Wave 3 plan](docs/superpowers/plans/2026-05-13-paarth-v3-wave3-methodology.md) · [v2.4 Wave 1 plan](docs/superpowers/plans/2026-05-08-paarth-v3-wave1-foundation.md) · [v2.5 Wave 2 plan](docs/superpowers/plans/2026-05-13-paarth-v3-wave2-autonomous.md)
 
 ---
 
@@ -248,7 +248,7 @@ You bought your AI coding tool. You like it. Then you noticed the bills.
 
 **Tax #4 — Blast-radius tax.** Your AI runs `git push --force` because you said "fix it and push." It runs `rm -rf` on a directory it misread. It commits to `main` because nobody told it `main` was sacred.
 
-SuperAgent is the layer underneath. Write instructions once. Get them everywhere. Risky shell paused. Budget watched. Local model when you need it. Self-improving classifier that learns from your sessions.
+PAARTH is the layer underneath. Write instructions once. Get them everywhere. Risky shell paused. Budget watched. Local model when you need it. Self-improving classifier that learns from your sessions.
 
 ---
 
@@ -262,7 +262,7 @@ SuperAgent is the layer underneath. Write instructions once. Get them everywhere
 | **Cost tracker** | ✅ live | ✅ live | ✅ live | ✅ live | ✅ live | ✅ live | ✅ live | ✅ live |
 | **Specialist agents** | ✅ 5 + brain | dispatched as chain | dispatched as chain | dispatched as chain | dispatched as chain | dispatched as chain | dispatched as chain | dispatched as chain |
 
-`bin/superagent-compile` rewrites the same 32 skills into each platform's native rule format. Hooks fire only on Claude Code; every other platform self-polices via the `superagent-safety` skill.
+`bin/paarth-compile` rewrites the same 32 skills into each platform's native rule format. Hooks fire only on Claude Code; every other platform self-polices via the `paarth-safety` skill.
 
 ---
 
@@ -276,14 +276,14 @@ HARD GATE: PASS  (avg >= 0.90, fails <= 2)
 $ for t in test/test-*.sh; do bash "$t" >/dev/null && echo "PASS: $t"; done | wc -l
 58
 
-$ superagent-aidefence list | wc -l
+$ paarth-aidefence list | wc -l
 58           # injection + PII patterns ship out of the box
             # 100-prompt corpus: FP 2% / TP 86%
 
-$ superagent-diff-risk report --base origin/main --json | jq .impactReport.impact
+$ paarth-diff-risk report --base origin/main --json | jq .impactReport.impact
 "medium"     # or low/medium/high/critical, scored from path tokens + branch name
 
-$ superagent-cost today
+$ paarth-cost today
 model        tokens          $
 opus              0      $0.00
 sonnet      350,000     $5.25
@@ -297,19 +297,19 @@ TOTAL       550,000     $5.35
 ## Project layout
 
 ```
-SuperAgent/
+PAARTH/
 ├── bin/                     19 CLI tools — installed to ~/.local/bin/
-│   ├── superagent-classify  rule + pattern matcher
-│   ├── superagent-cost      4-dim Anthropic price tracker
-│   ├── superagent-patterns  learning loop (promote/decay/protect/prune)
-│   ├── superagent-aidefence prompt injection + PII scanner
-│   ├── superagent-autopilot /loop + pattern-driven prediction
-│   ├── superagent-obs       span + metric emitter
-│   ├── superagent-trace     parent-child trace tree with p95 bottleneck flag
-│   ├── superagent-metrics   counter/gauge/histogram aggregator
-│   ├── superagent-sparc     5-phase gate-enforced pipeline
-│   ├── superagent-testgen   coverage gap + scaffolding
-│   ├── superagent-diff-risk classifier + impact + reviewers
+│   ├── paarth-classify  rule + pattern matcher
+│   ├── paarth-cost      4-dim Anthropic price tracker
+│   ├── paarth-patterns  learning loop (promote/decay/protect/prune)
+│   ├── paarth-aidefence prompt injection + PII scanner
+│   ├── paarth-autopilot /loop + pattern-driven prediction
+│   ├── paarth-obs       span + metric emitter
+│   ├── paarth-trace     parent-child trace tree with p95 bottleneck flag
+│   ├── paarth-metrics   counter/gauge/histogram aggregator
+│   ├── paarth-sparc     5-phase gate-enforced pipeline
+│   ├── paarth-testgen   coverage gap + scaffolding
+│   ├── paarth-diff-risk classifier + impact + reviewers
 │   └── …
 ├── skills/                  32 skills (source of truth)
 ├── agents/                  6 specialist .md agents
@@ -322,10 +322,10 @@ SuperAgent/
 └── docs/                    plans + specs + reels
 ```
 
-Runtime state at `~/.superagent/`:
+Runtime state at `~/.paarth/`:
 
 ```
-~/.superagent/
+~/.paarth/
 ├── brain/        routes.jsonl + patterns.jsonl
 ├── cost/         calls.jsonl + budget.json + alerts.jsonl
 ├── learnings/    per-project distilled corrections
@@ -344,15 +344,15 @@ Runtime state at `~/.superagent/`:
 
 ## FAQ
 
-**I'm on Cursor, not Claude Code. Does it work?** Yes. `bin/superagent-compile` turns 32 skills into Cursor `.mdc` rules, Codex `AGENTS.md`, Copilot instructions, Continue rules, etc. Hooks fire on Claude Code only; every other platform self-polices via the `superagent-safety` skill.
+**I'm on Cursor, not Claude Code. Does it work?** Yes. `bin/paarth-compile` turns 32 skills into Cursor `.mdc` rules, Codex `AGENTS.md`, Copilot instructions, Continue rules, etc. Hooks fire on Claude Code only; every other platform self-polices via the `paarth-safety` skill.
 
-**What if my Anthropic limit hits at 4pm?** The cost tracker watches your spend and drops `~/.superagent/auto-downgrade.flag` at 90% of daily budget. The `auto-fallback` skill reads this and shifts Opus → Sonnet → Haiku, or hands off to a local model (Ollama / qwen-coder / DeepSeek / llama.cpp) via the free-claude-code proxy on port `:18082`.
+**What if my Anthropic limit hits at 4pm?** The cost tracker watches your spend and drops `~/.paarth/auto-downgrade.flag` at 90% of daily budget. The `auto-fallback` skill reads this and shifts Opus → Sonnet → Haiku, or hands off to a local model (Ollama / qwen-coder / DeepSeek / llama.cpp) via the free-claude-code proxy on port `:18082`.
 
-**Does SuperAgent change my code without asking?** Only when you ask. Risky operations (rm -rf, --force-push, DROP, .env edits) hit the safety gate first. AIDefence and Autopilot are default-off; you opt in via `enable` subcommands. SPARC is opt-in per feature.
+**Does PAARTH change my code without asking?** Only when you ask. Risky operations (rm -rf, --force-push, DROP, .env edits) hit the safety gate first. AIDefence and Autopilot are default-off; you opt in via `enable` subcommands. SPARC is opt-in per feature.
 
-**Is anything stored on your servers?** No. Everything lives under `~/.superagent/` and `~/.claude/`. SuperAgent does not phone home.
+**Is anything stored on your servers?** No. Everything lives under `~/.paarth/` and `~/.claude/`. PAARTH does not phone home.
 
-**Where do the receipts come from?** Every routing decision logs to `~/.superagent/brain/routes.jsonl`. Every tool call logs to `~/.superagent/cost/calls.jsonl` (v2 schema: 4-dim Anthropic tokens) and `~/.superagent/obs/spans.jsonl` (canonical span shape). You can `tail -f` any of them while you work.
+**Where do the receipts come from?** Every routing decision logs to `~/.paarth/brain/routes.jsonl`. Every tool call logs to `~/.paarth/cost/calls.jsonl` (v2 schema: 4-dim Anthropic tokens) and `~/.paarth/obs/spans.jsonl` (canonical span shape). You can `tail -f` any of them while you work.
 
 **Where's the test coverage?** 58 bash test scripts under [`test/`](test/). Run `for t in test/test-*.sh; do bash "$t"; done` to see all of them green. The bench harness lives in [`bench/`](bench/).
 

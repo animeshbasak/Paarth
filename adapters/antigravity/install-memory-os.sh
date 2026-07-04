@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Antigravity adapter for SuperAgent memory-os (EXPERIMENTAL).
+# Antigravity adapter for PAARTH memory-os (EXPERIMENTAL).
 #
 # Antigravity's extensibility surface is still in flux as of 2026-06. This
 # adapter installs the MCP server and emits a Skill manifest in the format
@@ -15,11 +15,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UNINSTALL=0
 [[ "${1:-}" == "--uninstall" ]] && UNINSTALL=1
 
-ANTIGRAVITY_SKILLS_DIR="${HOME}/.gemini/antigravity/skills/superagent-memory"
+ANTIGRAVITY_SKILLS_DIR="${HOME}/.gemini/antigravity/skills/paarth-memory"
 ANTIGRAVITY_MCP_CONFIG="${HOME}/.gemini/antigravity/settings.json"
 
 echo ""
-echo -e "${CYAN}SuperAgent memory-os → Antigravity${NC} ${YELLOW}(experimental)${NC}"
+echo -e "${CYAN}PAARTH memory-os → Antigravity${NC} ${YELLOW}(experimental)${NC}"
 echo ""
 
 if [[ $UNINSTALL -eq 1 ]]; then
@@ -33,7 +33,7 @@ MCP_BIN="$(mo_ensure_mcp_installed | tail -1)"
 
 # 2. Register MCP server (best-effort — config path may vary by Antigravity version)
 if [[ -d "$(dirname "$ANTIGRAVITY_MCP_CONFIG")" ]]; then
-  mo_register_mcp_in_json "$ANTIGRAVITY_MCP_CONFIG" "superagent-memory" "$MCP_BIN"
+  mo_register_mcp_in_json "$ANTIGRAVITY_MCP_CONFIG" "paarth-memory" "$MCP_BIN"
 else
   mo_warn "Antigravity config dir not found at $(dirname "$ANTIGRAVITY_MCP_CONFIG"); skipping MCP registration."
   mo_info "Manually register the MCP server with command: $MCP_BIN"
@@ -45,8 +45,8 @@ GT_BLOCK="$(mo_gt_block)"
 
 cat > "$ANTIGRAVITY_SKILLS_DIR/SKILL.md" <<EOF
 ---
-name: superagent-memory
-description: Persistent multi-tier memory for Antigravity sessions via the SuperAgent memory-os MCP server. Activate whenever a task references prior decisions, recorded preferences, project context, or anything previously discussed.
+name: paarth-memory
+description: Persistent multi-tier memory for Antigravity sessions via the PAARTH memory-os MCP server. Activate whenever a task references prior decisions, recorded preferences, project context, or anything previously discussed.
 version: 0.1.0
 experimental: true
 triggers:
@@ -56,7 +56,7 @@ triggers:
   - "the user mentioned"
 ---
 
-# SuperAgent Memory-OS
+# PAARTH Memory-OS
 
 This skill exposes the memory-os MCP server. The five tools — \`memory_recall\`, \`memory_write\`, \`memory_list\`, \`memory_pin\`, \`memory_forget\` — are namespaced by git root.
 

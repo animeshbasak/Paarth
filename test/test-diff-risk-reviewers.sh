@@ -2,7 +2,7 @@
 # test/test-diff-risk-reviewers.sh — CODEOWNERS parsing returns matching owners
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-diff-risk"
+BIN="$SCRIPT_DIR/../bin/paarth-diff-risk"
 CO="$SCRIPT_DIR/fixtures/diff-risk/CODEOWNERS"
 
 # auth + payments paths → @sec-team + @api-leads + @payments-team

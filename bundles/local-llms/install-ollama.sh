@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent Bundle — Ollama + qwen2.5-coder:7b (default fallback model)
+# PAARTH Bundle — Ollama + qwen2.5-coder:7b (default fallback model)
 # Installs Ollama and pulls the 4 GB qwen2.5-coder:7b model.
 # Footprint: ~4.5 GB (ollama runtime + 4 GB model).
 # Idempotent: skips install/pull if already present.

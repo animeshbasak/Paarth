@@ -2,12 +2,12 @@
 # test/test-obs-metrics.sh — counter SUM, gauge LAST, histogram p50/p95/p99
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-metrics"
-EMIT="$SCRIPT_DIR/../bin/superagent-obs"
+BIN="$SCRIPT_DIR/../bin/paarth-metrics"
+EMIT="$SCRIPT_DIR/../bin/paarth-obs"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/obs"
+mkdir -p "$TMPHOME/.paarth/obs"
 
 # Counter: 3 increments
 for v in 1 2 3; do

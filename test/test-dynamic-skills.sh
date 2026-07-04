@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# test/test-dynamic-skills.sh — dynamic-skills SKILL.md + superagent-reload CLI.
+# test/test-dynamic-skills.sh — dynamic-skills SKILL.md + paarth-reload CLI.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SKILL="$ROOT/skills/dynamic-skills/SKILL.md"
-BIN="$ROOT/bin/superagent-reload"
+BIN="$ROOT/bin/paarth-reload"
 
 # --- 1. SKILL.md exists with correct frontmatter ---
 [[ -f "$SKILL" ]] || { echo "FAIL: SKILL.md missing at $SKILL"; exit 1; }
@@ -37,9 +37,9 @@ for key in ('inRepo', 'inClaude', 'outOfSync'):
 
 # --- 6. sync --dry-run does not write ---
 # Use a tempdir to verify no writes happen.
-TMP_CLAUDE="$(mktemp -d -t superagent-reload-test.XXXXXX)"
+TMP_CLAUDE="$(mktemp -d -t paarth-reload-test.XXXXXX)"
 trap 'rm -rf "$TMP_CLAUDE"' EXIT
-SUPERAGENT_CLAUDE_SKILLS="$TMP_CLAUDE" "$BIN" sync --dry-run > /tmp/sa-reload-test.out 2>&1 \
+PAARTH_CLAUDE_SKILLS="$TMP_CLAUDE" "$BIN" sync --dry-run > /tmp/sa-reload-test.out 2>&1 \
   || { echo "FAIL: sync --dry-run exited non-zero"; cat /tmp/sa-reload-test.out; exit 1; }
 
 grep -q "would copy" /tmp/sa-reload-test.out \

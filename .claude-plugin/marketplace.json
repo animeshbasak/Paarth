@@ -1,13 +1,13 @@
 {
   "name": "animeshbasak",
-  "description": "SuperAgent — master orchestrator plugin for Claude Code",
+  "description": "PAARTH — master orchestrator plugin for Claude Code",
   "owner": {
     "name": "Animesh Basak",
     "email": "animeshsbasak@gmail.com"
   },
   "plugins": [
     {
-      "name": "superagent",
+      "name": "paarth",
       "description": "Master orchestrator for Claude Code — routes every task to the optimal skill stack with graphify + MemPalace active by default",
       "version": "2.2.0",
       "source": "./",

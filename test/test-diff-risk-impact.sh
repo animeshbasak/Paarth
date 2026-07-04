@@ -2,7 +2,7 @@
 # test/test-diff-risk-impact.sh — IMPACT_KEYWORDS scoring + risk factor booleans
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-diff-risk"
+BIN="$SCRIPT_DIR/../bin/paarth-diff-risk"
 
 # Critical: security + auth + payment = score >= 5
 OUT=$("$BIN" impact --files "api/auth/login.ts,api/payments/stripe.ts,api/security/csrf.ts" \

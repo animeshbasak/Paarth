@@ -2,15 +2,15 @@
 # test/test-aidefence-corpus.sh — FP <5%, TP >85% on 100-prompt corpus
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-aidefence"
+BIN="$SCRIPT_DIR/../bin/paarth-aidefence"
 CORPUS="$SCRIPT_DIR/fixtures/aidefence-corpus.jsonl"
 
 [[ -f "$CORPUS" ]] || { echo "FAIL: corpus fixture missing"; exit 1; }
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/aidefence"
-cp "$SCRIPT_DIR/../skills/aidefence/patterns.json" "$TMPHOME/.superagent/aidefence/patterns.json"
+mkdir -p "$TMPHOME/.paarth/aidefence"
+cp "$SCRIPT_DIR/../skills/aidefence/patterns.json" "$TMPHOME/.paarth/aidefence/patterns.json"
 
 benign_total=0; benign_fp=0
 attack_total=0; attack_tp=0

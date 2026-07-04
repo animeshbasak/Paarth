@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — Aider Installer
-# Installs SuperAgent conventions for Aider
+# PAARTH — Aider Installer
+# Installs PAARTH conventions for Aider
 # Usage: bash adapters/aider/install.sh [--project <path>]
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -16,11 +16,11 @@ info() { echo -e "${CYAN}→${NC} $*"; }
 TARGET="${PROJECT_DIR:-.}"
 
 echo ""
-echo -e "${CYAN}SuperAgent for Aider${NC}"
+echo -e "${CYAN}PAARTH for Aider${NC}"
 echo ""
 
 info "Compiling skills for Aider..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform aider \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform aider \
   --output "$SCRIPT_DIR/templates/" 2>&1 | tail -3
 
 cp "$SCRIPT_DIR/templates/CONVENTIONS.md" "$TARGET/CONVENTIONS.md"
@@ -37,5 +37,5 @@ else
 fi
 
 echo ""
-ok "SuperAgent for Aider installed!"
+ok "PAARTH for Aider installed!"
 echo ""

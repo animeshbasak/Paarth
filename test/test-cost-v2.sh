@@ -2,20 +2,20 @@
 # test/test-cost-v2.sh — schema v2 pricing + v1 backcompat
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COST_BIN="$SCRIPT_DIR/../bin/superagent-cost"
+COST_BIN="$SCRIPT_DIR/../bin/paarth-cost"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/cost"
+mkdir -p "$TMPHOME/.paarth/cost"
 
 # Mixed v1 + v2 records
-cat > "$TMPHOME/.superagent/cost/calls.jsonl" <<JSONL
+cat > "$TMPHOME/.paarth/cost/calls.jsonl" <<JSONL
 {"ts":"$(date -u -v+0H -Iseconds 2>/dev/null || date -u -Iseconds)","project":"/x","tool":"Bash","tokens":500000,"model":"sonnet"}
 {"ts":"$(date -u -v+0H -Iseconds 2>/dev/null || date -u -Iseconds)","project":"/x","tool":"Bash","model":"sonnet","input_tokens":100000,"output_tokens":400000,"cache_write_tokens":0,"cache_read_tokens":0,"task_id":"t-test","http_status":200,"pricing_version":"2026-Q2"}
 JSONL
 
 # Default budget so script doesn't 404
-cat > "$TMPHOME/.superagent/cost/budget.json" <<'JSON'
+cat > "$TMPHOME/.paarth/cost/budget.json" <<'JSON'
 {"daily_usd":20,"monthly_usd":400,"alert_thresholds":[0.5,0.75,0.9,1.0],
  "auto_downgrade":{"at":0.9,"target":"sonnet"},"hard_stop":{"at":1.0,"mode":"prompt"}}
 JSON

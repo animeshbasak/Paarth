@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code adapter for SuperAgent memory-os.
+# Claude Code adapter for PAARTH memory-os.
 # Registers the MCP server, installs SessionStart/Stop hooks, and injects the
 # Ground Truth Hierarchy into ~/.claude/CLAUDE.md.
 #
@@ -17,7 +17,7 @@ CLAUDE_MD="${HOME}/.claude/CLAUDE.md"
 HOOKS_DIR="${HOME}/.claude/hooks/memory-os"
 
 echo ""
-echo -e "${CYAN}SuperAgent memory-os → Claude Code${NC}"
+echo -e "${CYAN}PAARTH memory-os → Claude Code${NC}"
 echo ""
 
 if [[ $UNINSTALL -eq 1 ]]; then
@@ -31,7 +31,7 @@ fi
 MCP_BIN="$(mo_ensure_mcp_installed | tail -1)"
 
 # 2. Register in ~/.claude.json
-mo_register_mcp_in_json "$CLAUDE_JSON" "superagent-memory" "$MCP_BIN"
+mo_register_mcp_in_json "$CLAUDE_JSON" "paarth-memory" "$MCP_BIN"
 
 # 3. Install lifecycle hook scripts
 mkdir -p "$HOOKS_DIR"
@@ -41,12 +41,12 @@ cat > "$HOOKS_DIR/session-start.sh" <<'HOOK'
 # memory-os SessionStart hook — recalls workspace memory.
 # Output is appended as additional context to the session.
 set -e
-MCP_BIN="${SUPERAGENT_MEMORY_BIN:-superagent-memory-mcp}"
+MCP_BIN="${PAARTH_MEMORY_BIN:-paarth-memory-mcp}"
 NS="$(git rev-parse --show-toplevel 2>/dev/null | shasum -a 256 | cut -c1-16 || echo __global__)"
 # Emit a brief recall summary so the agent sees workspace state on start.
-echo "## SuperAgent Memory-OS wake-up"
+echo "## PAARTH Memory-OS wake-up"
 echo "Namespace: ${NS}"
-echo "Tools available via MCP server 'superagent-memory': memory_recall, memory_write, memory_list, memory_pin, memory_forget"
+echo "Tools available via MCP server 'paarth-memory': memory_recall, memory_write, memory_list, memory_pin, memory_forget"
 HOOK
 chmod +x "$HOOKS_DIR/session-start.sh"
 

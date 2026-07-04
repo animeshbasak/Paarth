@@ -1,6 +1,6 @@
 ---
 name: auto-fallback
-description: Cost-aware routing brain — switch from Anthropic API to a free local model when the user is approaching plan limits, hitting 429 bursts, or asks to "save anthropic" / "switch local" / "rate limit" / "approaching limit". Auto-fires on complexity=trivial when budget is tight. Picks the right Ollama / LM Studio / llama.cpp model for the task complexity, runs a 3-step canary first, and switches via `superagent-switch`. State lives in `~/.superagent/`.
+description: Cost-aware routing brain — switch from Anthropic API to a free local model when the user is approaching plan limits, hitting 429 bursts, or asks to "save anthropic" / "switch local" / "rate limit" / "approaching limit". Auto-fires on complexity=trivial when budget is tight. Picks the right Ollama / LM Studio / llama.cpp model for the task complexity, runs a 3-step canary first, and switches via `paarth-switch`. State lives in `~/.paarth/`.
 triggers:
   - "rate limit"
   - "approaching limit"
@@ -19,13 +19,13 @@ The cost-aware routing brain. Decides when to flip Claude Code from Anthropic AP
 ## Inputs
 
 1. **Latest classifier output** — `meta.complexity` ∈ {trivial, moderate, complex}
-   from `superagent-classify <task>`.
-2. **Budget signal** — `superagent-cost today --json`
+   from `paarth-classify <task>`.
+2. **Budget signal** — `paarth-cost today --json`
    - `pct_of_plan` — fraction of plan limit consumed (0..1)
    - `time_to_5h_reset_minutes` — minutes until rolling 5h limit resets
    - `recent_429_count_60s` — number of 429s in the last 60 seconds
-3. **Available local models** — `superagent-switch list` (auto-refreshes if stale)
-4. **Auto flag** — `~/.superagent/auto-fallback.flag` ("on" or "off")
+3. **Available local models** — `paarth-switch list` (auto-refreshes if stale)
+4. **Auto flag** — `~/.paarth/auto-fallback.flag` ("on" or "off")
 
 ## Decision Tree
 
@@ -52,13 +52,13 @@ recent_429_count_60s >= 3
 ## Procedure
 
 1. Read latest classifier output — pull `meta.complexity`.
-2. Run `superagent-cost today --json` — parse budget signals.
+2. Run `paarth-cost today --json` — parse budget signals.
 3. Apply the decision tree above to pick a candidate model (or NONE).
 4. If a local model is suggested:
-   a. Show menu of available models from `superagent-switch list`.
+   a. Show menu of available models from `paarth-switch list`.
    b. User picks one (or accepts the suggested default).
-   c. Run `superagent-switch canary <model> --depth=3`.
-   d. **On canary pass** → `superagent-switch to <model>`; tell user to restart Claude Code.
+   c. Run `paarth-switch canary <model> --depth=3`.
+   d. **On canary pass** → `paarth-switch to <model>`; tell user to restart Claude Code.
    e. **On canary fail** → freeze. Prompt:
       - "try a different model"
       - "wait — keep Anthropic, retry in N minutes"
@@ -88,7 +88,7 @@ the brain commits before issuing the call.
 
 | tier | latency | cost / call | examples                                                  | maps to                                    |
 |------|---------|-------------|-----------------------------------------------------------|--------------------------------------------|
-| 1    | < 1 ms  | $0          | classify task, format JSON, regex extract, route lookup  | superagent-classify, local WASM, awk/jq    |
+| 1    | < 1 ms  | $0          | classify task, format JSON, regex extract, route lookup  | paarth-classify, local WASM, awk/jq    |
 | 2    | ~ 500 ms| ~ $0.0002   | one-shot questions, small edits, doc lookups, simple chat | Haiku 4.5, qwen2.5-coder:7b, llama3.1:8b   |
 | 3    | 2-5 s   | $0.003-0.015| multi-step reasoning, large refactors, plans, debugging   | Sonnet 4.6, Opus 4.7, qwen3-coder:next     |
 
@@ -97,7 +97,7 @@ the brain commits before issuing the call.
 1. **`meta.complexity` from classifier** — `trivial → 1 or 2`, `moderate → 2`, `complex → 3`.
 2. **Budget pressure** — `pct_of_plan > 0.80` shifts a tier down (3→2, 2→1).
 3. **Backend mode** — `local-only` skips tier 3.
-4. **User override** — `/superagent-switch to <model>` pins a tier.
+4. **User override** — `/paarth-switch to <model>` pins a tier.
 
 ### Tier escalation rule
 
@@ -116,23 +116,23 @@ prevented.
 
 ## Recovery
 
-- If switching breaks Claude Code → `superagent-switch back` restores Anthropic.
-- Backed-up `ANTHROPIC_API_KEY` lives at `~/.superagent/anthropic-key.bak`.
+- If switching breaks Claude Code → `paarth-switch back` restores Anthropic.
+- Backed-up `ANTHROPIC_API_KEY` lives at `~/.paarth/anthropic-key.bak`.
 
 ## In-Anthropic tier shift (Wave 1)
 
-In addition to swapping the *backend* (Anthropic ↔ local), the auto-fallback skill now honors **in-tier downgrades** within Anthropic when the cost-tracker drops `~/.superagent/auto-downgrade.flag`.
+In addition to swapping the *backend* (Anthropic ↔ local), the auto-fallback skill now honors **in-tier downgrades** within Anthropic when the cost-tracker drops `~/.paarth/auto-downgrade.flag`.
 
 ### Trigger
 
-`bin/superagent-cost-alerts` writes `~/.superagent/auto-downgrade.flag` containing a single token (e.g. `sonnet` or `haiku`) when daily spend crosses the budget's `auto_downgrade.at` threshold (default 0.9).
+`bin/paarth-cost-alerts` writes `~/.paarth/auto-downgrade.flag` containing a single token (e.g. `sonnet` or `haiku`) when daily spend crosses the budget's `auto_downgrade.at` threshold (default 0.9).
 
 ### Action when flag present
 
-1. Read the flag file: `cat ~/.superagent/auto-downgrade.flag`.
+1. Read the flag file: `cat ~/.paarth/auto-downgrade.flag`.
 2. If the current model is **higher tier** than the flag target (Opus → Sonnet, or Sonnet → Haiku), recommend or auto-perform the in-tier shift.
 3. Announce the shift (`Backend: anthropic:<old-tier> → anthropic:<new-tier>  Reason: budget at 90%`).
-4. The flag is cleared automatically by `superagent-cost-alerts` when usage drops below the threshold (e.g. after the 5h reset window).
+4. The flag is cleared automatically by `paarth-cost-alerts` when usage drops below the threshold (e.g. after the 5h reset window).
 
 ### Precedence with other guards
 
@@ -140,7 +140,7 @@ When multiple shift signals fire simultaneously, apply in order: **budget > rate
 
 ## Notes
 
-- All state under `~/.superagent/`, never `~/.claude/`.
+- All state under `~/.paarth/`, never `~/.claude/`.
 - Free-claude-code proxy port is **18082** (not 8082).
 - Auto-switch defaults OFF; opt-in for unattended use only.
 - Canary is mandatory before any switch — never skip.

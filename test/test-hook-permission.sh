@@ -2,12 +2,12 @@
 # test/test-hook-permission.sh — auto-allow patterns from safety/allow.txt
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK="$SCRIPT_DIR/../hooks/superagent-permission.py"
+HOOK="$SCRIPT_DIR/../hooks/paarth-permission.py"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/safety"
-cat > "$TMPHOME/.superagent/safety/allow.txt" <<'EOF'
+mkdir -p "$TMPHOME/.paarth/safety"
+cat > "$TMPHOME/.paarth/safety/allow.txt" <<'EOF'
 ^git push --force-with-lease\b
 ^npm test\b
 EOF

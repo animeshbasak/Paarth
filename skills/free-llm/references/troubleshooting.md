@@ -11,7 +11,7 @@ Common failures when routing Claude Code through `free-claude-code` on :18082, w
 - OpenRouter `:free` variants: 20 req/min, 200/day across free credits.
 
 **Fix:**
-1. `superagent-switch chain --next` — falls to next entry in `references/routing.md` chain.
+1. `paarth-switch chain --next` — falls to next entry in `references/routing.md` chain.
 2. Switch tier to local: `free-llm switch ollama/qwen2.5-coder:7b`.
 3. Wait until reset (NIM resets at 00:00 UTC; OpenRouter rolling-window).
 4. If you keep hitting 429s, your workflow is too chatty for free tier — consider DeepSeek paid (`deepseek/deepseek-reasoner`, ~$0.14/MTok) or accept Anthropic.
@@ -26,27 +26,27 @@ Common failures when routing Claude Code through `free-claude-code` on :18082, w
 - Any model loaded into LM Studio without the right chat template.
 
 **Fix:**
-1. Run canary at depth 5: `superagent-switch canary <model> --depth=5`.
+1. Run canary at depth 5: `paarth-switch canary <model> --depth=5`.
 2. If canary fails, switch chain head: `free-llm switch <next>`.
 3. In LM Studio, verify the chat template matches the model card (Qwen template for Qwen, Llama-3 template for Llama).
 4. Stick to coder/instruct fine-tunes for tool calls (`qwen2.5-coder`, `kimi-k2.5`, `MiniMax-M2.5`).
 
 ## Port :18082 already in use
 
-**Symptom:** `superagent-switch start` errors with `EADDRINUSE` or proxy never becomes healthy.
+**Symptom:** `paarth-switch start` errors with `EADDRINUSE` or proxy never becomes healthy.
 
 **Diagnosis:**
 ```bash
 lsof -nP -iTCP:18082 -sTCP:LISTEN
 ```
 
-If the listener is `free-cc` or matches `~/.superagent/free-claude-code.pid`, it is **the same proxy** — reuse it, do not restart.
+If the listener is `free-cc` or matches `~/.paarth/free-claude-code.pid`, it is **the same proxy** — reuse it, do not restart.
 
 If it is a foreign process, fall back to :18083:
 
 **Fix:**
-1. Rewrite `~/.superagent/free-llm.env`: change `ANTHROPIC_BASE_URL=http://localhost:18083`.
-2. Restart proxy: `superagent-switch start --port 18083 --env ~/.superagent/free-llm.env`.
+1. Rewrite `~/.paarth/free-llm.env`: change `ANTHROPIC_BASE_URL=http://localhost:18083`.
+2. Restart proxy: `paarth-switch start --port 18083 --env ~/.paarth/free-llm.env`.
 3. Tell the user — they MUST restart Claude Code for the new base URL to take effect.
 
 Never silently use a different port from what is in the env file: Claude Code reads `ANTHROPIC_BASE_URL` once at session start.
@@ -67,7 +67,7 @@ Never silently use a different port from what is in the env file: Claude Code re
 
 ## Canary fails at depth 3
 
-**Symptom:** `superagent-switch canary <model> --depth=3` returns non-zero. `free-llm` aborts the switch (correct).
+**Symptom:** `paarth-switch canary <model> --depth=3` returns non-zero. `free-llm` aborts the switch (correct).
 
 **Diagnosis:** Model can do single-turn tool calls but breaks down on multi-turn chains. This is an Anthropic-API-shape mismatch, not a bug in `free-claude-code`.
 
@@ -83,7 +83,7 @@ Never silently use a different port from what is in the env file: Claude Code re
 **Diagnosis:** `back` only unsets `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. If `ANTHROPIC_API_KEY` was not in the user's shell profile and was only set for the previous session, there is nothing to restore.
 
 **Fix:**
-1. Check `~/.superagent/free-llm.env.prev` — if it exists, that was the captured prior key. `source` it or restore it manually.
+1. Check `~/.paarth/free-llm.env.prev` — if it exists, that was the captured prior key. `source` it or restore it manually.
 2. Otherwise, set `ANTHROPIC_API_KEY` in your shell profile and start a new shell + new Claude Code session.
 
 ## Proxy is healthy but Claude Code still goes to api.anthropic.com
@@ -104,4 +104,4 @@ Never silently use a different port from what is in the env file: Claude Code re
 ```bash
 env | grep -E '^ANTHROPIC_(BASE_URL|AUTH_TOKEN)='
 ```
-Both must be set. `~/.superagent/free-llm.env` always emits both — if only one shows up, the env file was not sourced. Restart Claude Code.
+Both must be set. `~/.paarth/free-llm.env` always emits both — if only one shows up, the env file was not sourced. Restart Claude Code.

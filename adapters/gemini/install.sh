@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — Gemini / Antigravity Installer
-# Installs SuperAgent instructions + skills for Google Gemini CLI / Antigravity IDE
+# PAARTH — Gemini / Antigravity Installer
+# Installs PAARTH instructions + skills for Google Gemini CLI / Antigravity IDE
 # Usage: bash adapters/gemini/install.sh
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -15,23 +15,23 @@ info() { echo -e "${CYAN}→${NC} $*"; }
 warn() { echo -e "${YELLOW}!${NC} $*"; }
 
 echo ""
-echo -e "${CYAN}SuperAgent for Gemini / Antigravity${NC}"
+echo -e "${CYAN}PAARTH for Gemini / Antigravity${NC}"
 echo ""
 
 # ── Step 1: Compile latest skills ──────────────────────────────────────────
 info "Compiling skills for Gemini..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform gemini \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform gemini \
   --output "$SCRIPT_DIR/templates/" 2>&1 | tail -3
 
-# ── Step 2: Install global GEMINI.md (idempotent — always refresh SuperAgent block) ──
+# ── Step 2: Install global GEMINI.md (idempotent — always refresh PAARTH block) ──
 GEMINI_DIR="$HOME/.gemini"
 mkdir -p "$GEMINI_DIR"
 
 GLOBAL_GEMINI="$GEMINI_DIR/GEMINI.md"
-SA_BEGIN="<!-- SUPERAGENT-BEGIN -->"
-SA_END="<!-- SUPERAGENT-END -->"
+SA_BEGIN="<!-- PAARTH-BEGIN -->"
+SA_END="<!-- PAARTH-END -->"
 
-# Strip any existing SuperAgent block (between markers, OR an unmarked legacy
+# Strip any existing PAARTH block (between markers, OR an unmarked legacy
 # block we can detect by the first heading). Re-append the latest template
 # wrapped in markers so future runs are surgical.
 if [[ -f "$GLOBAL_GEMINI" ]]; then
@@ -42,30 +42,30 @@ if [[ -f "$GLOBAL_GEMINI" ]]; then
       $0==e {skip=0; next}
       !skip
     ' "$GLOBAL_GEMINI" > "$GLOBAL_GEMINI.tmp" && mv "$GLOBAL_GEMINI.tmp" "$GLOBAL_GEMINI"
-  elif grep -q "^# SuperAgent" "$GLOBAL_GEMINI"; then
-    # Legacy: no markers but starts with SuperAgent heading — strip from that
-    # heading to EOF (assumes SuperAgent block is always last).
-    awk '/^# SuperAgent/{exit} {print}' "$GLOBAL_GEMINI" > "$GLOBAL_GEMINI.tmp" && mv "$GLOBAL_GEMINI.tmp" "$GLOBAL_GEMINI"
+  elif grep -q "^# PAARTH" "$GLOBAL_GEMINI"; then
+    # Legacy: no markers but starts with PAARTH heading — strip from that
+    # heading to EOF (assumes PAARTH block is always last).
+    awk '/^# PAARTH/{exit} {print}' "$GLOBAL_GEMINI" > "$GLOBAL_GEMINI.tmp" && mv "$GLOBAL_GEMINI.tmp" "$GLOBAL_GEMINI"
   fi
 fi
 
-# Append the fresh SuperAgent block, marker-wrapped.
+# Append the fresh PAARTH block, marker-wrapped.
 {
   [[ -s "$GLOBAL_GEMINI" ]] && echo ""
   echo "$SA_BEGIN"
   cat "$SCRIPT_DIR/templates/GEMINI.md"
   echo "$SA_END"
 } >> "$GLOBAL_GEMINI"
-ok "~/.gemini/GEMINI.md refreshed (SuperAgent block updated in place)"
+ok "~/.gemini/GEMINI.md refreshed (PAARTH block updated in place)"
 
 # ── Step 3: Install skill files to ~/.gemini/skills/ (global) ─────────────
 # Always sync globally so Gemini CLI / Antigravity see the latest skill set.
 GEMINI_SKILLS="$GEMINI_DIR/skills"
 mkdir -p "$GEMINI_SKILLS"
-# Purge prior superagent skills so renames don't leave stale dirs.
+# Purge prior paarth skills so renames don't leave stale dirs.
 for d in "$GEMINI_SKILLS"/*/; do
   [[ -d "$d" ]] || continue
-  if [[ -f "$d/SKILL.md" ]] && grep -q "superagent\|SuperAgent" "$d/SKILL.md" 2>/dev/null; then
+  if [[ -f "$d/SKILL.md" ]] && grep -q "paarth\|PAARTH" "$d/SKILL.md" 2>/dev/null; then
     rm -rf "$d"
   fi
 done
@@ -93,8 +93,8 @@ if [[ -n "${PROJECT_DIR:-}" ]]; then
 fi
 
 # ── Step 4: Install CLI tools ─────────────────────────────────────────────
-info "Installing SuperAgent CLIs..."
-for tool in superagent-classify superagent-chain superagent-cost superagent-learn; do
+info "Installing PAARTH CLIs..."
+for tool in paarth-classify paarth-chain paarth-cost paarth-learn; do
   src="$REPO_ROOT/bin/$tool"
   dst="$HOME/.local/bin/$tool"
   if [[ -f "$src" ]]; then
@@ -106,8 +106,8 @@ for tool in superagent-classify superagent-chain superagent-cost superagent-lear
 done
 
 echo ""
-ok "SuperAgent for Gemini / Antigravity installed!"
+ok "PAARTH for Gemini / Antigravity installed!"
 echo "  Global: ~/.gemini/GEMINI.md"
 echo "  Skills: ~/.gemini/skills/"
-echo "  CLIs: ~/.local/bin/superagent-*"
+echo "  CLIs: ~/.local/bin/paarth-*"
 echo ""

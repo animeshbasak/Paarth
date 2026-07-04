@@ -1,18 +1,18 @@
 # Memory-OS Quickstart — per platform
 
-One memory, every tool. The same SQLite store (`~/.superagent/memory-os/memory.db`)
+One memory, every tool. The same SQLite store (`~/.paarth/memory-os/memory.db`)
 serves Claude Code, Cursor, and Gemini CLI; what you teach one tool, the others know.
 
 ## 0. Install the server (once)
 
 ```bash
-cd bin/superagent-memory-mcp
+cd bin/paarth-memory-mcp
 uv pip install -e .            # zero-dep default (FTS recall only)
 # optional semantic recall:
 uv pip install -e ".[vector]"
 ```
 
-Verify: `superagent-memory stats` prints a JSON report.
+Verify: `paarth-memory stats` prints a JSON report.
 
 ## 1. Claude Code
 
@@ -53,36 +53,36 @@ Treat both as v0.1: functional, but expect breakage as the platforms evolve.
 ## Optional: semantic recall
 
 ```bash
-docker compose -f bin/superagent-memory-mcp/docker/docker-compose.yml up -d  # Qdrant sidecar
+docker compose -f bin/paarth-memory-mcp/docker/docker-compose.yml up -d  # Qdrant sidecar
 ollama pull nomic-embed-text                                                 # local embedder
-export SUPERAGENT_MEMORY_VECTOR=on
+export PAARTH_MEMORY_VECTOR=on
 ```
 
 No Docker? It degrades to an in-process store. No Ollama? Writes still
 succeed (FTS-only until embeddings return). Measure the difference any time:
 
 ```bash
-superagent-memory bench          # deterministic, offline
-superagent-memory bench --real   # against your live Ollama
+paarth-memory bench          # deterministic, offline
+paarth-memory bench --real   # against your live Ollama
 ```
 
 ## Maintenance (set and forget)
 
 ```bash
-superagent-memory cron install   # weekly decay via launchd/crontab
-superagent-memory dedup --dry-run
-superagent-memory stats          # local-only usage counters
+paarth-memory cron install   # weekly decay via launchd/crontab
+paarth-memory dedup --dry-run
+paarth-memory stats          # local-only usage counters
 ```
 
 ## Env reference
 
 | Var | Default | Purpose |
 |---|---|---|
-| `SUPERAGENT_MEMORY_HOME` | `~/.superagent/memory-os` | storage root |
-| `SUPERAGENT_MEMORY_NAMESPACE` | git-root hash | namespace override |
-| `SUPERAGENT_MEMORY_VECTOR` | off | hybrid semantic recall |
-| `SUPERAGENT_MEMORY_VECTOR_BACKEND` | `auto` | `qdrant` / `memory` / `auto` |
-| `SUPERAGENT_MEMORY_QDRANT_URL` | `http://127.0.0.1:6333` | Qdrant endpoint |
-| `SUPERAGENT_MEMORY_OLLAMA_URL` | `http://127.0.0.1:11434` | local embedder |
+| `PAARTH_MEMORY_HOME` | `~/.paarth/memory-os` | storage root |
+| `PAARTH_MEMORY_NAMESPACE` | git-root hash | namespace override |
+| `PAARTH_MEMORY_VECTOR` | off | hybrid semantic recall |
+| `PAARTH_MEMORY_VECTOR_BACKEND` | `auto` | `qdrant` / `memory` / `auto` |
+| `PAARTH_MEMORY_QDRANT_URL` | `http://127.0.0.1:6333` | Qdrant endpoint |
+| `PAARTH_MEMORY_OLLAMA_URL` | `http://127.0.0.1:11434` | local embedder |
 | `OPENROUTER_API_KEY` | unset | cloud embed fallback (explicit opt-in) |
-| `SUPERAGENT_MEMORY_TELEMETRY` | on (local-only) | `off` disables counters |
+| `PAARTH_MEMORY_TELEMETRY` | on (local-only) | `off` disables counters |

@@ -33,11 +33,11 @@ jcode is Rust. We're not vendoring it — we're capturing the *intent* in bash.
 
 Diffs and mirrors skill files between two source directories:
 
-- **Repo**: `./skills/<name>/SKILL.md` (this superagent checkout, project-local)
+- **Repo**: `./skills/<name>/SKILL.md` (this paarth checkout, project-local)
 - **Claude**: `~/.claude/skills/<name>/SKILL.md` (what Claude Code actually loads at startup)
 
 If a skill exists in the repo but not in `~/.claude/skills/`, the next session won't
-see it. `superagent-reload sync` fixes that by copying the dir over.
+see it. `paarth-reload sync` fixes that by copying the dir over.
 
 ---
 
@@ -61,31 +61,31 @@ where the registry is owned by the same process.
 
 ## Procedure
 
-1. **Diff.** Run `superagent-reload list` to see:
+1. **Diff.** Run `paarth-reload list` to see:
    - skills present in both repo and `~/.claude/skills/`
    - skills only in the repo (will need sync)
    - skills only in `~/.claude/skills/` (likely third-party or stale)
 
-2. **Sync.** Run `superagent-reload sync` to copy any repo skill dirs that are
+2. **Sync.** Run `paarth-reload sync` to copy any repo skill dirs that are
    missing or older than the `~/.claude/skills/` copy. Use `--dry-run` first if
    the user wants to preview the changes.
 
-3. **Diff a single skill** (optional): `superagent-reload diff <name>` shows a
+3. **Diff a single skill** (optional): `paarth-reload diff <name>` shows a
    `diff -u` between the repo's SKILL.md and the installed copy.
 
 4. **Trigger the rescan.** Tell the user to type `/reload`, or note that the
    new skill will be active on next session start. The skill never lies about
    forcing a live reload.
 
-5. **Status.** `superagent-reload status` for the one-line summary
+5. **Status.** `paarth-reload status` for the one-line summary
    (N in repo, N in claude, N out-of-sync).
 
 ---
 
 ## When NOT to use this
 
-- For adapter sync (Codex, Continue, Aider, Cursor) — that's `bin/superagent-install`.
-- For learning new routing patterns — that's `superagent-learn-loop`.
+- For adapter sync (Codex, Continue, Aider, Cursor) — that's `bin/paarth-install`.
+- For learning new routing patterns — that's `paarth-learn-loop`.
 - For installing third-party skills from a registry — out of scope.
 
 ---

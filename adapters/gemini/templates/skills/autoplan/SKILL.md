@@ -76,9 +76,9 @@ The user's original direction is the default. The reviews must make the case for
 This skill **READS** the plan input (text or file path) and the three review skill files it invokes. It **WRITES** only to:
 
 - `docs/plans/<slug>.md` — the synthesized plan artifact.
-- `~/.superagent/brain/routes.jsonl` — routing log (via the `/superagent` router).
+- `~/.paarth/brain/routes.jsonl` — routing log (via the `/paarth` router).
 
-It never modifies source code. Implementation happens after approval, via separate skills (`/superagent executing-plans`, or direct edits you drive). If a review phase wants to surface a fix to source, it goes into the Eng Spec section of the synthesized plan — not into the code itself.
+It never modifies source code. Implementation happens after approval, via separate skills (`/paarth executing-plans`, or direct edits you drive). If a review phase wants to surface a fix to source, it goes into the Eng Spec section of the synthesized plan — not into the code itself.
 
 ## Sequential orchestration — MANDATORY
 
@@ -173,7 +173,7 @@ Then:
 
 - Print the synthesized plan's absolute path.
 - If any bubble-ups remain unresolved, list them grouped by phase and **pause for user input** (Status: `PAUSED_FOR_BUBBLE_UPS`). Present taste decisions as a recommendation with rationale; present user challenges with the full context (what user said, what reviews recommend, why, what's potentially missing, cost if wrong).
-- If all decisions were auto-decided and nothing needs user input, declare **`APPROVED: ready to execute via /superagent executing-plans`** and suggest the next command.
+- If all decisions were auto-decided and nothing needs user input, declare **`APPROVED: ready to execute via /paarth executing-plans`** and suggest the next command.
 - If a phase produced a critical gap that can't be auto-decided away, emit `BLOCKED` with the specific gap and what the user needs to resolve before re-running.
 
 ## Output
@@ -190,5 +190,5 @@ Before returning, verify:
 - Contains all 5 required sections: **Product Thesis**, **Design Brief** (or explicit N/A note), **Eng Spec**, **Risks**, **Decision**.
 - Each section has ≥ 2 paragraphs of substantive content (read the file back and confirm — not placeholder text like "TBD" or "see notes").
 - If status is `PAUSED_FOR_BUBBLE_UPS`, the specific bubble-ups are listed in the Decision section and also surfaced in the console output so the user can act on them.
-- If status is `APPROVED`, the Decision section names the next step (`/superagent executing-plans <slug>`).
+- If status is `APPROVED`, the Decision section names the next step (`/paarth executing-plans <slug>`).
 - No source files were modified — `git status` should show only `docs/plans/<slug>.md` as new/changed.

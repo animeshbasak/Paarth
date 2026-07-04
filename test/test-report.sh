@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# test/test-report.sh — smoke tests for superagent-report (org-pilot report)
+# test/test-report.sh — smoke tests for paarth-report (org-pilot report)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPORT="$SCRIPT_DIR/../bin/superagent-report"
+REPORT="$SCRIPT_DIR/../bin/paarth-report"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
@@ -36,38 +36,38 @@ assert_contains() {
 }
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
-mkdir -p "$TMPHOME/.superagent/cost" "$TMPHOME/.superagent/brain" "$TMPHOME/.claude"
+mkdir -p "$TMPHOME/.paarth/cost" "$TMPHOME/.paarth/brain" "$TMPHOME/.claude"
 
 NOW_ISO=$(python3 -c "import datetime; print(datetime.datetime.now(datetime.timezone.utc).isoformat())")
 OLD_ISO="2025-01-01T00:00:00+00:00"
 
-cat > "$TMPHOME/.superagent/cost/calls.jsonl" <<EOF
+cat > "$TMPHOME/.paarth/cost/calls.jsonl" <<EOF
 {"ts":"$NOW_ISO","project":"p1","tool":"bash","tokens":1000000,"model":"claude-opus-4-8"}
 {"ts":"$NOW_ISO","project":"p1","tool":"bash","model":"ollama/qwen3","input_tokens":500000,"output_tokens":0,"cache_write_tokens":0,"cache_read_tokens":0}
 {"ts":"$OLD_ISO","project":"p1","tool":"bash","tokens":9000000,"model":"claude-opus-4-8"}
 EOF
 
-cat > "$TMPHOME/.superagent/brain/routes.jsonl" <<EOF
+cat > "$TMPHOME/.paarth/brain/routes.jsonl" <<EOF
 {"ts":"$NOW_ISO","task_hash":"a","task":"t1","chain":["review","ship"],"outcome":"done","backend":"anthropic","optimized":true}
 {"ts":"$NOW_ISO","task_hash":"b","task":"t2","chain":["investigate","verification-before-completion"],"outcome":"done","backend":"anthropic","optimized":false}
 {"ts":"$NOW_ISO","task_hash":"c","task":"t3","chain":["ship"],"outcome":"fail","backend":"local","optimized":true}
 EOF
 
-cat > "$TMPHOME/.superagent/brain/optimizations.jsonl" <<EOF
+cat > "$TMPHOME/.paarth/brain/optimizations.jsonl" <<EOF
 {"ts":"$NOW_ISO","prompt_hash":"x","changed":true,"notes":["stripped leading filler"]}
 {"ts":"$NOW_ISO","prompt_hash":"y","changed":false,"notes":["passthrough (slash command, markup, or too short)"]}
 EOF
 
-cat > "$TMPHOME/.claude/superagent-stats.json" <<EOF
+cat > "$TMPHOME/.claude/paarth-stats.json" <<EOF
 {"version":1,"projects":{"p1":{"lifetime":{"mempalace_hits":10,"mempalace_tokens_saved":5000,"graphify_queries":4,"graphify_tokens_saved":2000,"total_saved":7000},"sessions":[]}}}
 EOF
 
-echo "Running superagent-report smoke tests..."
+echo "Running paarth-report smoke tests..."
 echo ""
 
 # ── Test 1: markdown report renders with section headers ─────────────────────
 out=$(HOME="$TMPHOME" "$REPORT" 2>&1)
-assert_contains "header present" "$out" "SuperAgent Pilot Report"
+assert_contains "header present" "$out" "PAARTH Pilot Report"
 assert_contains "spend section" "$out" "## Spend"
 assert_contains "savings section" "$out" "## Savings (measured)"
 assert_contains "reliability section" "$out" "## Reliability"
@@ -123,7 +123,7 @@ HOME="$TMPHOME" "$REPORT" --bogus >/dev/null 2>&1 || rc=$?
 assert "bad flag exits 1" "$rc" "1"
 
 # ── Test 13: --org-policy adds a compliance section ───────────────────────────
-cat > "$TMPHOME/.superagent/org-policy.json" <<EOF
+cat > "$TMPHOME/.paarth/org-policy.json" <<EOF
 {"monthly_budget_usd":10,"allowed_model_tiers":["local","haiku"],"redact_projects":true}
 EOF
 out=$(HOME="$TMPHOME" "$REPORT" --org-policy 2>&1)

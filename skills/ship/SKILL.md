@@ -27,10 +27,10 @@ argument-hint: "<optional: base branch, default main>"
   - `pyproject.toml` → `pytest` (or the configured `[tool.pytest.ini_options]` runner).
   - `Cargo.toml` → `cargo test`.
   - `Makefile` with a `test` target → `make test`.
-- If ambiguous: ask user which command to run; remember the answer in `~/.superagent/ship/test-cmd.<project-hash>`.
+- If ambiguous: ask user which command to run; remember the answer in `~/.paarth/ship/test-cmd.<project-hash>`.
 
 ### 2. Pre-flight check
-- Run `bin/superagent-ship` (the helper) — it refuses to ship main and does the rebase.
+- Run `bin/paarth-ship` (the helper) — it refuses to ship main and does the rebase.
 - Confirm current branch is not main/master.
 - Confirm no uncommitted changes outside the ship scope (`git status --porcelain` must be clean, or only contain files the ship intends to commit).
 
@@ -47,7 +47,7 @@ argument-hint: "<optional: base branch, default main>"
 
 ### 5. Coverage audit
 - If the project has a coverage tool (`jest --coverage`, `pytest --cov`, `cargo tarpaulin`, etc.): run it, record baseline + new number.
-- Compare against the last stored coverage in `~/.superagent/ship/coverage.<project-hash>.json`.
+- Compare against the last stored coverage in `~/.paarth/ship/coverage.<project-hash>.json`.
 - If coverage dropped >5% — flag to user, ask to proceed or abort.
 - Update stored coverage on successful ship.
 
@@ -97,13 +97,13 @@ argument-hint: "<optional: base branch, default main>"
 - If verification fails: abort ship, do not push.
 
 ### 12b. Diff-risk pre-push gate (Wave 3)
-- Run `superagent-diff-risk report --base <base> --json` and parse the impact level.
+- Run `paarth-diff-risk report --base <base> --json` and parse the impact level.
 - If `impactReport.impact == "high"` or `"critical"`, force-confirm with the user before pushing:
   - Print the report markdown (without --json) so they can see the blast radius.
   - Surface `reviewers.owners` from the cached CODEOWNERS lookup as recommended additional reviewers.
   - Wait for explicit user approval to proceed. `low` and `medium` proceed without prompting.
-- Cached report lives at `~/.superagent/diff/last.json`; later steps may read it (e.g., PR body).
-- Also consult `superagent-testgen status --json`. If `verdict == "BELOW THRESHOLD"` and the project enforces it (look for `~/.superagent/testgen/enforce` flag), refuse to push. Default behavior is warn-only.
+- Cached report lives at `~/.paarth/diff/last.json`; later steps may read it (e.g., PR body).
+- Also consult `paarth-testgen status --json`. If `verdict == "BELOW THRESHOLD"` and the project enforces it (look for `~/.paarth/testgen/enforce` flag), refuse to push. Default behavior is warn-only.
 
 ### 13. Push
 - `git push -u origin <current-branch>`.
@@ -116,11 +116,11 @@ argument-hint: "<optional: base branch, default main>"
 - Capture the PR URL from `gh` output.
 
 ### 15. Ship metrics
-- Append one JSON line to `~/.superagent/cost/ship.jsonl`:
+- Append one JSON line to `~/.paarth/cost/ship.jsonl`:
   ```json
   {"ts":"<iso-8601>","branch":"<name>","base":"<base>","files_changed":<n>,"test_duration_s":<n>,"coverage_delta":<n>,"pr_url":"<url>","version":"<x.y.z>"}
   ```
-- Create `~/.superagent/cost/` if it doesn't exist.
+- Create `~/.paarth/cost/` if it doesn't exist.
 
 ### 16. Status + summary
 Print to user:
@@ -155,7 +155,7 @@ Files: <n> changed
 - Committed chain of bisectable commits on the feature branch.
 - Updated `CHANGELOG.md` + bumped version file.
 - Open PR URL printed to stdout.
-- One-line entry in `~/.superagent/cost/ship.jsonl`.
+- One-line entry in `~/.paarth/cost/ship.jsonl`.
 
 ## Verification
 - PR URL printed (not empty).

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260" role="img" aria-label="PAARTH — Proactive Agentic AI for Routing, Telemetry &amp; Heuristics">
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#a371f7" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#a371f7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="899" height="259" rx="16" fill="#0d1117" stroke="#30363d"/>
+
+  <circle cx="740" cy="120" r="140" fill="url(#glow)">
+    <animate attributeName="r" values="120;150;120" dur="6s" repeatCount="indefinite"/>
+  </circle>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <text x="40" y="95" font-size="56" font-weight="700" fill="#e6edf3" letter-spacing="-1">PAARTH</text>
+
+    <line x1="40" y1="112" x2="40" y2="112" stroke="#f0883e" stroke-width="3" stroke-linecap="round">
+      <animate attributeName="x2" values="40;220" dur="1s" begin="0.2s" fill="freeze"/>
+    </line>
+
+    <text x="40" y="140" font-size="15">
+      <tspan fill="#f0883e" font-weight="700">P</tspan><tspan fill="#8b949e">roactive </tspan><tspan fill="#f0883e" font-weight="700">A</tspan><tspan fill="#8b949e">gentic </tspan><tspan fill="#f0883e" font-weight="700">A</tspan><tspan fill="#8b949e">I for </tspan><tspan fill="#f0883e" font-weight="700">R</tspan><tspan fill="#8b949e">outing, </tspan><tspan fill="#f0883e" font-weight="700">T</tspan><tspan fill="#8b949e">elemetry &amp; </tspan><tspan fill="#f0883e" font-weight="700">H</tspan><tspan fill="#8b949e">euristics</tspan>
+    </text>
+
+    <text x="40" y="205" font-size="17" font-weight="500" fill="#e6edf3">The routing brain between your AI and your code.</text>
+  </g>
+
+  <g>
+    <circle cx="630" cy="135" r="5" fill="#a371f7" opacity="0.85">
+      <animate attributeName="r" values="5;5;8;5;5" keyTimes="0;0.22;0.27;0.32;1" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="700" cy="110" r="5" fill="#a371f7" opacity="0.85">
+      <animate attributeName="r" values="5;5;8;5;5" keyTimes="0;0.47;0.52;0.57;1" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="770" cy="140" r="5" fill="#a371f7" opacity="0.85">
+      <animate attributeName="r" values="5;5;8;5;5" keyTimes="0;0.72;0.77;0.82;1" dur="7s" repeatCount="indefinite"/>
+    </circle>
+
+    <g transform="translate(820,120)">
+      <circle r="36" fill="none" stroke="#f0883e" stroke-width="2" opacity="0.35"/>
+      <circle r="24" fill="none" stroke="#f0883e" stroke-width="2" opacity="0.55"/>
+      <circle r="10" fill="#f0883e">
+        <animate attributeName="r" values="10;10;15;10;10" keyTimes="0;0.88;0.93;0.97;1" dur="7s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <polygon points="10,0 -6,-4 -2,0 -6,4" fill="#58a6ff">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.9;0.95;1" dur="7s" repeatCount="indefinite"/>
+      <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M580,150 Q605,115 630,135 Q665,120 700,110 Q735,100 770,140 L820,120"/>
+    </polygon>
+  </g>
+</svg>

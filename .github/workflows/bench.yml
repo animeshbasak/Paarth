@@ -3,8 +3,8 @@ name: bench
 on:
   pull_request:
     paths:
-      - "skills/superagent/brain/rules.yaml"
-      - "bin/superagent-classify"
+      - "skills/paarth/brain/rules.yaml"
+      - "bin/paarth-classify"
       - "bench/**"
       - ".github/workflows/bench.yml"
 
@@ -24,7 +24,7 @@ jobs:
 
       - name: Make scripts executable
         run: |
-          chmod +x bin/superagent-classify
+          chmod +x bin/paarth-classify
           chmod +x bench/run.sh
           chmod +x bench/score.sh
 

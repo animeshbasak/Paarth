@@ -17,46 +17,46 @@ Wave 2 ships an opt-in loop that pairs the Wave 1 pattern store with `ScheduleWa
 
 1. **Inspect state:**
    ```bash
-   superagent-autopilot status
-   superagent-autopilot tasks
+   paarth-autopilot status
+   paarth-autopilot tasks
    ```
 2. **Configure bounds (optional):**
    ```bash
-   superagent-autopilot config --max-iterations 100
-   superagent-autopilot config --timeout-minutes 60
+   paarth-autopilot config --max-iterations 100
+   paarth-autopilot config --timeout-minutes 60
    ```
    maxIterations clamps to [1, 1000]; timeoutMinutes clamps to [1, 1440].
 3. **Enable:**
    ```bash
-   superagent-autopilot enable
+   paarth-autopilot enable
    ```
 4. **Run an iteration:**
    ```bash
-   superagent-autopilot iter
+   paarth-autopilot iter
    ```
-   Emits a JSON envelope with the predict result and a `ScheduleWakeup` directive at `delaySeconds=270` (under Anthropic's 300s prompt-cache TTL — tunable via `SUPERAGENT_CACHE_TTL_S`).
+   Emits a JSON envelope with the predict result and a `ScheduleWakeup` directive at `delaySeconds=270` (under Anthropic's 300s prompt-cache TTL — tunable via `PAARTH_CACHE_TTL_S`).
 5. **The host skill** (or you, when chained) is responsible for calling the actual `ScheduleWakeup` tool with the emitted delay. autopilot does not run a daemon; it cooperates with the harness.
 6. **Disable when done:**
    ```bash
-   superagent-autopilot disable
+   paarth-autopilot disable
    ```
 
 ## Budget gate
 
-Before predict runs, `iter` checks for `~/.superagent/auto-downgrade.flag`. If present, output:
+Before predict runs, `iter` checks for `~/.paarth/auto-downgrade.flag`. If present, output:
 
 ```json
 {"paused": true, "reason": "budget"}
 ```
 
-This resolves the autopilot/auto-fallback ping-pong. Precedence (from v3 spec §9): **budget > rate-limit > preference**. The flag clears automatically when `superagent-cost-alerts` sees usage drop back below the threshold (e.g., 5h reset window).
+This resolves the autopilot/auto-fallback ping-pong. Precedence (from v3 spec §9): **budget > rate-limit > preference**. The flag clears automatically when `paarth-cost-alerts` sees usage drop back below the threshold (e.g., 5h reset window).
 
 ## Task discovery sources
 
 In order:
 
 1. **Markdown checkboxes** in cwd — `^[ -*]\s*\[ \]` lines from any `.md` file.
-2. **routes.jsonl halts** — records with `outcome:halt` from `~/.superagent/brain/routes.jsonl`.
+2. **routes.jsonl halts** — records with `outcome:halt` from `~/.paarth/brain/routes.jsonl`.
 3. **tasks.md in cwd** — line-delimited tasks (comments with `#` ignored).
 
 ## Predict logic
@@ -68,7 +68,7 @@ For each pending task × each pattern in `patterns.jsonl`:
 
 ## Files
 
-- State: `~/.superagent/autopilot/state.json`
+- State: `~/.paarth/autopilot/state.json`
 - Wakeup directive: emitted to stdout — caller invokes `ScheduleWakeup` tool.
 
 ## Ethos

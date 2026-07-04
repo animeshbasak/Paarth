@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent Universal Installer
-# Auto-detects installed AI coding platforms and installs SuperAgent for each.
+# PAARTH Universal Installer
+# Auto-detects installed AI coding platforms and installs PAARTH for each.
 # Does NOT touch the existing Claude Code install.sh — that remains separate.
 #
 # Usage:
@@ -104,7 +104,7 @@ done
 # ── Header ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║   SuperAgent Universal Installer v1.0    ║${NC}"
+echo -e "${CYAN}║   PAARTH Universal Installer v1.0    ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -196,10 +196,10 @@ if command -v pipx >/dev/null 2>&1; then
     || { pipx upgrade mempalace 2>&1 | tail -1 && ok "mempalace upgraded"; }
 fi
 
-# ── Install SuperAgent CLIs ──────────────────────────────────────────────────
+# ── Install PAARTH CLIs ──────────────────────────────────────────────────
 echo ""
-info "Installing SuperAgent CLIs..."
-for tool in superagent-classify superagent-chain superagent-cost superagent-learn superagent-compile; do
+info "Installing PAARTH CLIs..."
+for tool in paarth-classify paarth-chain paarth-cost paarth-learn paarth-compile; do
   src="$SCRIPT_DIR/bin/$tool"
   dst="$HOME/.local/bin/$tool"
   if [[ -f "$src" ]]; then
@@ -259,15 +259,15 @@ fi
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║    SuperAgent Universal — installed!             ║${NC}"
+echo -e "${GREEN}║    PAARTH Universal — installed!             ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 echo "  Platforms installed: ${DETECTED[*]:-none}"
 echo "  Python tools: graphify + mempalace"
-echo "  CLIs: ~/.local/bin/superagent-*"
+echo "  CLIs: ~/.local/bin/paarth-*"
 echo ""
 echo "  For Claude Code: use the original 'bash install.sh'"
 echo "  For other platforms: everything is ready!"
 echo ""
-echo -e "  ${CYAN}Docs:${NC} https://github.com/animeshbasak/SuperAgent"
+echo -e "  ${CYAN}Docs:${NC} https://github.com/animeshbasak/Paarth"
 echo ""

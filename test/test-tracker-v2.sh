@@ -2,11 +2,11 @@
 # test/test-tracker-v2.sh — tracker.sh writes v2 schema record from a Bash payload with usage info
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRACKER="$SCRIPT_DIR/../hooks/superagent-tracker.sh"
+TRACKER="$SCRIPT_DIR/../hooks/paarth-tracker.sh"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/cost" "$TMPHOME/.claude"
+mkdir -p "$TMPHOME/.paarth/cost" "$TMPHOME/.claude"
 
 PAYLOAD='{
   "tool_name":"Bash",
@@ -24,7 +24,7 @@ PAYLOAD='{
 
 HOME="$TMPHOME" CLAUDE_MODEL="claude-sonnet-4-5" bash "$TRACKER" <<<"$PAYLOAD" || true
 
-CALLS="$TMPHOME/.superagent/cost/calls.jsonl"
+CALLS="$TMPHOME/.paarth/cost/calls.jsonl"
 [[ -s "$CALLS" ]] || { echo "FAIL: calls.jsonl empty"; exit 1; }
 
 LAST=$(tail -n1 "$CALLS")

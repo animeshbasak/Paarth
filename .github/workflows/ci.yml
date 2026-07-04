@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install PyYAML (superagent-classify reads rules.yaml)
+      - name: Install PyYAML (paarth-classify reads rules.yaml)
         run: python3 -m pip install pyyaml || python3 -m pip install --break-system-packages pyyaml
       - name: Run shell suite
         run: python3 test/run-ci.py --timeout 120
@@ -34,9 +34,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install memory-os with dev extras
-        run: python3 -m pip install -e "bin/superagent-memory-mcp[dev]"
+        run: python3 -m pip install -e "bin/paarth-memory-mcp[dev]"
       - name: Run pytest
-        run: python3 -m pytest bin/superagent-memory-mcp/test -q
+        run: python3 -m pytest bin/paarth-memory-mcp/test -q
 
   routing-bench:
     name: routing bench (45-prompt hard gate)

@@ -2,13 +2,13 @@
 # test/test-hook-prompt-submit.sh — UserPromptSubmit hook returns valid Claude Code output
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK="$SCRIPT_DIR/../hooks/superagent-prompt-submit.py"
+HOOK="$SCRIPT_DIR/../hooks/paarth-prompt-submit.py"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/brain"
-: > "$TMPHOME/.superagent/brain/routes.jsonl"
-: > "$TMPHOME/.superagent/brain/patterns.jsonl"
+mkdir -p "$TMPHOME/.paarth/brain"
+: > "$TMPHOME/.paarth/brain/routes.jsonl"
+: > "$TMPHOME/.paarth/brain/patterns.jsonl"
 
 PAYLOAD='{"session_id":"s-1","transcript_path":"/tmp/x","cwd":"/tmp","permission_mode":"default","hook_event_name":"UserPromptSubmit","prompt":"fix dark mode toggle bug"}'
 
@@ -48,18 +48,18 @@ OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" python3 "$HOOK" <<<"$PAYLO
 
 echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt") | not' >/dev/null \
   || { echo "FAIL: over-budget optimized block not dropped"; exit 1; }
-echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## SuperAgent route")' >/dev/null \
+echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## PAARTH route")' >/dev/null \
   || { echo "FAIL: route block missing when optimized block dropped: $OUT"; exit 1; }
-jq -e '.event == "inject_budget" and .est_saved_tokens > 600' "$TMPHOME/.superagent/metrics/inject.jsonl" >/dev/null \
+jq -e '.event == "inject_budget" and .est_saved_tokens > 600' "$TMPHOME/.paarth/metrics/inject.jsonl" >/dev/null \
   || { echo "FAIL: inject_budget savings not recorded"; exit 1; }
 
 # Kill switch → uncapped, block present again
-OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" SUPERAGENT_INJECT_BUDGET=0 python3 "$HOOK" <<<"$PAYLOAD")
+OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" PAARTH_INJECT_BUDGET=0 python3 "$HOOK" <<<"$PAYLOAD")
 echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt")' >/dev/null \
   || { echo "FAIL: kill switch did not disable budget"; exit 1; }
 
 # Generous budget → block present
-OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" SUPERAGENT_INJECT_BUDGET_TOKENS=5000 python3 "$HOOK" <<<"$PAYLOAD")
+OUT=$(HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" PAARTH_INJECT_BUDGET_TOKENS=5000 python3 "$HOOK" <<<"$PAYLOAD")
 echo "$OUT" | jq -e '.hookSpecificOutput.additionalContext | contains("## Optimized prompt")' >/dev/null \
   || { echo "FAIL: block dropped despite generous budget"; exit 1; }
 

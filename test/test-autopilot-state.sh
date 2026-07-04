@@ -2,11 +2,11 @@
 # test/test-autopilot-state.sh — bounded config, history cap 50, task discovery
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-autopilot"
+BIN="$SCRIPT_DIR/../bin/paarth-autopilot"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/autopilot" "$TMPHOME/.superagent/brain"
+mkdir -p "$TMPHOME/.paarth/autopilot" "$TMPHOME/.paarth/brain"
 
 OUT=$(HOME="$TMPHOME" "$BIN" status)
 echo "$OUT" | grep -q 'enabled: false' || { echo "FAIL: default not disabled"; exit 1; }

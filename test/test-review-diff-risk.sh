@@ -4,11 +4,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SKILL="$ROOT/skills/review/SKILL.md"
 
-grep -q 'superagent-diff-risk' "$SKILL" \
+grep -q 'paarth-diff-risk' "$SKILL" \
   || { echo "FAIL: review skill missing diff-risk integration"; exit 1; }
 grep -qE 'critical|high' "$SKILL" \
   || { echo "FAIL: review skill missing impact level mention"; exit 1; }
-grep -q 'superagent-testgen' "$SKILL" \
+grep -q 'paarth-testgen' "$SKILL" \
   || { echo "FAIL: review skill missing testgen consultation"; exit 1; }
 grep -qE 'BELOW THRESHOLD|coverage' "$SKILL" \
   || { echo "FAIL: review skill missing coverage gate mention"; exit 1; }

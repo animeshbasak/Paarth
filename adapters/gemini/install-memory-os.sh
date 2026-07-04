@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gemini CLI adapter for SuperAgent memory-os.
+# Gemini CLI adapter for PAARTH memory-os.
 # Registers the MCP server via gemini-cli's standard MCP config and seeds a
 # GEMINI.md preamble with the Ground Truth Hierarchy.
 #
@@ -24,7 +24,7 @@ GEMINI_USER_CONFIG="${HOME}/.gemini/settings.json"
 GEMINI_MD="$TARGET/GEMINI.md"
 
 echo ""
-echo -e "${CYAN}SuperAgent memory-os → Gemini CLI${NC}"
+echo -e "${CYAN}PAARTH memory-os → Gemini CLI${NC}"
 echo "Project: $TARGET"
 echo ""
 
@@ -43,7 +43,7 @@ fi
 MCP_BIN="$(mo_ensure_mcp_installed | tail -1)"
 
 # 2. Register in user-level Gemini config
-mo_register_mcp_in_json "$GEMINI_USER_CONFIG" "superagent-memory" "$MCP_BIN"
+mo_register_mcp_in_json "$GEMINI_USER_CONFIG" "paarth-memory" "$MCP_BIN"
 
 # 3. Inject Ground Truth block into project GEMINI.md
 mo_inject_gt "$GEMINI_MD"
