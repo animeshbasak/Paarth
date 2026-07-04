@@ -1,4 +1,4 @@
-# SuperAgent Ethos
+# PAARTH Ethos
 
 Every skill in this repo opens by acknowledging these five principles.
 

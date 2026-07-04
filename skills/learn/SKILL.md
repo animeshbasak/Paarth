@@ -1,6 +1,6 @@
 ---
 name: learn
-description: Persistent per-project learnings. Add a learning, list all learnings, or search. Backed by ~/.superagent/learnings/<project-hash>.jsonl.
+description: Persistent per-project learnings. Add a learning, list all learnings, or search. Backed by ~/.paarth/learnings/<project-hash>.jsonl.
 argument-hint: "add \"text\" | list | search \"query\""
 ---
 
@@ -20,7 +20,7 @@ argument-hint: "add \"text\" | list | search \"query\""
 
 Shell out to the helper:
 ```bash
-superagent-learn $ARGUMENTS
+paarth-learn $ARGUMENTS
 ```
 
 ## Output
@@ -29,4 +29,4 @@ superagent-learn $ARGUMENTS
 - `search` → prints matching lines.
 
 ## Verification
-Learnings file exists at `~/.superagent/learnings/<sha256-12-of-cwd>.jsonl` after add.
+Learnings file exists at `~/.paarth/learnings/<sha256-12-of-cwd>.jsonl` after add.

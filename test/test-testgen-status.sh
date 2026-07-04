@@ -2,7 +2,7 @@
 # test/test-testgen-status.sh — status reports coverage vs threshold
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-testgen"
+BIN="$SCRIPT_DIR/../bin/paarth-testgen"
 FIXTURES="$SCRIPT_DIR/fixtures/testgen"
 
 TMPHOME=$(mktemp -d)
@@ -21,7 +21,7 @@ echo "$OUT" | grep -q "coverage: 75" || { echo "FAIL: coverage line missing"; ex
 echo "$OUT" | grep -q "verdict: OK" || { echo "FAIL: OK verdict missing"; exit 1; }
 
 # Raise threshold to 80 → verdict flips to BELOW THRESHOLD
-echo 80 > "$TMPHOME/.superagent/testgen/min-coverage.txt"
+echo 80 > "$TMPHOME/.paarth/testgen/min-coverage.txt"
 OUT_BAD=$(HOME="$TMPHOME" "$BIN" status)
 echo "$OUT_BAD" | grep -q "verdict: BELOW THRESHOLD" \
   || { echo "FAIL: threshold-not-met verdict missing: $OUT_BAD"; exit 1; }

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# test/test-org-policy.sh — smoke tests for superagent-org-policy
+# test/test-org-policy.sh — smoke tests for paarth-org-policy
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OP="$SCRIPT_DIR/../bin/superagent-org-policy"
+OP="$SCRIPT_DIR/../bin/paarth-org-policy"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
@@ -35,7 +35,7 @@ assert_contains() {
   fi
 }
 
-echo "Running superagent-org-policy smoke tests..."
+echo "Running paarth-org-policy smoke tests..."
 echo ""
 
 # ── Test 1: no policy by default ──────────────────────────────────────────────
@@ -44,7 +44,7 @@ assert_contains "show says no policy when unset" "$out" "No organisation policy"
 
 # ── Test 2: set writes a persistent file ──────────────────────────────────────
 "$OP" set --budget 200 --tiers local,haiku --redact on >/dev/null
-[[ -s "$TMPHOME/.superagent/org-policy.json" ]] && wrote=yes || wrote=no
+[[ -s "$TMPHOME/.paarth/org-policy.json" ]] && wrote=yes || wrote=no
 assert "set persists org-policy.json" "$wrote" "yes"
 
 # ── Test 3: stored values round-trip via --json ───────────────────────────────
@@ -71,7 +71,7 @@ rc=0; "$OP" check --tier sonnet >/dev/null 2>&1 || rc=$?
 assert "off-policy sonnet blocked via --tier" "$rc" "3"
 
 # ── Test 7: kill switch lets everything pass ──────────────────────────────────
-rc=0; SUPERAGENT_ORG_POLICY=off "$OP" check --model "claude-opus-4-8" >/dev/null 2>&1 || rc=$?
+rc=0; PAARTH_ORG_POLICY=off "$OP" check --model "claude-opus-4-8" >/dev/null 2>&1 || rc=$?
 assert "kill switch bypasses check" "$rc" "0"
 
 # ── Test 8: no tier restriction → all models allowed ──────────────────────────

@@ -4,7 +4,7 @@ The `income:*` skills (v3.6.0) are a curated mix of vendored community skills an
 first-party originals. Every vendored file was fetched at a pinned commit SHA,
 adapted (frontmatter rewritten to the `income:` namespace; references to
 tools/files/skills not present in this repo removed or made conditional), and
-screened with `superagent-aidefence scan` plus a dangerous-pattern grep before
+screened with `paarth-aidefence scan` plus a dangerous-pattern grep before
 inclusion. All vendored sources are MIT or Apache-2.0 licensed.
 
 | Skill | Origin | Upstream | Commit | License |

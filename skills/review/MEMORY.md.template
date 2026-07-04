@@ -1,7 +1,7 @@
 # review — agent memory
 
 > Auto-loaded by the brain on `review` activation if present at
-> `~/.superagent/agent-memory/review/MEMORY.md`. Keep ≤ 50 bullets.
+> `~/.paarth/agent-memory/review/MEMORY.md`. Keep ≤ 50 bullets.
 
 ## Recurring blockers
 <!-- Issues this codebase keeps producing. e.g. "auth middleware tests mock the DB and miss prod failures". -->

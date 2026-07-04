@@ -1,11 +1,11 @@
 ---
 name: diff-risk
-description: Slash dispatcher for diff-risk. Routes args to bin/superagent-diff-risk.
+description: Slash dispatcher for diff-risk. Routes args to bin/paarth-diff-risk.
 ---
 
 # /diff-risk
 
-Routes the user's subcommand to `bin/superagent-diff-risk`. See [diff-risk](../skills/diff-risk/SKILL.md) for the full procedure.
+Routes the user's subcommand to `bin/paarth-diff-risk`. See [diff-risk](../skills/diff-risk/SKILL.md) for the full procedure.
 
 ## Usage
 

@@ -1,6 +1,6 @@
-# SuperAgent — AI Coding Agent Enhancement System
+# PAARTH — AI Coding Agent Enhancement System
 
-# SuperAgent Ethos
+# PAARTH Ethos
 
 Every skill in this repo opens by acknowledging these five principles.
 
@@ -24,7 +24,7 @@ When a task matches these patterns, follow the corresponding skill chain:
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| Classifier | `superagent-classify "<task>"` | Route task to skill chain |
+| Classifier | `paarth-classify "<task>"` | Route task to skill chain |
 | Knowledge Graph | `graphify query "<question>"` | Query codebase knowledge graph |
 | Memory | `mempalace search "<query>"` | Cross-session memory search |
 

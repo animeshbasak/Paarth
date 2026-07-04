@@ -3,8 +3,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-[[ -f "$ROOT/skills/superagent-learn-loop/SKILL.md" ]] \
-  || { echo "FAIL: superagent-learn-loop SKILL.md missing"; exit 1; }
+[[ -f "$ROOT/skills/paarth-learn-loop/SKILL.md" ]] \
+  || { echo "FAIL: paarth-learn-loop SKILL.md missing"; exit 1; }
 [[ -f "$ROOT/skills/cost-budget/SKILL.md" ]] \
   || { echo "FAIL: cost-budget SKILL.md missing"; exit 1; }
 
@@ -13,7 +13,7 @@ grep -q '## v2.4.0' "$ROOT/CHANGELOG.md" \
 
 VERSION=$(jq -r '.version' "$ROOT/package.json" 2>/dev/null || echo missing)
 case "$VERSION" in
-  2.4.*|2.5.*|2.6.*|2.7.*|2.8.*|2.9.*|3.*) ;;
+  2.4.*|2.5.*|2.6.*|2.7.*|2.8.*|2.9.*|3.*|[4-9].*) ;;
   *) echo "FAIL: package.json version is $VERSION, want >=2.4.0"; exit 1 ;;
 esac
 

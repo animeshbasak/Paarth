@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test/test-canary.sh — verify superagent-switch canary fires the 3-step probe and parses responses.
+# test/test-canary.sh — verify paarth-switch canary fires the 3-step probe and parses responses.
 #
 # Phase 1: mock proxy returns the expected tool-call shape for all 3 steps; assert exit 0.
 # Phase 2: mock proxy returns malformed response on step 2; assert exit non-zero.
@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SWITCH="$SCRIPT_DIR/../bin/superagent-switch"
+SWITCH="$SCRIPT_DIR/../bin/paarth-switch"
 FIXTURES="$SCRIPT_DIR/canary-fixtures"
 
 pass=0
@@ -73,14 +73,14 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
 done
 
 echo "Phase 1: happy-path mock"
-SUPERAGENT_PROXY_URL="http://localhost:$PORT" \
-SUPERAGENT_CANARY_FIXTURES="$FIXTURES" \
+PAARTH_PROXY_URL="http://localhost:$PORT" \
+PAARTH_CANARY_FIXTURES="$FIXTURES" \
   "$SWITCH" canary mock-model --depth=3
 rc1=$?
 assert_eq "canary exit code is 0 with happy-path mock" "$rc1" "0"
 
 # Verify canary-last.json was written w/ ok=true
-CANARY_FILE="$HOME/.superagent/canary-last.json"
+CANARY_FILE="$HOME/.paarth/canary-last.json"
 if [[ -f "$CANARY_FILE" ]]; then
   ok=$(jq -r '.ok' "$CANARY_FILE")
   pass_count=$(jq -r '.pass' "$CANARY_FILE")
@@ -142,8 +142,8 @@ done
 echo ""
 echo "Phase 2: malformed-on-step-2 mock"
 set +e
-SUPERAGENT_PROXY_URL="http://localhost:$PORT" \
-SUPERAGENT_CANARY_FIXTURES="$FIXTURES" \
+PAARTH_PROXY_URL="http://localhost:$PORT" \
+PAARTH_CANARY_FIXTURES="$FIXTURES" \
   "$SWITCH" canary mock-model --depth=3
 rc2=$?
 set -e

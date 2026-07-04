@@ -2,14 +2,14 @@
 # test/test-sparc-status.sh — status prints phase, gate, last failure, artifacts
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-sparc"
+BIN="$SCRIPT_DIR/../bin/paarth-sparc"
 FIXTURES="$SCRIPT_DIR/fixtures/sparc"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
 
 HOME="$TMPHOME" "$BIN" init feat-st >/dev/null
-DIR="$TMPHOME/.superagent/sparc/feat-st"
+DIR="$TMPHOME/.paarth/sparc/feat-st"
 cp "$FIXTURES/phase1-fail/spec.md" "$DIR/"
 HOME="$TMPHOME" "$BIN" gate >/dev/null 2>&1 || true
 

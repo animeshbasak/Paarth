@@ -2,7 +2,7 @@
 # test/test-aidefence-enable.sh
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-aidefence"
+BIN="$SCRIPT_DIR/../bin/paarth-aidefence"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT

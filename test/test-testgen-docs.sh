@@ -8,7 +8,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 grep -qE "never writes test bodies|skeleton names" "$ROOT/skills/testgen/SKILL.md" \
   || { echo "FAIL: no-test-bodies discipline not documented"; exit 1; }
 
-OUT=$("$ROOT/bin/superagent-classify" "scan coverage and tell me where the gaps are")
+OUT=$("$ROOT/bin/paarth-classify" "scan coverage and tell me where the gaps are")
 echo "$OUT" | jq -e '.chain | index("testgen") != null' >/dev/null \
   || { echo "FAIL: classifier doesn't route to testgen: $OUT"; exit 1; }
 

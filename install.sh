@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# Superagent — One-command installer
-# Installs superagent + all required plugins + Python tools into ~/.claude
+# Paarth — One-command installer
+# Installs paarth + all required plugins + Python tools into ~/.claude
 # Usage: bash install.sh
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -29,8 +29,8 @@ warn() { echo -e "${YELLOW}!${NC} $*"; }
 fail() { echo -e "${RED}✗ $*${NC}" >&2; exit 1; }
 
 # ── Wave 1 migration: v2.3 → v2.4 backup + marker (idempotent) ──────────────
-WAVE1_MARKER="$HOME/.superagent/.wave-1.installed"
-SA_ROOT="$HOME/.superagent"
+WAVE1_MARKER="$HOME/.paarth/.wave-1.installed"
+SA_ROOT="$HOME/.paarth"
 mkdir -p "$SA_ROOT/cost" "$SA_ROOT/.backups" 2>/dev/null || true
 
 if [[ ! -f "$WAVE1_MARKER" ]] && [[ -f "$SA_ROOT/cost/calls.jsonl" ]]; then
@@ -42,7 +42,7 @@ fi
 
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║      Superagent Installer v1.1       ║${NC}"
+echo -e "${CYAN}║      Paarth Installer v1.1       ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════╝${NC}"
 echo ""
 
@@ -65,7 +65,7 @@ let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 cfg.extraKnownMarketplaces = cfg.extraKnownMarketplaces || {};
 Object.assign(cfg.extraKnownMarketplaces, {
-  animeshbasak:          { source: { source: 'github', repo: 'animeshbasak/SuperAgent' } },
+  animeshbasak:          { source: { source: 'github', repo: 'animeshbasak/PAARTH' } },
   caveman:               { source: { source: 'github', repo: 'JuliusBrussee/caveman' } },
   thedotmack:            { source: { source: 'github', repo: 'thedotmack/claude-mem' } },
   'ui-ux-pro-max-skill': { source: { source: 'github', repo: 'nextlevelbuilder/ui-ux-pro-max-skill' } },
@@ -99,19 +99,19 @@ install_plugin "ui-ux-pro-max@ui-ux-pro-max-skill"
 
 echo ""
 
-# ── Step 3: Install superagent as a local plugin ─────────────────────────────
-info "Installing superagent (local plugin)..."
+# ── Step 3: Install paarth as a local plugin ─────────────────────────────
+info "Installing paarth (local plugin)..."
 
-SUPERAGENT_CACHE="$PLUGINS_DIR/cache/local/superagent/1.0.0"
-mkdir -p "$SUPERAGENT_CACHE/agents"
+PAARTH_CACHE="$PLUGINS_DIR/cache/local/paarth/1.0.0"
+mkdir -p "$PAARTH_CACHE/agents"
 
-cp "$SCRIPT_DIR/skills/superagent/SKILL.md" "$SUPERAGENT_CACHE/SKILL.md"
-[[ -f "$SCRIPT_DIR/agents/superagent-brain.md" ]] && \
-  cp "$SCRIPT_DIR/agents/superagent-brain.md" "$SUPERAGENT_CACHE/agents/superagent-brain.md"
+cp "$SCRIPT_DIR/skills/paarth/SKILL.md" "$PAARTH_CACHE/SKILL.md"
+[[ -f "$SCRIPT_DIR/agents/paarth-brain.md" ]] && \
+  cp "$SCRIPT_DIR/agents/paarth-brain.md" "$PAARTH_CACHE/agents/paarth-brain.md"
 
-cat > "$SUPERAGENT_CACHE/package.json" <<'PKGJSON'
+cat > "$PAARTH_CACHE/package.json" <<'PKGJSON'
 {
-  "name": "superagent",
+  "name": "paarth",
   "version": "1.0.0",
   "description": "Master orchestrator skill for Claude Code"
 }
@@ -123,9 +123,9 @@ const fs = require('fs'), path = require('path');
 const file = path.join(process.env.HOME, '.claude', 'plugins', 'installed_plugins.json');
 let db = { version: 2, plugins: {} };
 try { db = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
-db.plugins['superagent@local'] = [{
+db.plugins['paarth@local'] = [{
   scope: 'user',
-  installPath: path.join(process.env.HOME, '.claude', 'plugins', 'cache', 'local', 'superagent', '1.0.0'),
+  installPath: path.join(process.env.HOME, '.claude', 'plugins', 'cache', 'local', 'paarth', '1.0.0'),
   version: '1.0.0',
   installedAt: new Date().toISOString(),
   lastUpdated: new Date().toISOString(),
@@ -133,7 +133,7 @@ db.plugins['superagent@local'] = [{
 }];
 fs.writeFileSync(file, JSON.stringify(db, null, 2));
 JSEOF
-ok "superagent local plugin registered"
+ok "paarth local plugin registered"
 echo ""
 
 # ── Step 4: Enable all plugins in settings.json ───────────────────────────────
@@ -144,7 +144,7 @@ const file = path.join(process.env.HOME, '.claude', 'settings.json');
 let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 cfg.enabledPlugins = cfg.enabledPlugins || {};
-['superagent@local','superpowers@claude-plugins-official','caveman@caveman',
+['paarth@local','superpowers@claude-plugins-official','caveman@caveman',
  'claude-mem@thedotmack','ui-ux-pro-max@ui-ux-pro-max-skill']
   .forEach(p => { cfg.enabledPlugins[p] = true; });
 fs.writeFileSync(file, JSON.stringify(cfg, null, 2));
@@ -157,9 +157,9 @@ info "Linking agent files..."
 
 AGENTS_DIR="$CLAUDE_DIR/agents"
 mkdir -p "$AGENTS_DIR"
-if [[ -f "$SCRIPT_DIR/agents/superagent-brain.md" ]]; then
-  cp "$SCRIPT_DIR/agents/superagent-brain.md" "$AGENTS_DIR/superagent-brain.md"
-  ok "superagent-brain agent installed at ~/.claude/agents/"
+if [[ -f "$SCRIPT_DIR/agents/paarth-brain.md" ]]; then
+  cp "$SCRIPT_DIR/agents/paarth-brain.md" "$AGENTS_DIR/paarth-brain.md"
+  ok "paarth-brain agent installed at ~/.claude/agents/"
 fi
 echo ""
 
@@ -167,7 +167,7 @@ echo ""
 # Auto-discovery — picks up any new skill dropped into skills/<name>/SKILL.md
 # without needing to edit this loop. Single source of truth = the repo.
 SKILL_COUNT=$(find "$SCRIPT_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-info "Linking $SKILL_COUNT SuperAgent skills (auto-discovered)..."
+info "Linking $SKILL_COUNT PAARTH skills (auto-discovered)..."
 
 mkdir -p "$HOME/.claude/skills"
 for src in "$SCRIPT_DIR/skills"/*/; do
@@ -212,18 +212,18 @@ fi
 info "Configuring ~/.claude/CLAUDE.md..."
 
 GLOBAL_CLAUDE="$CLAUDE_DIR/CLAUDE.md"
-read -r -d '' SUPERAGENT_SECTION << 'MDEOF' || true
+read -r -d '' PAARTH_SECTION << 'MDEOF' || true
 # Global Claude Instructions
 
-## SuperAgent — Active on ALL Sessions
+## PAARTH — Active on ALL Sessions
 
-The `superagent` skill and `superagent-brain` agent are always active across every project and session.
+The `paarth` skill and `paarth-brain` agent are always active across every project and session.
 
-- **superagent skill**: routes every task to the optimal skill chain
-- **superagent-brain agent**: PROACTIVELY auto-routes build/fix/explore/design/review/ship tasks
+- **paarth skill**: routes every task to the optimal skill chain
+- **paarth-brain agent**: PROACTIVELY auto-routes build/fix/explore/design/review/ship tasks
 
 ### Activation
-- Say "superagent", "activate all agents", or "full power mode" to invoke
+- Say "paarth", "activate all agents", or "full power mode" to invoke
 - Available skill stacks: `caveman`, `superpowers:*`, `claude-mem:*`, `ui-ux-pro-max`, graphify, mempalace
 
 ### Global Rules
@@ -234,14 +234,14 @@ The `superagent` skill and `superagent-brain` agent are always active across eve
 MDEOF
 
 if [[ -f "$GLOBAL_CLAUDE" ]]; then
-  if grep -q "SuperAgent" "$GLOBAL_CLAUDE"; then
-    warn "~/.claude/CLAUDE.md already has SuperAgent config, skipping"
+  if grep -q "PAARTH" "$GLOBAL_CLAUDE"; then
+    warn "~/.claude/CLAUDE.md already has PAARTH config, skipping"
   else
-    { echo ""; echo "$SUPERAGENT_SECTION"; } >> "$GLOBAL_CLAUDE"
-    ok "SuperAgent section added to existing CLAUDE.md"
+    { echo ""; echo "$PAARTH_SECTION"; } >> "$GLOBAL_CLAUDE"
+    ok "PAARTH section added to existing CLAUDE.md"
   fi
 else
-  echo "$SUPERAGENT_SECTION" > "$GLOBAL_CLAUDE"
+  echo "$PAARTH_SECTION" > "$GLOBAL_CLAUDE"
   ok "~/.claude/CLAUDE.md created"
 fi
 echo ""
@@ -309,7 +309,7 @@ if [[ -x "$GRAPHIFY_BIN" ]]; then
   pushd "$CLAUDE_DIR" >/dev/null
   "$GRAPHIFY_BIN" update "$CLAUDE_DIR/skills" 2>&1 | tail -3 \
     && ok "graphify graph built (graphify-out/graph.json)" \
-    && { bash "$CLAUDE_DIR/superagent-tracker.sh" --calibrate "$CLAUDE_DIR" 2>/dev/null || true; } \
+    && { bash "$CLAUDE_DIR/paarth-tracker.sh" --calibrate "$CLAUDE_DIR" 2>/dev/null || true; } \
     || warn "graphify update failed — run manually: cd ~/.claude && graphify update skills"
   popd >/dev/null
 else
@@ -318,19 +318,19 @@ else
 fi
 echo ""
 
-# ── Step 9b: Install 9 SuperAgent hooks (Wave 1: 4 existing + 5 net-new) ─────
-info "Installing 9 SuperAgent hooks (Wave 1 full lifecycle)..."
+# ── Step 9b: Install 9 PAARTH hooks (Wave 1: 4 existing + 5 net-new) ─────
+info "Installing 9 PAARTH hooks (Wave 1 full lifecycle)..."
 
 HOOK_NAMES=(
-  "superagent-safety.py"
-  "superagent-session-start.py"
-  "superagent-tracker.sh"
-  "superagent-distill.sh"
-  "superagent-prompt-submit.py"
-  "superagent-subagent-stop.py"
-  "superagent-notification.py"
-  "superagent-permission.py"
-  "superagent-precompact.py"
+  "paarth-safety.py"
+  "paarth-session-start.py"
+  "paarth-tracker.sh"
+  "paarth-distill.sh"
+  "paarth-prompt-submit.py"
+  "paarth-subagent-stop.py"
+  "paarth-notification.py"
+  "paarth-permission.py"
+  "paarth-precompact.py"
 )
 
 for name in "${HOOK_NAMES[@]}"; do
@@ -354,17 +354,17 @@ try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 cfg.hooks = cfg.hooks || {};
 
 const wirings = [
-  { event: 'PreToolUse',        matcher: 'Bash|Edit|Write|MultiEdit|NotebookEdit', cmd: 'python3 "$HOME/.claude/superagent-safety.py"' },
-  { event: 'SessionStart',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/superagent-session-start.py"' },
-  { event: 'UserPromptSubmit',  matcher: '*',                                       cmd: 'python3 "$HOME/.claude/superagent-prompt-submit.py"' },
-  { event: 'SubagentStop',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/superagent-subagent-stop.py"' },
-  { event: 'Notification',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/superagent-notification.py"' },
-  { event: 'PermissionRequest', matcher: 'Bash',                                    cmd: 'python3 "$HOME/.claude/superagent-permission.py"' },
-  { event: 'PreCompact',        matcher: '*',                                       cmd: 'python3 "$HOME/.claude/superagent-precompact.py"' },
+  { event: 'PreToolUse',        matcher: 'Bash|Edit|Write|MultiEdit|NotebookEdit', cmd: 'python3 "$HOME/.claude/paarth-safety.py"' },
+  { event: 'SessionStart',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/paarth-session-start.py"' },
+  { event: 'UserPromptSubmit',  matcher: '*',                                       cmd: 'python3 "$HOME/.claude/paarth-prompt-submit.py"' },
+  { event: 'SubagentStop',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/paarth-subagent-stop.py"' },
+  { event: 'Notification',      matcher: '*',                                       cmd: 'python3 "$HOME/.claude/paarth-notification.py"' },
+  { event: 'PermissionRequest', matcher: 'Bash',                                    cmd: 'python3 "$HOME/.claude/paarth-permission.py"' },
+  { event: 'PreCompact',        matcher: '*',                                       cmd: 'python3 "$HOME/.claude/paarth-precompact.py"' },
 ];
 
 const sigOf = (cmd) => {
-  const m = (cmd || '').match(/superagent-[a-z-]+\.(py|sh)/);
+  const m = (cmd || '').match(/paarth-[a-z-]+\.(py|sh)/);
   return m ? m[0] : cmd;
 };
 
@@ -384,11 +384,11 @@ for (const { event, matcher, cmd } of wirings) {
 
 fs.writeFileSync(file, JSON.stringify(cfg, null, 2));
 JSEOF
-ok "9 SuperAgent hooks wired in ~/.claude/settings.json"
+ok "9 PAARTH hooks wired in ~/.claude/settings.json"
 
 # Marker for Wave 1 completion
-mkdir -p "$HOME/.superagent" 2>/dev/null || true
-date -Iseconds > "$HOME/.superagent/.wave-1.installed" 2>/dev/null || true
+mkdir -p "$HOME/.paarth" 2>/dev/null || true
+date -Iseconds > "$HOME/.paarth/.wave-1.installed" 2>/dev/null || true
 
 # ── Wave 2: copy specialist dispatch agents ─────────────────────────────────
 AGENTS_SRC="$SCRIPT_DIR/agents"
@@ -402,26 +402,26 @@ if [[ -d "$AGENTS_SRC" ]]; then
 fi
 
 # ── Wave 2: state scaffold for aidefence + obs + autopilot ──────────────────
-mkdir -p "$HOME/.superagent/aidefence" "$HOME/.superagent/obs" "$HOME/.superagent/autopilot" 2>/dev/null || true
-if [[ -f "$SCRIPT_DIR/skills/aidefence/patterns.json" && ! -f "$HOME/.superagent/aidefence/patterns.json" ]]; then
-  cp "$SCRIPT_DIR/skills/aidefence/patterns.json" "$HOME/.superagent/aidefence/patterns.json"
+mkdir -p "$HOME/.paarth/aidefence" "$HOME/.paarth/obs" "$HOME/.paarth/autopilot" 2>/dev/null || true
+if [[ -f "$SCRIPT_DIR/skills/aidefence/patterns.json" && ! -f "$HOME/.paarth/aidefence/patterns.json" ]]; then
+  cp "$SCRIPT_DIR/skills/aidefence/patterns.json" "$HOME/.paarth/aidefence/patterns.json"
 fi
-[[ -f "$HOME/.superagent/aidefence/learned.jsonl" ]] || : > "$HOME/.superagent/aidefence/learned.jsonl"
-[[ -f "$HOME/.superagent/obs/spans.jsonl" ]] || : > "$HOME/.superagent/obs/spans.jsonl"
-[[ -f "$HOME/.superagent/obs/metrics.jsonl" ]] || : > "$HOME/.superagent/obs/metrics.jsonl"
-if [[ ! -f "$HOME/.superagent/autopilot/state.json" ]]; then
-  cat > "$HOME/.superagent/autopilot/state.json" <<'JSON'
+[[ -f "$HOME/.paarth/aidefence/learned.jsonl" ]] || : > "$HOME/.paarth/aidefence/learned.jsonl"
+[[ -f "$HOME/.paarth/obs/spans.jsonl" ]] || : > "$HOME/.paarth/obs/spans.jsonl"
+[[ -f "$HOME/.paarth/obs/metrics.jsonl" ]] || : > "$HOME/.paarth/obs/metrics.jsonl"
+if [[ ! -f "$HOME/.paarth/autopilot/state.json" ]]; then
+  cat > "$HOME/.paarth/autopilot/state.json" <<'JSON'
 {"sessionId":"","enabled":false,"startTime":0,"iterations":0,"maxIterations":50,"timeoutMinutes":240,"taskSources":["markdown-checkboxes","routes-halt","tasks-md"],"lastCheck":0,"history":[]}
 JSON
 fi
-date -Iseconds > "$HOME/.superagent/.wave-2.installed" 2>/dev/null || true
+date -Iseconds > "$HOME/.paarth/.wave-2.installed" 2>/dev/null || true
 ok "Wave 2 state scaffolded (aidefence + obs + autopilot)"
 
 # ── Wave 3: state scaffold for sparc + testgen + diff ──────────────────────
-mkdir -p "$HOME/.superagent/sparc" "$HOME/.superagent/testgen" "$HOME/.superagent/diff" 2>/dev/null || true
-[[ -f "$HOME/.superagent/testgen/min-coverage.txt" ]] || echo 70 > "$HOME/.superagent/testgen/min-coverage.txt"
-[[ -f "$HOME/.superagent/testgen/cov-cmd.txt" ]] || : > "$HOME/.superagent/testgen/cov-cmd.txt"
-date -Iseconds > "$HOME/.superagent/.wave-3.installed" 2>/dev/null || true
+mkdir -p "$HOME/.paarth/sparc" "$HOME/.paarth/testgen" "$HOME/.paarth/diff" 2>/dev/null || true
+[[ -f "$HOME/.paarth/testgen/min-coverage.txt" ]] || echo 70 > "$HOME/.paarth/testgen/min-coverage.txt"
+[[ -f "$HOME/.paarth/testgen/cov-cmd.txt" ]] || : > "$HOME/.paarth/testgen/cov-cmd.txt"
+date -Iseconds > "$HOME/.paarth/.wave-3.installed" 2>/dev/null || true
 ok "Wave 3 state scaffolded (sparc + testgen + diff)"
 echo ""
 
@@ -438,14 +438,14 @@ echo ""
 
 # ── Step 10: Install token savings tracker ────────────────────────────────────
 info "Installing token savings tracker..."
-TRACKER_SRC="$SCRIPT_DIR/hooks/superagent-tracker.sh"
-STATUSLINE_SRC="$SCRIPT_DIR/hooks/superagent-statusline.sh"
+TRACKER_SRC="$SCRIPT_DIR/hooks/paarth-tracker.sh"
+STATUSLINE_SRC="$SCRIPT_DIR/hooks/paarth-statusline.sh"
 
 if [[ -f "$TRACKER_SRC" && -f "$STATUSLINE_SRC" ]]; then
-  cp "$TRACKER_SRC"    "$CLAUDE_DIR/superagent-tracker.sh"
-  cp "$STATUSLINE_SRC" "$CLAUDE_DIR/superagent-statusline.sh"
-  chmod +x "$CLAUDE_DIR/superagent-tracker.sh"
-  chmod +x "$CLAUDE_DIR/superagent-statusline.sh"
+  cp "$TRACKER_SRC"    "$CLAUDE_DIR/paarth-tracker.sh"
+  cp "$STATUSLINE_SRC" "$CLAUDE_DIR/paarth-statusline.sh"
+  chmod +x "$CLAUDE_DIR/paarth-tracker.sh"
+  chmod +x "$CLAUDE_DIR/paarth-statusline.sh"
   ok "Tracker scripts installed to ~/.claude/"
 
   # Wire PostToolUse hook and statusLine in settings.json
@@ -457,9 +457,9 @@ try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 
 cfg.hooks = cfg.hooks || {};
 cfg.hooks.PostToolUse = cfg.hooks.PostToolUse || [];
-const trackerCmd = `bash "${path.join(process.env.HOME, '.claude', 'superagent-tracker.sh')}"`;
+const trackerCmd = `bash "${path.join(process.env.HOME, '.claude', 'paarth-tracker.sh')}"`;
 const alreadyWired = cfg.hooks.PostToolUse.some(h =>
-  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('superagent-tracker'))
+  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('paarth-tracker'))
 );
 if (!alreadyWired) {
   cfg.hooks.PostToolUse.push({
@@ -468,8 +468,8 @@ if (!alreadyWired) {
   });
 }
 
-const statusCmd = `bash "${path.join(process.env.HOME, '.claude', 'superagent-statusline.sh')}"`;
-if (!cfg.statusLine || !cfg.statusLine.command || !cfg.statusLine.command.includes('superagent-statusline')) {
+const statusCmd = `bash "${path.join(process.env.HOME, '.claude', 'paarth-statusline.sh')}"`;
+if (!cfg.statusLine || !cfg.statusLine.command || !cfg.statusLine.command.includes('paarth-statusline')) {
   cfg.statusLine = { type: "command", command: statusCmd };
 }
 
@@ -481,24 +481,24 @@ else
 fi
 echo ""
 
-# ── Step 11: Initialize superagent state root ────────────────────────────────
-info "Initializing superagent state root..."
-INIT_SRC="$SCRIPT_DIR/hooks/superagent-state-init.sh"
+# ── Step 11: Initialize paarth state root ────────────────────────────────
+info "Initializing paarth state root..."
+INIT_SRC="$SCRIPT_DIR/hooks/paarth-state-init.sh"
 if [[ -f "$INIT_SRC" ]]; then
   bash "$INIT_SRC" \
-    && ok "State root initialized at ~/.superagent/" \
+    && ok "State root initialized at ~/.paarth/" \
     || warn "State root init failed — run manually: bash $INIT_SRC"
 else
-  warn "superagent-state-init.sh not found in $SCRIPT_DIR/hooks/ — skipping"
+  warn "paarth-state-init.sh not found in $SCRIPT_DIR/hooks/ — skipping"
 fi
 echo ""
 
-# ── Step 12: Install SuperAgent CLIs into ~/.local/bin/ ───────────────────────
-info "Installing SuperAgent CLIs..."
+# ── Step 12: Install PAARTH CLIs into ~/.local/bin/ ───────────────────────
+info "Installing PAARTH CLIs..."
 
 mkdir -p "$HOME/.local/bin"
 BIN_COUNT=0
-for src in "$SCRIPT_DIR"/bin/superagent-*; do
+for src in "$SCRIPT_DIR"/bin/paarth-*; do
   [[ -f "$src" ]] || continue
   tool=$(basename "$src")
   dst="$HOME/.local/bin/$tool"
@@ -506,18 +506,18 @@ for src in "$SCRIPT_DIR"/bin/superagent-*; do
   chmod +x "$dst"
   BIN_COUNT=$((BIN_COUNT + 1))
 done
-ok "$BIN_COUNT SuperAgent CLIs installed to ~/.local/bin/"
+ok "$BIN_COUNT PAARTH CLIs installed to ~/.local/bin/"
 if ! echo "$PATH" | tr ':' '\n' | grep -Fxq "$HOME/.local/bin"; then
   warn "~/.local/bin is not on PATH — add: export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 echo ""
 
-# ── Step 13: Install distill Stop hook (writes CLAUDE.md.superagent-proposed) ──
+# ── Step 13: Install distill Stop hook (writes CLAUDE.md.paarth-proposed) ──
 info "Installing distill Stop hook..."
-DISTILL_SRC="$SCRIPT_DIR/hooks/superagent-distill.sh"
+DISTILL_SRC="$SCRIPT_DIR/hooks/paarth-distill.sh"
 if [[ -f "$DISTILL_SRC" ]]; then
-  cp "$DISTILL_SRC" "$CLAUDE_DIR/superagent-distill.sh"
-  chmod +x "$CLAUDE_DIR/superagent-distill.sh"
+  cp "$DISTILL_SRC" "$CLAUDE_DIR/paarth-distill.sh"
+  chmod +x "$CLAUDE_DIR/paarth-distill.sh"
   ok "Distill hook installed to ~/.claude/"
 
   node - <<'JSEOF'
@@ -527,9 +527,9 @@ let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 cfg.hooks = cfg.hooks || {};
 cfg.hooks.Stop = cfg.hooks.Stop || [];
-const stopCmd = `bash "${path.join(process.env.HOME, '.claude', 'superagent-distill.sh')}" || true`;
+const stopCmd = `bash "${path.join(process.env.HOME, '.claude', 'paarth-distill.sh')}" || true`;
 const alreadyWired = cfg.hooks.Stop.some(h =>
-  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('superagent-distill'))
+  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('paarth-distill'))
 );
 if (!alreadyWired) {
   cfg.hooks.Stop.push({
@@ -541,26 +541,26 @@ fs.writeFileSync(file, JSON.stringify(cfg, null, 2));
 JSEOF
   ok "Stop hook wired in ~/.claude/settings.json"
 else
-  warn "superagent-distill.sh not found — skipping"
+  warn "paarth-distill.sh not found — skipping"
 fi
 echo ""
 
 # ── Step 14: Honor --local-only flag ──────────────────────────────────────────
 if [[ "$LOCAL_ONLY" == "1" ]]; then
-  mkdir -p "$HOME/.superagent"
-  touch "$HOME/.superagent/local-only"
-  ok "--local-only marker written to ~/.superagent/local-only"
+  mkdir -p "$HOME/.paarth"
+  touch "$HOME/.paarth/local-only"
+  ok "--local-only marker written to ~/.paarth/local-only"
   info "Hooks and tools will honor this marker and avoid outbound calls."
   echo ""
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║        Superagent installed & initialized!       ║${NC}"
+echo -e "${GREEN}║        Paarth installed & initialized!       ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 echo "  Installed:"
-echo "    ✓ superagent         — master orchestrator"
+echo "    ✓ paarth         — master orchestrator"
 echo "    ✓ superpowers        — 20+ workflow skills (TDD, planning, debugging)"
 echo "    ✓ caveman            — token reduction mode"
 echo "    ✓ claude-mem         — cross-session memory & AST search"
@@ -572,9 +572,9 @@ echo "    ✓ token-stats        — real token savings tracking (statusline + /
 echo ""
 echo "  One step remaining:"
 echo "    1. Restart Claude Code"
-echo "    2. Type: superagent"
+echo "    2. Type: paarth"
 echo ""
 echo "  Everything else is already set up. graphify + mempalace are live."
 echo ""
-echo -e "  ${CYAN}Docs:${NC} https://github.com/animeshbasak/SuperAgent"
+echo -e "  ${CYAN}Docs:${NC} https://github.com/animeshbasak/Paarth"
 echo ""

@@ -2,11 +2,11 @@
 # test/test-sparc-gate.sh — per-phase boolean gate
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-sparc"
+BIN="$SCRIPT_DIR/../bin/paarth-sparc"
 FIXTURES="$SCRIPT_DIR/fixtures/sparc"
 
 run_gate() {
-  local slug="$1"      # name to use under ~/.superagent/sparc
+  local slug="$1"      # name to use under ~/.paarth/sparc
   local fixture="$2"   # fixture dir to seed
   local phase="$3"     # phase to test
   local expect="$4"    # passed|failed
@@ -16,7 +16,7 @@ run_gate() {
   trap "rm -rf '$TMPHOME'" RETURN
 
   HOME="$TMPHOME" "$BIN" init "$slug" >/dev/null
-  DIR="$TMPHOME/.superagent/sparc/$slug"
+  DIR="$TMPHOME/.paarth/sparc/$slug"
   cp "$fixture"/*.md "$DIR/"
   # Force the desired phase
   jq --argjson p "$phase" '.phase = $p' "$DIR/state.json" > "$DIR/state.json.tmp" && mv "$DIR/state.json.tmp" "$DIR/state.json"

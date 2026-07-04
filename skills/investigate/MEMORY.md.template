@@ -1,7 +1,7 @@
 # investigate — agent memory
 
 > Auto-loaded by the brain on `investigate` activation if present at
-> `~/.superagent/agent-memory/investigate/MEMORY.md`. Keep ≤ 50 bullets.
+> `~/.paarth/agent-memory/investigate/MEMORY.md`. Keep ≤ 50 bullets.
 
 ## Known root causes (cataloged)
 <!-- Bug class -> typical root cause in THIS codebase. -->

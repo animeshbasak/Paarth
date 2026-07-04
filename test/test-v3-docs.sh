@@ -7,15 +7,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 [[ -f "$ROOT/skills/agent-pool/SKILL.md" ]]     || { echo "FAIL: agent-pool SKILL.md missing"; exit 1; }
 [[ -f "$ROOT/skills/dynamic-skills/SKILL.md" ]] || { echo "FAIL: dynamic-skills SKILL.md missing"; exit 1; }
 
-[[ -x "$ROOT/bin/superagent-scrape" ]]   || { echo "FAIL: superagent-scrape bin missing or not executable"; exit 1; }
-[[ -x "$ROOT/bin/superagent-pool" ]]     || { echo "FAIL: superagent-pool bin missing"; exit 1; }
-[[ -x "$ROOT/bin/superagent-reload" ]]   || { echo "FAIL: superagent-reload bin missing"; exit 1; }
+[[ -x "$ROOT/bin/paarth-scrape" ]]   || { echo "FAIL: paarth-scrape bin missing or not executable"; exit 1; }
+[[ -x "$ROOT/bin/paarth-pool" ]]     || { echo "FAIL: paarth-pool bin missing"; exit 1; }
+[[ -x "$ROOT/bin/paarth-reload" ]]   || { echo "FAIL: paarth-reload bin missing"; exit 1; }
 
 grep -q '## v3.0.0' "$ROOT/CHANGELOG.md" \
   || { echo "FAIL: CHANGELOG missing v3.0.0 section"; exit 1; }
 
 VERSION=$(jq -r '.version' "$ROOT/package.json" 2>/dev/null || echo missing)
-[[ "$VERSION" =~ ^3\.[0-9]+\.[0-9]+$ ]] || { echo "FAIL: package.json version is $VERSION, want 3.x.y"; exit 1; }
+[[ "$VERSION" =~ ^[3-9]\.[0-9]+\.[0-9]+$ ]] || { echo "FAIL: package.json version is $VERSION, want >=3.0.0"; exit 1; }
 
 grep -qE 'Scrapling|Octogent|jcode|References Integration Pack' "$ROOT/README.md" \
   || { echo "FAIL: README missing v3.0.0 references mentions"; exit 1; }

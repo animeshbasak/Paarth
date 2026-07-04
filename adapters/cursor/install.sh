@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — Cursor Installer
-# Installs SuperAgent .mdc rule files for Cursor AI
+# PAARTH — Cursor Installer
+# Installs PAARTH .mdc rule files for Cursor AI
 # Usage: bash adapters/cursor/install.sh [--project <path>]
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -23,12 +23,12 @@ for i in "$@"; do
 done
 
 echo ""
-echo -e "${CYAN}SuperAgent for Cursor${NC}"
+echo -e "${CYAN}PAARTH for Cursor${NC}"
 echo ""
 
 # ── Step 1: Compile latest skills ──────────────────────────────────────────
 info "Compiling skills for Cursor (compact format)..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform cursor \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform cursor \
   --output "$SCRIPT_DIR/templates/" 2>&1 | tail -3
 
 # ── Step 2: Install .mdc files into project ────────────────────────────────
@@ -54,7 +54,7 @@ else
 fi
 
 echo ""
-ok "SuperAgent for Cursor installed!"
+ok "PAARTH for Cursor installed!"
 echo "  Rules: $CURSOR_RULES/"
-echo "  Note: superagent-core.mdc is always-apply, others are agent-requested"
+echo "  Note: paarth-core.mdc is always-apply, others are agent-requested"
 echo ""

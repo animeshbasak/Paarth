@@ -2,11 +2,11 @@
 # test/test-obs-tracker.sh — tracker.sh emits span + token-usage metric on tool calls
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRACKER="$SCRIPT_DIR/../hooks/superagent-tracker.sh"
+TRACKER="$SCRIPT_DIR/../hooks/paarth-tracker.sh"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/cost" "$TMPHOME/.superagent/obs" "$TMPHOME/.claude"
+mkdir -p "$TMPHOME/.paarth/cost" "$TMPHOME/.paarth/obs" "$TMPHOME/.claude"
 
 PAYLOAD='{
   "tool_name":"Read",
@@ -20,16 +20,16 @@ PAYLOAD='{
 HOME="$TMPHOME" PATH="$SCRIPT_DIR/../bin:$PATH" CLAUDE_MODEL="claude-sonnet-4-5" \
   bash "$TRACKER" <<<"$PAYLOAD" || true
 
-[[ -s "$TMPHOME/.superagent/obs/spans.jsonl" ]] \
+[[ -s "$TMPHOME/.paarth/obs/spans.jsonl" ]] \
   || { echo "FAIL: no span emitted"; exit 1; }
-[[ -s "$TMPHOME/.superagent/obs/metrics.jsonl" ]] \
+[[ -s "$TMPHOME/.paarth/obs/metrics.jsonl" ]] \
   || { echo "FAIL: no metric emitted"; exit 1; }
 
-SPAN=$(tail -n1 "$TMPHOME/.superagent/obs/spans.jsonl")
+SPAN=$(tail -n1 "$TMPHOME/.paarth/obs/spans.jsonl")
 echo "$SPAN" | jq -e '.op == "tool.Read" and .status == "OK"' >/dev/null \
   || { echo "FAIL: span shape: $SPAN"; exit 1; }
 
-METRIC=$(tail -n1 "$TMPHOME/.superagent/obs/metrics.jsonl")
+METRIC=$(tail -n1 "$TMPHOME/.paarth/obs/metrics.jsonl")
 echo "$METRIC" | jq -e '.name == "agent_token_usage" and .kind == "histogram" and .value == 150' >/dev/null \
   || { echo "FAIL: metric shape: $METRIC"; exit 1; }
 

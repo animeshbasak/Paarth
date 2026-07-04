@@ -5,7 +5,7 @@ description: 5-phase gate-enforced pipeline (Specification → Pseudocode → Ar
 
 # sparc
 
-Wave 3 adds a thin orchestrator that chains existing SuperAgent skills with hard boolean gate checks. SPARC is **opt-in per feature** — `/sparc init <slug>` starts a session; it never auto-fires.
+Wave 3 adds a thin orchestrator that chains existing PAARTH skills with hard boolean gate checks. SPARC is **opt-in per feature** — `/sparc init <slug>` starts a session; it never auto-fires.
 
 ## When to use
 
@@ -30,29 +30,29 @@ Wave 3 adds a thin orchestrator that chains existing SuperAgent skills with hard
 
 1. **Init the feature:**
    ```bash
-   superagent-sparc init feat-darkmode-toggle
+   paarth-sparc init feat-darkmode-toggle
    ```
-2. **Write the artifact for the current phase** into the printed directory (e.g. `~/.superagent/sparc/feat-darkmode-toggle/spec.md`). Use the AC format `- AC: <id> — <description>`; constraint lines start with `Constraint:`; edge case lines with `Edge case:`.
+2. **Write the artifact for the current phase** into the printed directory (e.g. `~/.paarth/sparc/feat-darkmode-toggle/spec.md`). Use the AC format `- AC: <id> — <description>`; constraint lines start with `Constraint:`; edge case lines with `Edge case:`.
 3. **Run the gate:**
    ```bash
-   superagent-sparc gate
+   paarth-sparc gate
    ```
    On failure, the reason is appended to `gate_failures[]` in `state.json`. Fix and re-run.
 4. **Advance only after gate passes:**
    ```bash
-   superagent-sparc advance
+   paarth-sparc advance
    ```
 5. **At any time, inspect state or matrix:**
    ```bash
-   superagent-sparc status
-   superagent-sparc report
+   paarth-sparc status
+   paarth-sparc report
    ```
 
 ## Files
 
-- State: `~/.superagent/sparc/<slug>/state.json`
-- Artifacts: `~/.superagent/sparc/<slug>/{spec,pseudo,arch,refine,complete}.md`
-- Active slug: `SUPERAGENT_SPARC_SLUG` env var; else most-recently-updated dir.
+- State: `~/.paarth/sparc/<slug>/state.json`
+- Artifacts: `~/.paarth/sparc/<slug>/{spec,pseudo,arch,refine,complete}.md`
+- Active slug: `PAARTH_SPARC_SLUG` env var; else most-recently-updated dir.
 
 ## Hand-off rules
 

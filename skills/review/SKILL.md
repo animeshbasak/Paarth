@@ -18,10 +18,10 @@ argument-hint: "<base branch, default: main>"
 
 ## Step 0 — diff-risk pre-check (Wave 3)
 
-Before running the 6-point checklist, run `superagent-diff-risk` to ground the review in objective signal:
+Before running the 6-point checklist, run `paarth-diff-risk` to ground the review in objective signal:
 
 ```bash
-superagent-diff-risk report --base "${ARGUMENTS:-origin/main}" --json
+paarth-diff-risk report --base "${ARGUMENTS:-origin/main}" --json
 ```
 
 Fold the output into the review verdict:
@@ -33,7 +33,7 @@ Fold the output into the review verdict:
 Also consult cached coverage (Wave 3):
 
 ```bash
-superagent-testgen status --json
+paarth-testgen status --json
 ```
 
 If `verdict: BELOW THRESHOLD`, include the coverage delta in the review output but do not gate-block on it (project teams own the threshold).

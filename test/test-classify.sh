@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# test/test-classify.sh — smoke tests for superagent-classify output shape
+# test/test-classify.sh — smoke tests for paarth-classify output shape
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLASSIFY="$SCRIPT_DIR/../bin/superagent-classify"
+CLASSIFY="$SCRIPT_DIR/../bin/paarth-classify"
 
 pass=0
 fail=0
@@ -39,7 +39,7 @@ assert_contains() {
   fi
 }
 
-echo "Running superagent-classify smoke tests..."
+echo "Running paarth-classify smoke tests..."
 echo ""
 
 # ── Test 1: emits valid JSON ──────────────────────────────────────────────────
@@ -103,7 +103,7 @@ echo ""
 echo "  [history-bias tests]"
 
 # Set up temp routes.jsonl at the expected location
-ROUTES_DIR="${HOME}/.superagent/brain"
+ROUTES_DIR="${HOME}/.paarth/brain"
 ROUTES_FILE="${ROUTES_DIR}/routes.jsonl"
 mkdir -p "$ROUTES_DIR"
 

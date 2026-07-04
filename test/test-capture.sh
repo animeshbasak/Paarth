@@ -3,12 +3,12 @@
 # upserts per session, and honors the kill switch.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CAPBIN="$SCRIPT_DIR/../bin/superagent-capture"
+CAPBIN="$SCRIPT_DIR/../bin/paarth-capture"
 FIXTURE="$SCRIPT_DIR/fixtures/transcript-real.jsonl"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-DB="$TMPHOME/.superagent/memory-os/memory.db"
+DB="$TMPHOME/.paarth/memory-os/memory.db"
 
 PAYLOAD=$(jq -cn --arg t "$FIXTURE" --arg c "$TMPHOME" \
   '{"hook_event_name":"Stop","session_id":"s-cap-1","transcript_path":$t,"cwd":$c}')
@@ -50,8 +50,8 @@ LIVE=$(sqlite3 "$DB" "SELECT COUNT(*) FROM entries WHERE kind='session' AND forg
 
 # 4) kill switch -> no writes
 T2=$(mktemp -d)
-HOME="$T2" SUPERAGENT_AUTO_CAPTURE=0 python3 "$CAPBIN" <<<"$PAYLOAD"
-[[ ! -f "$T2/.superagent/memory-os/memory.db" ]] || { echo "FAIL: kill switch ignored"; rm -rf "$T2"; exit 1; }
+HOME="$T2" PAARTH_AUTO_CAPTURE=0 python3 "$CAPBIN" <<<"$PAYLOAD"
+[[ ! -f "$T2/.paarth/memory-os/memory.db" ]] || { echo "FAIL: kill switch ignored"; rm -rf "$T2"; exit 1; }
 rm -rf "$T2"
 
 # 5) missing transcript -> exit 0, no crash

@@ -11,15 +11,15 @@ echo '{}' > "$TMPHOME/.claude/settings.json"
 
 HOME="$TMPHOME" bash "$INSTALL" >/dev/null 2>&1 || true
 
-[[ -d "$TMPHOME/.superagent/aidefence" ]] || { echo "FAIL: aidefence dir missing"; exit 1; }
-[[ -d "$TMPHOME/.superagent/obs" ]] || { echo "FAIL: obs dir missing"; exit 1; }
-[[ -d "$TMPHOME/.superagent/autopilot" ]] || { echo "FAIL: autopilot dir missing"; exit 1; }
-[[ -f "$TMPHOME/.superagent/aidefence/patterns.json" ]] || { echo "FAIL: patterns.json missing"; exit 1; }
-[[ -f "$TMPHOME/.superagent/autopilot/state.json" ]] || { echo "FAIL: state.json missing"; exit 1; }
-[[ -f "$TMPHOME/.superagent/.wave-2.installed" ]] || { echo "FAIL: .wave-2.installed marker missing"; exit 1; }
+[[ -d "$TMPHOME/.paarth/aidefence" ]] || { echo "FAIL: aidefence dir missing"; exit 1; }
+[[ -d "$TMPHOME/.paarth/obs" ]] || { echo "FAIL: obs dir missing"; exit 1; }
+[[ -d "$TMPHOME/.paarth/autopilot" ]] || { echo "FAIL: autopilot dir missing"; exit 1; }
+[[ -f "$TMPHOME/.paarth/aidefence/patterns.json" ]] || { echo "FAIL: patterns.json missing"; exit 1; }
+[[ -f "$TMPHOME/.paarth/autopilot/state.json" ]] || { echo "FAIL: state.json missing"; exit 1; }
+[[ -f "$TMPHOME/.paarth/.wave-2.installed" ]] || { echo "FAIL: .wave-2.installed marker missing"; exit 1; }
 
 # state.json valid + disabled by default
-ENABLED=$(jq -r '.enabled' "$TMPHOME/.superagent/autopilot/state.json")
+ENABLED=$(jq -r '.enabled' "$TMPHOME/.paarth/autopilot/state.json")
 [[ "$ENABLED" == "false" ]] || { echo "FAIL: autopilot enabled by default (got $ENABLED)"; exit 1; }
 
 echo "test-install-wave2: PASS"

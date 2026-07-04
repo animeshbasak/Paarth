@@ -2,14 +2,14 @@
 # test/test-classify-patterns.sh — classifier prepends pattern chain when gate met
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CBIN="$SCRIPT_DIR/../bin/superagent-classify"
+CBIN="$SCRIPT_DIR/../bin/paarth-classify"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/brain"
+mkdir -p "$TMPHOME/.paarth/brain"
 
 NEW=$(date -Iseconds 2>/dev/null || date +%Y-%m-%dT%H:%M:%S%z)
-cat > "$TMPHOME/.superagent/brain/patterns.jsonl" <<JSONL
+cat > "$TMPHOME/.paarth/brain/patterns.jsonl" <<JSONL
 {"id":"p-good","signal":"deploy kustomize overlay","chain":["pattern-from-store"],"successRate":0.85,"useCount":12,"lastUsed":"$NEW","protected":false}
 {"id":"p-weak","signal":"floof bloop","chain":["should-not-fire"],"successRate":0.50,"useCount":3,"lastUsed":"$NEW","protected":false}
 {"id":"p-fresh","signal":"migrate schema alembic","chain":["freshly-promoted"],"successRate":0.70,"useCount":3,"lastUsed":"$NEW","protected":false}

@@ -5,38 +5,38 @@ description: Per-prompt injection + PII scanner. Pure regex over 58 shipped patt
 
 # aidefence
 
-Wave 2 adds a per-prompt threat scanner that runs at the harness boundary before the model sees the request. It is **default off** — too many dev workflows legitimately mention words like "ignore" or include test fixtures with fake credentials. Opt in with `superagent-aidefence enable` once the patterns suit your workflow.
+Wave 2 adds a per-prompt threat scanner that runs at the harness boundary before the model sees the request. It is **default off** — too many dev workflows legitimately mention words like "ignore" or include test fixtures with fake credentials. Opt in with `paarth-aidefence enable` once the patterns suit your workflow.
 
 ## When to use
 
 - User says "turn on aidefence" / "scan this prompt" / "is this prompt safe".
 - You suspect a prompt-injection payload in user-provided content (issues, docs, support tickets).
-- After a security incident — review `~/.superagent/aidefence/learned.jsonl` for adaptive misfires.
+- After a security incident — review `~/.paarth/aidefence/learned.jsonl` for adaptive misfires.
 
 ## Procedure
 
 1. **Inspect current state:**
    ```bash
-   superagent-aidefence status
-   superagent-aidefence list | head
+   paarth-aidefence status
+   paarth-aidefence list | head
    ```
 2. **Enable for the session:**
    ```bash
-   superagent-aidefence enable
+   paarth-aidefence enable
    ```
-   This drops `~/.superagent/aidefence/enabled`. The `UserPromptSubmit` hook (Wave 1) now calls `scan` on every prompt; critical severity → `deny`, high severity → `ask` (force-confirm), medium/PII → log only.
+   This drops `~/.paarth/aidefence/enabled`. The `UserPromptSubmit` hook (Wave 1) now calls `scan` on every prompt; critical severity → `deny`, high severity → `ask` (force-confirm), medium/PII → log only.
 3. **Scan ad-hoc:**
    ```bash
-   superagent-aidefence scan "some prompt to test"
+   paarth-aidefence scan "some prompt to test"
    ```
 4. **Train it down on a false positive:**
    ```bash
-   superagent-aidefence feedback <pattern-id> inaccurate
+   paarth-aidefence feedback <pattern-id> inaccurate
    ```
    Repeated inaccurate verdicts decay that pattern's effectiveness via EMA (alpha=0.1). After ~30 events, baseline confidence collapses by ~95%, so the pattern stops blocking common phrasing.
 5. **Disable when shipping safely is preferred over scanning:**
    ```bash
-   superagent-aidefence disable
+   paarth-aidefence disable
    ```
 
 ## Escape hatches
@@ -51,9 +51,9 @@ Both produce `{safe: true, skipped: "escape-hatch"}`.
 ## Files
 
 - Shipped: `skills/aidefence/patterns.json` (58 patterns, source of truth).
-- Runtime: `~/.superagent/aidefence/patterns.json` (mutable copy for tuning).
-- Feedback: `~/.superagent/aidefence/learned.jsonl` (append-only EMA history).
-- Flag: `~/.superagent/aidefence/enabled` (presence = on).
+- Runtime: `~/.paarth/aidefence/patterns.json` (mutable copy for tuning).
+- Feedback: `~/.paarth/aidefence/learned.jsonl` (append-only EMA history).
+- Flag: `~/.paarth/aidefence/enabled` (presence = on).
 
 ## Decision policy
 

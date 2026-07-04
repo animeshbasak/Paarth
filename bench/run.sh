@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# bench/run.sh — golden-dataset bench for superagent-classify
+# bench/run.sh — golden-dataset bench for paarth-classify
 # HARD GATE: avg similarity >= 0.90  AND  fail_count <= 2
 # A prompt passes if its LCS similarity score >= 0.85
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLASSIFY="$SCRIPT_DIR/../bin/superagent-classify"
+CLASSIFY="$SCRIPT_DIR/../bin/paarth-classify"
 SCORE_SH="$SCRIPT_DIR/score.sh"
 PROMPTS="$SCRIPT_DIR/prompts.jsonl"
 

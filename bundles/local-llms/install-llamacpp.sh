@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent Bundle — llama.cpp + Qwen3-class 27B (Q4_K_M ~16 GB)
+# PAARTH Bundle — llama.cpp + Qwen3-class 27B (Q4_K_M ~16 GB)
 # Installs llama.cpp (provides `llama-server`) and downloads a large GGUF.
 # Footprint: ~17 GB (llama.cpp + ~16 GB model). Disk pre-flight: ≥21 GB free.
 # Idempotent: skips when binary present and model file already large enough.
 # Resume: uses `curl -C -` so partial downloads can continue.
 # Usage: bash bundles/local-llms/install-llamacpp.sh
-#        SUPERAGENT_ASSUME_YES=1 bundles/local-llms/install-llamacpp.sh   # CI
+#        PAARTH_ASSUME_YES=1 bundles/local-llms/install-llamacpp.sh   # CI
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -29,9 +29,9 @@ esac
 MODEL_DIR="$HOME/.cache/llama.cpp/models"
 MODEL_FILE="$MODEL_DIR/qwen3.6-27b-q4km.gguf"
 # Primary URL (Qwen org). If Qwen3.6 naming differs, the user can override
-# with SUPERAGENT_GGUF_URL=... when re-running.
+# with PAARTH_GGUF_URL=... when re-running.
 DEFAULT_URL="https://huggingface.co/Qwen/Qwen3.6-27B-Instruct-GGUF/resolve/main/Qwen3.6-27B-Instruct-Q4_K_M.gguf"
-MODEL_URL="${SUPERAGENT_GGUF_URL:-$DEFAULT_URL}"
+MODEL_URL="${PAARTH_GGUF_URL:-$DEFAULT_URL}"
 MIN_FREE_KB=$((21 * 1024 * 1024))   # 21 GB in KB
 MIN_MODEL_BYTES=$((14 * 1024 * 1024 * 1024))  # 14 GB sanity floor
 
@@ -46,7 +46,7 @@ fi
 ok "Disk: $((free_kb/1024/1024)) GB free in \$HOME (≥21 GB required)"
 
 # ── Step 2: Confirm prompt (skippable in CI) ─────────────────────────────────
-if [[ "${SUPERAGENT_ASSUME_YES:-0}" != "1" ]]; then
+if [[ "${PAARTH_ASSUME_YES:-0}" != "1" ]]; then
   printf "Download Qwen3.6-27B Q4_K_M (~16 GB)? [y/N] "
   read -r reply || reply=""
   case "${reply:-}" in
@@ -119,7 +119,7 @@ else
   if ! curl -L -C - --fail --output "$MODEL_FILE" "$MODEL_URL"; then
     warn "Download failed."
     warn "If Qwen3.6-27B-Instruct-GGUF doesn't exist yet, override the URL:"
-    warn "  SUPERAGENT_GGUF_URL='https://huggingface.co/<repo>/resolve/main/<file>.gguf' \\"
+    warn "  PAARTH_GGUF_URL='https://huggingface.co/<repo>/resolve/main/<file>.gguf' \\"
     warn "    bash bundles/local-llms/install-llamacpp.sh"
     fail "Aborting — model not downloaded."
   fi

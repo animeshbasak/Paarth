@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$SCRIPT_DIR/.."
 SKILL="$ROOT/skills/agent-pool/SKILL.md"
-BIN="$ROOT/bin/superagent-pool"
+BIN="$ROOT/bin/paarth-pool"
 
 # --- 1. SKILL.md exists with proper frontmatter -----------------------------
 [[ -f "$SKILL" ]] || { echo "FAIL: $SKILL missing"; exit 1; }
@@ -58,7 +58,7 @@ assert isinstance(d.get('sessionTag'), str) and d['sessionTag'], d
 
 # --- 7. tag appends to tags.jsonl -------------------------------------------
 HOME="$TMPHOME" "$BIN" tag s-abc "demo tag" >/dev/null
-TAGFILE="$TMPHOME/.superagent/pool/tags.jsonl"
+TAGFILE="$TMPHOME/.paarth/pool/tags.jsonl"
 [[ -f "$TAGFILE" ]] || { echo "FAIL: tags.jsonl not created"; exit 1; }
 LINES=$(wc -l < "$TAGFILE" | tr -d ' ')
 [[ "$LINES" == "1" ]] || { echo "FAIL: tags.jsonl should have 1 line (got $LINES)"; exit 1; }
@@ -73,7 +73,7 @@ assert 'ts' in rec, rec
 
 # --- 8. kill appends abandon record -----------------------------------------
 HOME="$TMPHOME" "$BIN" kill s-abc >/dev/null
-ABFILE="$TMPHOME/.superagent/pool/abandons.jsonl"
+ABFILE="$TMPHOME/.paarth/pool/abandons.jsonl"
 [[ -f "$ABFILE" ]] || { echo "FAIL: abandons.jsonl not created"; exit 1; }
 python3 -c "
 import json

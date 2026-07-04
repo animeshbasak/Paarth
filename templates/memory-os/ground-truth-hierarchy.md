@@ -1,4 +1,4 @@
-<!-- BEGIN SUPERAGENT-MEMORY-OS GROUND-TRUTH (do not edit; managed by adapters/<platform>/install.sh) -->
+<!-- BEGIN PAARTH-MEMORY-OS GROUND-TRUTH (do not edit; managed by adapters/<platform>/install.sh) -->
 ## Ground Truth Hierarchy
 
 Authority order when answering:
@@ -17,4 +17,4 @@ Authority order when answering:
 - After a user correction or preference: `memory_write(content=..., kind="feedback")`.
 
 If a question feels novel but memory has the answer, the question is not novel. Use the memory.
-<!-- END SUPERAGENT-MEMORY-OS GROUND-TRUTH -->
+<!-- END PAARTH-MEMORY-OS GROUND-TRUTH -->

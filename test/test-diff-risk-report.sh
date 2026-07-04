@@ -2,7 +2,7 @@
 # test/test-diff-risk-report.sh — report composes classifier + impact + reviewers; caches last.json
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-diff-risk"
+BIN="$SCRIPT_DIR/../bin/paarth-diff-risk"
 
 TMPHOME=$(mktemp -d)
 TMPREPO=$(mktemp -d)
@@ -34,7 +34,7 @@ echo "$OUT" | jq -e '.reviewers.owners | length >= 1' >/dev/null \
   || { echo "FAIL: no reviewers: $OUT"; exit 1; }
 
 # Cache file written
-[[ -f "$TMPHOME/.superagent/diff/last.json" ]] \
+[[ -f "$TMPHOME/.paarth/diff/last.json" ]] \
   || { echo "FAIL: last.json cache missing"; exit 1; }
 
 # Human-readable output

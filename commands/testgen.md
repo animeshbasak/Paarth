@@ -1,11 +1,11 @@
 ---
 name: testgen
-description: Slash dispatcher for testgen. Forwards args to bin/superagent-testgen.
+description: Slash dispatcher for testgen. Forwards args to bin/paarth-testgen.
 ---
 
 # /testgen
 
-Routes the user's subcommand to `bin/superagent-testgen`. See [testgen](../skills/testgen/SKILL.md) for the full procedure.
+Routes the user's subcommand to `bin/paarth-testgen`. See [testgen](../skills/testgen/SKILL.md) for the full procedure.
 
 ## Usage
 

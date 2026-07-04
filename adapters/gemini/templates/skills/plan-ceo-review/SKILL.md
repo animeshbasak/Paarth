@@ -9,7 +9,7 @@ description: Pressure-test a plan with the CEO lens. Challenges scope via the fo
 
 Pressure-test a plan through the CEO lens before a single engineer-hour is spent. Rethink the problem, challenge the scope, rate the opportunity, and recommend which scope variant to actually execute. You are not here to rubber-stamp. You are here to make the plan extraordinary — or to kill it.
 
-See `~/.superagent/ETHOS.md` for shared SuperAgent principles (verify or die, rewind don't correct, memory compounds, leverage over toil, local first). This skill assumes those are in effect.
+See `~/.paarth/ETHOS.md` for shared PAARTH principles (verify or die, rewind don't correct, memory compounds, leverage over toil, local first). This skill assumes those are in effect.
 
 ## When to use
 

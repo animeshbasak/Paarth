@@ -1,13 +1,13 @@
 {
-  "name": "superagent",
+  "name": "paarth",
   "description": "Master orchestrator for Claude Code — routes every task to the optimal skill stack with graphify + MemPalace active by default",
   "version": "2.2.0",
   "author": {
     "name": "Animesh Basak",
     "email": "animeshsbasak@gmail.com"
   },
-  "homepage": "https://github.com/animeshbasak/SuperAgent",
-  "repository": "https://github.com/animeshbasak/SuperAgent",
+  "homepage": "https://github.com/animeshbasak/Paarth",
+  "repository": "https://github.com/animeshbasak/Paarth",
   "license": "MIT",
   "keywords": [
     "orchestrator",

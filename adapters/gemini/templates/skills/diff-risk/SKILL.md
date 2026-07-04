@@ -18,20 +18,20 @@ Wave 3 ships a per-diff scoring bin that augments `review` and `ship`. Diff-risk
 
 1. **One-shot report** (most common):
    ```bash
-   superagent-diff-risk report --base origin/main
+   paarth-diff-risk report --base origin/main
    ```
-   Composes classifier + impact + risk + reviewers and caches `~/.superagent/diff/last.json`.
+   Composes classifier + impact + risk + reviewers and caches `~/.paarth/diff/last.json`.
 
 2. **Drill into a single dimension:**
    ```bash
-   superagent-diff-risk classify --commit-msg "$(git log -1 --pretty=%s)" --files "$(git diff --name-only --cached | paste -sd,)"
-   superagent-diff-risk impact --branch "$(git rev-parse --abbrev-ref HEAD)"
-   superagent-diff-risk reviewers --files "$(git diff --name-only HEAD~1...HEAD | paste -sd,)"
+   paarth-diff-risk classify --commit-msg "$(git log -1 --pretty=%s)" --files "$(git diff --name-only --cached | paste -sd,)"
+   paarth-diff-risk impact --branch "$(git rev-parse --abbrev-ref HEAD)"
+   paarth-diff-risk reviewers --files "$(git diff --name-only HEAD~1...HEAD | paste -sd,)"
    ```
 
 3. **JSON mode** for `ship` / `review` integration:
    ```bash
-   superagent-diff-risk report --base origin/main --json
+   paarth-diff-risk report --base origin/main --json
    ```
 
 ## Classifier

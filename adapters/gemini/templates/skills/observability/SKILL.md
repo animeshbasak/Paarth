@@ -1,11 +1,11 @@
 ---
 name: observability
-description: JSONL spans + metrics for SuperAgent. Read the trace tree of any session, aggregate counter/gauge/histogram metrics with p50/p95/p99, and flag anomalies via rolling mean + 2σ. Triggers on "show the trace", "metrics for today", "what's slow", "anomaly", "p95 latency".
+description: JSONL spans + metrics for PAARTH. Read the trace tree of any session, aggregate counter/gauge/histogram metrics with p50/p95/p99, and flag anomalies via rolling mean + 2σ. Triggers on "show the trace", "metrics for today", "what's slow", "anomaly", "p95 latency".
 ---
 
 # observability
 
-Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. Hooks emit spans on every tool call and metrics on every token-bearing event. Files live under `~/.superagent/obs/` and rotate daily.
+Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. Hooks emit spans on every tool call and metrics on every token-bearing event. Files live under `~/.paarth/obs/` and rotate daily.
 
 ## When to use
 
@@ -17,29 +17,29 @@ Wave 2 ships pure-JSONL observability — no OTel libraries, no remote backend. 
 
 1. **Inspect a single trace.** Pass the traceId you care about:
    ```bash
-   superagent-trace t-abc12345
+   paarth-trace t-abc12345
    ```
    Output is an ASCII parent-child tree with per-span duration. Bottlenecks (duration ≥ p95 of the op AND > 2× mean) are flagged `(bottleneck)`.
 2. **Aggregate metrics over a range.**
    ```bash
-   superagent-metrics today
-   superagent-metrics week --json | jq .
+   paarth-metrics today
+   paarth-metrics week --json | jq .
    ```
    Counters → SUM, gauges → LAST value (insertion-order tiebreak), histograms → p50/p95/p99. Anomaly flag: rolling mean + 2σ over the last 100 samples.
 3. **Find a traceId.** The latest span's traceId is the most recent route:
    ```bash
-   tail -n 1 ~/.superagent/obs/spans.jsonl | jq -r .traceId
+   tail -n 1 ~/.paarth/obs/spans.jsonl | jq -r .traceId
    ```
 4. **Rotate manually if needed** (Stop hook does this daily already):
    ```bash
-   superagent-obs-rotate
+   paarth-obs-rotate
    ```
 
 ## Files
 
-- Active: `~/.superagent/obs/spans.jsonl` and `metrics.jsonl`.
+- Active: `~/.paarth/obs/spans.jsonl` and `metrics.jsonl`.
 - Rotated: `spans.<YYYYMMDD>.jsonl` and `metrics.<YYYYMMDD>.jsonl` (>30 days = pruned).
-- Marker: `~/.superagent/obs/.last-rotate-<YYYYMMDD>` (presence = already rotated today).
+- Marker: `~/.paarth/obs/.last-rotate-<YYYYMMDD>` (presence = already rotated today).
 
 ## Six canonical metric names
 
@@ -54,7 +54,7 @@ Lifted from the v3 design spec §7.3 — when emitting, prefer these names so da
 
 ## Trace ID propagation
 
-The `superagent` skill sets `SA_TRACE_ID` at chain start. Downstream bins inherit it through the environment; if unset, the tracker.sh hook generates a fresh root span id. Cross-session boundary = new traceId. Don't try to span across SessionStart.
+The `paarth` skill sets `SA_TRACE_ID` at chain start. Downstream bins inherit it through the environment; if unset, the tracker.sh hook generates a fresh root span id. Cross-session boundary = new traceId. Don't try to span across SessionStart.
 
 ## Performance budget
 

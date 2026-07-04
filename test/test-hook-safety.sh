@@ -2,11 +2,11 @@
 # test/test-hook-safety.sh — PreToolUse safety gate, incl. org-wide model policy
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOK="$SCRIPT_DIR/../hooks/superagent-safety.py"
+HOOK="$SCRIPT_DIR/../hooks/paarth-safety.py"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent"
+mkdir -p "$TMPHOME/.paarth"
 
 pass=0; fail=0
 ok()  { echo "  PASS  $1"; pass=$((pass + 1)); }
@@ -23,7 +23,7 @@ except Exception: print('')" 2>/dev/null)
   echo "${rc}|${dec}"
 }
 
-echo "Running superagent-safety hook tests..."
+echo "Running paarth-safety hook tests..."
 echo ""
 
 # ── baseline: safe command allowed, risky command asked ───────────────────────
@@ -35,22 +35,22 @@ r=$(run_hook "claude --model claude-opus-4-8 -p hi"); [[ "$r" == "0|allow" ]] \
   && ok "no policy: opus model allowed" || no "no policy: opus model allowed" "$r"
 
 # ── set an org policy restricting tiers to local/haiku ────────────────────────
-cat > "$TMPHOME/.superagent/org-policy.json" <<EOF
+cat > "$TMPHOME/.paarth/org-policy.json" <<EOF
 {"allowed_model_tiers":["local","haiku"]}
 EOF
 
 r=$(run_hook "claude --model claude-opus-4-8 -p hi"); [[ "$r" == "0|ask" ]] \
   && ok "policy: off-policy opus asks" || no "policy: off-policy opus asks" "$r"
-r=$(run_hook "superagent-switch to opus"); [[ "$r" == "0|ask" ]] \
+r=$(run_hook "paarth-switch to opus"); [[ "$r" == "0|ask" ]] \
   && ok "policy: switch-to-opus asks" || no "policy: switch-to-opus asks" "$r"
 r=$(run_hook "claude --model claude-haiku-4-5 -p hi"); [[ "$r" == "0|allow" ]] \
   && ok "policy: allowed haiku passes" || no "policy: allowed haiku passes" "$r"
-r=$(run_hook "superagent-switch to ollama/qwen3"); [[ "$r" == "0|allow" ]] \
+r=$(run_hook "paarth-switch to ollama/qwen3"); [[ "$r" == "0|allow" ]] \
   && ok "policy: local model passes" || no "policy: local model passes" "$r"
 
 # ── kill switch bypasses the model gate ───────────────────────────────────────
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"claude --model claude-opus-4-8"}}' \
-      | HOME="$TMPHOME" SUPERAGENT_ORG_POLICY=off python3 "$HOOK" 2>/dev/null)
+      | HOME="$TMPHOME" PAARTH_ORG_POLICY=off python3 "$HOOK" 2>/dev/null)
 dec=$(echo "$out" | python3 -c "import sys,json;print(json.load(sys.stdin)['hookSpecificOutput']['permissionDecision'])")
 [[ "$dec" == "allow" ]] && ok "kill switch bypasses model gate" || no "kill switch bypasses model gate" "$dec"
 

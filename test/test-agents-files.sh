@@ -10,7 +10,7 @@ for name in architect coder reviewer security-architect tester; do
   grep -q "^model: " "$f" || { echo "FAIL: $f model frontmatter missing"; exit 1; }
   grep -q "^tools: " "$f" || { echo "FAIL: $f tools frontmatter missing"; exit 1; }
   grep -q "^description: " "$f" || { echo "FAIL: $f description frontmatter missing"; exit 1; }
-  grep -q "superagent-safety.py" "$f" || { echo "FAIL: $f missing scoped safety hook"; exit 1; }
+  grep -q "paarth-safety.py" "$f" || { echo "FAIL: $f missing scoped safety hook"; exit 1; }
 done
 
 echo "test-agents-files: PASS"

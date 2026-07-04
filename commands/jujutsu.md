@@ -11,7 +11,7 @@ This slash is the legacy alias for `/diff-risk`. The skill was renamed in v2.6 t
 
 1. Print a one-line deprecation note to stderr:
    `→ /jujutsu is a deprecation alias; use /diff-risk going forward.`
-2. Forward the user's subcommand to `bin/superagent-diff-risk` exactly as `/diff-risk` would.
+2. Forward the user's subcommand to `bin/paarth-diff-risk` exactly as `/diff-risk` would.
 
 ## Why renamed
 

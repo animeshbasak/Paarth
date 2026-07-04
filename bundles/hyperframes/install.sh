@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent Bundle — hyperframes (video toolkit)
+# PAARTH Bundle — hyperframes (video toolkit)
 # Installs Node 22+, FFmpeg, and the global `hyperframes` npm package.
 # Idempotent: safe to re-run; skips anything already present.
 # Footprint: ~120 MB (Node + FFmpeg + hyperframes).

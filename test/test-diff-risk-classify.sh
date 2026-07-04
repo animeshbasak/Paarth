@@ -2,7 +2,7 @@
 # test/test-diff-risk-classify.sh — 20-diff corpus, gate ≥18/20 primary correct
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-diff-risk"
+BIN="$SCRIPT_DIR/../bin/paarth-diff-risk"
 CORPUS="$SCRIPT_DIR/fixtures/diff-risk/corpus.jsonl"
 
 total=0

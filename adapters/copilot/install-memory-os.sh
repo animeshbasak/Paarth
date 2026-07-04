@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GitHub Copilot adapter for SuperAgent memory-os (EXPERIMENTAL).
+# GitHub Copilot adapter for PAARTH memory-os (EXPERIMENTAL).
 #
 # Copilot does not natively support MCP servers (as of 2026-06). This adapter:
 #   1. Installs the MCP server binary (so Copilot SDK extensions or other
@@ -34,7 +34,7 @@ HOOKS_DIR="$TARGET/.github/hooks"
 SHIM_DIR="$SCRIPT_DIR/sdk-shim"
 
 echo ""
-echo -e "${CYAN}SuperAgent memory-os → GitHub Copilot${NC} ${YELLOW}(experimental)${NC}"
+echo -e "${CYAN}PAARTH memory-os → GitHub Copilot${NC} ${YELLOW}(experimental)${NC}"
 echo "Project: $TARGET"
 echo ""
 
@@ -56,7 +56,7 @@ mkdir -p "$SHIM_DIR"
 if [[ ! -f "$SHIM_DIR/index.ts" ]]; then
   cat > "$SHIM_DIR/index.ts" <<'TS'
 /**
- * SuperAgent memory-os → Copilot SDK shim (stub).
+ * PAARTH memory-os → Copilot SDK shim (stub).
  *
  * Copilot does not natively support MCP servers. This shim wraps the
  * Python MCP server in stdio and exposes its 5 tools as Copilot SDK tools.
@@ -70,7 +70,7 @@ if [[ ! -f "$SHIM_DIR/index.ts" ]]; then
  */
 import { spawn } from "node:child_process";
 
-const MCP_BIN = process.env.SUPERAGENT_MEMORY_BIN || "superagent-memory-mcp";
+const MCP_BIN = process.env.PAARTH_MEMORY_BIN || "paarth-memory-mcp";
 
 interface McpResponse {
   result?: unknown;
@@ -147,7 +147,7 @@ cat > "$HOOKS_DIR/session-start-memory-os.json" <<EOF
   "type": "command",
   "command": "$MCP_BIN",
   "args": ["--probe"],
-  "description": "SuperAgent memory-os health check on session start (experimental)."
+  "description": "PAARTH memory-os health check on session start (experimental)."
 }
 EOF
 mo_ok "Wrote hook placeholder: $HOOKS_DIR/session-start-memory-os.json"

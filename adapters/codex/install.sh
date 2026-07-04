@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — Codex CLI Installer
-# Installs SuperAgent instructions + CLI tools for OpenAI Codex CLI
+# PAARTH — Codex CLI Installer
+# Installs PAARTH instructions + CLI tools for OpenAI Codex CLI
 # Usage: bash adapters/codex/install.sh [--project-only]
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -18,12 +18,12 @@ PROJECT_ONLY=0
 for a in "$@"; do [[ "$a" == "--project-only" ]] && PROJECT_ONLY=1; done
 
 echo ""
-echo -e "${CYAN}SuperAgent for Codex CLI${NC}"
+echo -e "${CYAN}PAARTH for Codex CLI${NC}"
 echo ""
 
 # ── Step 1: Compile latest skills ──────────────────────────────────────────
 info "Compiling skills for Codex..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform codex \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform codex \
   --output "$SCRIPT_DIR/templates/AGENTS.md" 2>&1 | tail -2
 
 # ── Step 2: Install global AGENTS.md ───────────────────────────────────────
@@ -41,8 +41,8 @@ if [[ -n "${PROJECT_DIR:-}" ]]; then
 fi
 
 # ── Step 4: Install CLI tools ─────────────────────────────────────────────
-info "Installing SuperAgent CLIs..."
-for src in "$REPO_ROOT"/bin/superagent-*; do
+info "Installing PAARTH CLIs..."
+for src in "$REPO_ROOT"/bin/paarth-*; do
   [[ -f "$src" ]] || continue
   tool="$(basename "$src")"
   dst="$HOME/.local/bin/$tool"
@@ -53,10 +53,10 @@ for src in "$REPO_ROOT"/bin/superagent-*; do
 done
 
 # ── Step 5: Install Codex plugin + slash command ──────────────────────────
-info "Installing /superagent for Codex..."
+info "Installing /paarth for Codex..."
 
-CODEX_PLUGIN_SRC="$HOME/.codex/plugins/superagent"
-CODEX_PLUGIN_CACHE="$HOME/.codex/plugins/cache/superagent-local/superagent/local"
+CODEX_PLUGIN_SRC="$HOME/.codex/plugins/paarth"
+CODEX_PLUGIN_CACHE="$HOME/.codex/plugins/cache/paarth-local/paarth/local"
 PERSONAL_MARKETPLACE="$HOME/.agents/plugins/marketplace.json"
 CODEX_PROMPTS_DIR="$HOME/.codex/prompts"
 
@@ -80,12 +80,12 @@ stage_plugin() {
 mkdir -p "$(dirname "$CODEX_PLUGIN_SRC")" "$(dirname "$CODEX_PLUGIN_CACHE")"
 stage_plugin "$CODEX_PLUGIN_SRC"
 stage_plugin "$CODEX_PLUGIN_CACHE"
-ok "Plugin staged at ~/.codex/plugins/superagent"
-ok "Plugin cache installed at ~/.codex/plugins/cache/superagent-local/superagent/local"
+ok "Plugin staged at ~/.codex/plugins/paarth"
+ok "Plugin cache installed at ~/.codex/plugins/cache/paarth-local/paarth/local"
 
 mkdir -p "$CODEX_PROMPTS_DIR"
-cp "$REPO_ROOT/commands/superagent.md" "$CODEX_PROMPTS_DIR/superagent.md"
-ok "Compatibility prompt installed at ~/.codex/prompts/superagent.md"
+cp "$REPO_ROOT/commands/paarth.md" "$CODEX_PROMPTS_DIR/paarth.md"
+ok "Compatibility prompt installed at ~/.codex/prompts/paarth.md"
 
 python3 - "$PERSONAL_MARKETPLACE" <<'PY'
 import json
@@ -105,15 +105,15 @@ if path.exists():
 else:
     data = {}
 
-data.setdefault("name", "superagent-local")
-data.setdefault("interface", {}).setdefault("displayName", "SuperAgent Local")
+data.setdefault("name", "paarth-local")
+data.setdefault("interface", {}).setdefault("displayName", "PAARTH Local")
 plugins = data.setdefault("plugins", [])
 
 entry = {
-    "name": "superagent",
+    "name": "paarth",
     "source": {
         "source": "local",
-        "path": "./.codex/plugins/superagent"
+        "path": "./.codex/plugins/paarth"
     },
     "policy": {
         "installation": "INSTALLED_BY_DEFAULT",
@@ -123,7 +123,7 @@ entry = {
 }
 
 for i, existing in enumerate(plugins):
-    if existing.get("name") == "superagent":
+    if existing.get("name") == "paarth":
         plugins[i] = entry
         break
 else:
@@ -142,10 +142,10 @@ path = Path(sys.argv[1]).expanduser()
 path.parent.mkdir(parents=True, exist_ok=True)
 text = path.read_text() if path.exists() else ""
 
-section = '[plugins."superagent@superagent-local"]'
+section = '[plugins."paarth@paarth-local"]'
 block = f'{section}\nenabled = true\n'
 
-pattern = re.compile(r'(?ms)^\[plugins\."superagent@superagent-local"\]\n(?:^[^\[].*?\n)*')
+pattern = re.compile(r'(?ms)^\[plugins\."paarth@paarth-local"\]\n(?:^[^\[].*?\n)*')
 if pattern.search(text):
     text = pattern.sub(block, text)
 else:
@@ -157,13 +157,13 @@ else:
 
 path.write_text(text)
 PY
-ok "Codex config enabled superagent@superagent-local"
+ok "Codex config enabled paarth@paarth-local"
 
 echo ""
-ok "SuperAgent for Codex CLI installed!"
+ok "PAARTH for Codex CLI installed!"
 echo "  Global: ~/.codex/AGENTS.md"
-echo "  Slash:  /superagent"
-echo "  Plugin: superagent@superagent-local"
-echo "  CLIs: ~/.local/bin/superagent-*"
+echo "  Slash:  /paarth"
+echo "  Plugin: paarth@paarth-local"
+echo "  CLIs: ~/.local/bin/paarth-*"
 echo "  Restart Codex for the slash command/plugin cache to refresh."
 echo ""

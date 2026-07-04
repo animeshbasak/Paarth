@@ -1,11 +1,11 @@
 ---
 name: aidefence
-description: Slash dispatcher for the AIDefence prompt scanner. Forwards args to bin/superagent-aidefence.
+description: Slash dispatcher for the AIDefence prompt scanner. Forwards args to bin/paarth-aidefence.
 ---
 
 # /aidefence
 
-Forwards your subcommand to `bin/superagent-aidefence`. Use the [aidefence](../skills/aidefence/SKILL.md) skill for the full procedure.
+Forwards your subcommand to `bin/paarth-aidefence`. Use the [aidefence](../skills/aidefence/SKILL.md) skill for the full procedure.
 
 ## Usage
 
@@ -20,6 +20,6 @@ Forwards your subcommand to `bin/superagent-aidefence`. Use the [aidefence](../s
 
 ## Procedure
 
-Run the user's subcommand with `bin/superagent-aidefence`. Surface the JSON output for `scan` so the user can see threats / piiFound / detectionTimeMs. For `status` / `list`, print the bin's stdout verbatim.
+Run the user's subcommand with `bin/paarth-aidefence`. Surface the JSON output for `scan` so the user can see threats / piiFound / detectionTimeMs. For `status` / `list`, print the bin's stdout verbatim.
 
 Do not enable AIDefence automatically — the user opts in.

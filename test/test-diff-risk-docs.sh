@@ -11,7 +11,7 @@ grep -qE "deprecat|legacy alias" "$ROOT/commands/jujutsu.md" \
 grep -qE "IMPACT_KEYWORDS|impact score" "$ROOT/skills/diff-risk/SKILL.md" \
   || { echo "FAIL: impact scoring not documented"; exit 1; }
 
-OUT=$("$ROOT/bin/superagent-classify" "analyze the risk of this diff before push")
+OUT=$("$ROOT/bin/paarth-classify" "analyze the risk of this diff before push")
 echo "$OUT" | jq -e '.chain | index("diff-risk") != null' >/dev/null \
   || { echo "FAIL: classifier doesn't route to diff-risk: $OUT"; exit 1; }
 

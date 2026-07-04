@@ -7,13 +7,13 @@ description: Multi-Claude-Code session orchestration. Spawn, list, tag, and aban
 
 Coordinate multiple Claude Code sessions running in parallel against the same workspace, each with its own scoped task, context window, and conversation history. Distilled from [octogent](https://github.com/hesamsheikh/octogent) by Hesam Sheikh ([Discord: Open Source AI Builders](https://discord.gg/vtJykN3t)) — the multi-Claude-Code orchestrator that introduced the "tentacle" abstraction.
 
-The original octogent is a Hono + React app with a websocket-driven UI. We distill the *pattern* — session enumeration, tagging, and dispatch — into a thin bash CLI (`superagent-pool`) + cooperative directive emission. No daemon. No long-lived server. The harness (or you) does the actual spawning via the Agent tool.
+The original octogent is a Hono + React app with a websocket-driven UI. We distill the *pattern* — session enumeration, tagging, and dispatch — into a thin bash CLI (`paarth-pool`) + cooperative directive emission. No daemon. No long-lived server. The harness (or you) does the actual spawning via the Agent tool.
 
 ## When to use
 
 - The user has ≥3 truly parallel workstreams (docs + db + frontend + API) and wants each in its own session with its own context window.
 - The user says "spawn another agent", "run this in parallel", "dispatch a Claude Code session for X", "fork a tentacle".
-- The user is juggling too many open terminals and wants a status board (`superagent-pool list`).
+- The user is juggling too many open terminals and wants a status board (`paarth-pool list`).
 - The user wants to *tag* a long-running session so they can recognize it later ("the one fixing payments").
 - The user wants to *abandon* a stuck or no-longer-relevant session without killing the OS process.
 
@@ -36,14 +36,14 @@ The original octogent is a Hono + React app with a websocket-driven UI. We disti
 
 1. **Survey the field.** Enumerate the Claude Code sessions already running on this machine:
    ```bash
-   superagent-pool list
-   superagent-pool list --json
+   paarth-pool list
+   paarth-pool list --json
    ```
    This walks `~/.claude/projects/` — one directory per project, JSONL files per session — same pattern octogent uses in `claudeSessionScanner.ts`.
 
 2. **Decide whether to spawn.** If the user wants a new parallel session, emit a dispatch directive:
    ```bash
-   superagent-pool spawn "fix the payments webhook in /apps/api"
+   paarth-pool spawn "fix the payments webhook in /apps/api"
    ```
    This **does not actually spawn a process.** It prints a JSON directive:
    ```json
@@ -53,25 +53,25 @@ The original octogent is a Hono + React app with a websocket-driven UI. We disti
 
 3. **Tag long-running sessions.** When a session has a recognizable purpose, tag it so the human (and future you) can find it:
    ```bash
-   superagent-pool tag <session-id> "payments webhook refactor"
+   paarth-pool tag <session-id> "payments webhook refactor"
    ```
-   Tags persist in `~/.superagent/pool/tags.jsonl`.
+   Tags persist in `~/.paarth/pool/tags.jsonl`.
 
 4. **Abandon stuck sessions.** If a session has gone sideways and the user wants to stop relying on it (but does not want you to `kill -9` a process you do not own):
    ```bash
-   superagent-pool kill <session-id>
+   paarth-pool kill <session-id>
    ```
-   This appends an abandon record to `~/.superagent/pool/abandons.jsonl`. The user can still scroll their actual terminal back; agent-pool just marks the session as "not part of the current plan".
+   This appends an abandon record to `~/.paarth/pool/abandons.jsonl`. The user can still scroll their actual terminal back; agent-pool just marks the session as "not part of the current plan".
 
 5. **Status board.**
    ```bash
-   superagent-pool status
+   paarth-pool status
    ```
    Summarizes: N active sessions, N tagged, N abandoned.
 
 ## State
 
-All state lives under `~/.superagent/pool/`:
+All state lives under `~/.paarth/pool/`:
 
 - `tags.jsonl` — one record per tag: `{"sessionId":"...","description":"...","ts":"<iso>"}`
 - `abandons.jsonl` — one record per abandon: `{"action":"abandon","sessionId":"...","ts":"<iso>"}`

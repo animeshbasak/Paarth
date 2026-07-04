@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# test/test-switch-list.sh — `superagent-switch list` reads cached models JSON.
+# test/test-switch-list.sh — `paarth-switch list` reads cached models JSON.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SWITCH="$SCRIPT_DIR/../bin/superagent-switch"
+SWITCH="$SCRIPT_DIR/../bin/paarth-switch"
 
 pass=0
 fail=0
 
 # Backup any existing models file
-MODELS_FILE="$HOME/.superagent/local-models.json"
-mkdir -p "$HOME/.superagent"
+MODELS_FILE="$HOME/.paarth/local-models.json"
+mkdir -p "$HOME/.paarth"
 BACKUP=""
 if [[ -f "$MODELS_FILE" ]]; then
   BACKUP=$(mktemp)

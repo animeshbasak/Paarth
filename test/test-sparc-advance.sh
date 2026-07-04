@@ -2,14 +2,14 @@
 # test/test-sparc-advance.sh — advance refuses without passed gate; resets gate after bump
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-sparc"
+BIN="$SCRIPT_DIR/../bin/paarth-sparc"
 FIXTURES="$SCRIPT_DIR/fixtures/sparc"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
 
 HOME="$TMPHOME" "$BIN" init feat-x >/dev/null
-DIR="$TMPHOME/.superagent/sparc/feat-x"
+DIR="$TMPHOME/.paarth/sparc/feat-x"
 cp "$FIXTURES/phase1-pass/spec.md" "$DIR/"
 
 # Without running gate, advance must refuse

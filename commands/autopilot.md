@@ -1,11 +1,11 @@
 ---
 name: autopilot
-description: Slash dispatcher for unattended loop. Forwards args to bin/superagent-autopilot.
+description: Slash dispatcher for unattended loop. Forwards args to bin/paarth-autopilot.
 ---
 
 # /autopilot
 
-Routes the user's subcommand to `bin/superagent-autopilot`. See [autopilot](../skills/autopilot/SKILL.md) for the full procedure.
+Routes the user's subcommand to `bin/paarth-autopilot`. See [autopilot](../skills/autopilot/SKILL.md) for the full procedure.
 
 ## Usage
 

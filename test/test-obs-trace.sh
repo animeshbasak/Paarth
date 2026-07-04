@@ -2,12 +2,12 @@
 # test/test-obs-trace.sh — trace tree builder with bottleneck flag
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../bin/superagent-trace"
-EMIT="$SCRIPT_DIR/../bin/superagent-obs"
+BIN="$SCRIPT_DIR/../bin/paarth-trace"
+EMIT="$SCRIPT_DIR/../bin/paarth-obs"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/obs"
+mkdir -p "$TMPHOME/.paarth/obs"
 
 # Build a 3-span tree: root + 2 children, plus 4 baseline same-op spans to compute p95
 HOME="$TMPHOME" "$EMIT" span --op tool.Bash --trace t-other --span s-noise1 --start 0 --end 50  --status OK

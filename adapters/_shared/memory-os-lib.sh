@@ -40,7 +40,7 @@ mo_inject_gt() {
   mkdir -p "$(dirname "$target")"
   touch "$target"
 
-  if grep -q "BEGIN SUPERAGENT-MEMORY-OS GROUND-TRUTH" "$target"; then
+  if grep -q "BEGIN PAARTH-MEMORY-OS GROUND-TRUTH" "$target"; then
     mo_ok "Ground Truth block already present in $target"
     return 0
   fi
@@ -55,14 +55,14 @@ mo_inject_gt() {
 mo_remove_gt() {
   local target="$1"
   [[ -f "$target" ]] || return 0
-  if ! grep -q "BEGIN SUPERAGENT-MEMORY-OS GROUND-TRUTH" "$target"; then
+  if ! grep -q "BEGIN PAARTH-MEMORY-OS GROUND-TRUTH" "$target"; then
     return 0
   fi
   local tmp
   tmp="$(mktemp)"
   awk '
-    /BEGIN SUPERAGENT-MEMORY-OS GROUND-TRUTH/ { skip=1; next }
-    /END SUPERAGENT-MEMORY-OS GROUND-TRUTH/ { skip=0; next }
+    /BEGIN PAARTH-MEMORY-OS GROUND-TRUTH/ { skip=1; next }
+    /END PAARTH-MEMORY-OS GROUND-TRUTH/ { skip=0; next }
     !skip { print }
   ' "$target" > "$tmp"
   mv "$tmp" "$target"
@@ -70,12 +70,12 @@ mo_remove_gt() {
 }
 
 # ── MCP server install/check ────────────────────────────────────────────────
-# Ensures the superagent-memory-mcp Python entry point is installed and on PATH.
+# Ensures the paarth-memory-mcp Python entry point is installed and on PATH.
 # Returns the absolute path to the binary on success, exits non-zero otherwise.
 mo_ensure_mcp_installed() {
   local root
   root="$(mo_repo_root)"
-  local mcp_dir="$root/bin/superagent-memory-mcp"
+  local mcp_dir="$root/bin/paarth-memory-mcp"
 
   if [[ ! -d "$mcp_dir" ]]; then
     mo_err "MCP server source not found at $mcp_dir"
@@ -83,7 +83,7 @@ mo_ensure_mcp_installed() {
   fi
 
   # Prefer venv binary if it exists; install on first run otherwise.
-  local bin="$mcp_dir/.venv/bin/superagent-memory-mcp"
+  local bin="$mcp_dir/.venv/bin/paarth-memory-mcp"
   if [[ ! -x "$bin" ]]; then
     mo_info "First run — creating venv and installing MCP server (one-time setup)…"
     if ! command -v uv >/dev/null 2>&1; then

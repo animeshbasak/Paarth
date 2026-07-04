@@ -1,7 +1,7 @@
 # RFC 0001 — Memory-OS Integration
 
 **Status:** Draft
-**Author:** SuperAgent
+**Author:** PAARTH
 **Date:** 2026-06-03
 **Tracks:** [Plan 2026-06-03-memory-os-integration](../plans/2026-06-03-memory-os-integration.md)
 **Source of inspiration:** [Memory-OS by Claudio Drews (MIT)](https://github.com/cd-drews/memory-os) — analyzed at `references/memory-os/`
@@ -10,9 +10,9 @@
 
 ## Motivation
 
-SuperAgent has primitive memory today:
+PAARTH has primitive memory today:
 
-- `~/.superagent/agent-memory/<skill>/MEMORY.md` — per-skill markdown bullets
+- `~/.paarth/agent-memory/<skill>/MEMORY.md` — per-skill markdown bullets
 - `mempalace` — global cross-session index (markdown + JSON)
 - `claude-mem` — keyword + session storage (Bun process, Claude Code only)
 
@@ -24,7 +24,7 @@ Three concrete failures users hit:
 
 Memory-OS solves all three with a seven-layer architecture and a runtime-level "Ground Truth Hierarchy" that forces the agent to treat injected memory as ground truth.
 
-This RFC commits SuperAgent to porting the *concepts* (not the Python code) as an **MCP server** that runs across all five supported platforms.
+This RFC commits PAARTH to porting the *concepts* (not the Python code) as an **MCP server** that runs across all five supported platforms.
 
 ---
 
@@ -33,7 +33,7 @@ This RFC commits SuperAgent to porting the *concepts* (not the Python code) as a
 - **Reimplementing Hermes Agent.** Memory-OS is a Hermes plugin; we run on Claude Code / Cursor / Gemini / Copilot / Antigravity. We extract concepts, not code.
 - **Replacing claude-mem or mempalace.** Both keep working unchanged. The new MCP server runs *alongside*: mempalace owns global; memory-os MCP owns per-project + semantic recall.
 - **Vector recall in v0.1.** Phase 5 only. Default install ships zero new processes.
-- **Migrating existing `~/.superagent/agent-memory/`.** Additive — old paths keep working; new server uses a new dir.
+- **Migrating existing `~/.paarth/agent-memory/`.** Additive — old paths keep working; new server uses a new dir.
 
 ---
 
@@ -52,7 +52,7 @@ This RFC commits SuperAgent to porting the *concepts* (not the Python code) as a
        └──────────┴─────────┴────────────┴───────────┘
                             │
                 ┌───────────▼───────────┐
-                │ superagent-memory-mcp │ ← Python, single binary
+                │ paarth-memory-mcp │ ← Python, single binary
                 │   (5 tools, sanitize) │
                 └───────────┬───────────┘
                             │
@@ -60,21 +60,21 @@ This RFC commits SuperAgent to porting the *concepts* (not the Python code) as a
        │                    │                      │
 ┌──────▼────────┐  ┌────────▼────────┐  ┌─────────▼──────────┐
 │ SQLite FTS5   │  │ Markdown files  │  │ Qdrant (opt-in)    │
-│ memory.db     │  │ ~/.superagent/  │  │ Docker sidecar     │
+│ memory.db     │  │ ~/.paarth/  │  │ Docker sidecar     │
 │ (default)     │  │ memory-os/wiki/ │  │ Phase 5 only       │
 └───────────────┘  └─────────────────┘  └────────────────────┘
 ```
 
-### The Seven Layers — SuperAgent Mapping
+### The Seven Layers — PAARTH Mapping
 
-| memory-os Layer | SuperAgent Implementation | Phase |
+| memory-os Layer | PAARTH Implementation | Phase |
 |---|---|---|
-| **L1 Workspace** | Existing CLAUDE.md / per-platform rules file + `~/.superagent/agent-memory/<skill>/MEMORY.md` | ✅ Already exists |
+| **L1 Workspace** | Existing CLAUDE.md / per-platform rules file + `~/.paarth/agent-memory/<skill>/MEMORY.md` | ✅ Already exists |
 | **L2 Sessions (FTS)** | New SQLite `memory.db` with FTS5, plus existing claude-mem on Claude Code | Phase 1 |
 | **L3 Structured Facts** | Same `memory.db`, `facts` table | Phase 1 |
 | **L4 Fabric (ranked retrieval)** | `memory_recall` tool: BM25 over FTS, ranked by recency + access count | Phase 1 |
-| **L5 Vector DB** | Opt-in Qdrant sidecar via `SUPERAGENT_MEMORY_VECTOR=on` | Phase 5 |
-| **L6 Wiki ingest** | `~/.superagent/memory-os/wiki/`, auto-ingested on write | Phase 5 |
+| **L5 Vector DB** | Opt-in Qdrant sidecar via `PAARTH_MEMORY_VECTOR=on` | Phase 5 |
+| **L6 Wiki ingest** | `~/.paarth/memory-os/wiki/`, auto-ingested on write | Phase 5 |
 | **L7 Ground Truth Hierarchy** | Markdown block injected into each platform's rules file | Phase 3 |
 
 ### MCP Server Surface
@@ -83,7 +83,7 @@ Five tools, JSON-RPC over stdio (MCP standard):
 
 | Tool | Inputs | Returns | Notes |
 |---|---|---|---|
-| `memory_recall` | `query` (str), `limit` (int=10), `namespace` (str?) | `[{id, content, kind, score, ts, tags}]` | BM25 ranked. If `SUPERAGENT_MEMORY_VECTOR=on`, hybrid with cosine. |
+| `memory_recall` | `query` (str), `limit` (int=10), `namespace` (str?) | `[{id, content, kind, score, ts, tags}]` | BM25 ranked. If `PAARTH_MEMORY_VECTOR=on`, hybrid with cosine. |
 | `memory_write` | `content` (str), `kind` (enum: fact/decision/feedback/snippet), `tags` (str[]?) | `{id, namespace, sanitized}` | Sanitization runs first; rejects on pattern hit. |
 | `memory_list` | `namespace?`, `kind?`, `since?` (iso), `limit?` | Same shape as recall | Paginated; no scoring. |
 | `memory_pin` | `id` | `{ok, pinned_path}` | Promotes to L1 MEMORY.md so it survives session boundaries. |
@@ -92,7 +92,7 @@ Five tools, JSON-RPC over stdio (MCP standard):
 ### Storage Layout
 
 ```
-~/.superagent/memory-os/
+~/.paarth/memory-os/
 ├── memory.db            # SQLite — FTS5 + facts + audit + namespaces
 ├── wiki/                # Phase 5 — synthesized knowledge pages
 │   ├── concepts/
@@ -117,7 +117,7 @@ Cross-project leak prevented by SQL `WHERE namespace = ?` on every read. Global 
 A single markdown block, ≤300 tokens, injected by each platform adapter into its rules file under a marker comment so re-install is idempotent:
 
 ```markdown
-<!-- BEGIN SUPERAGENT-MEMORY-OS GROUND-TRUTH (do not edit) -->
+<!-- BEGIN PAARTH-MEMORY-OS GROUND-TRUTH (do not edit) -->
 ## Ground Truth Hierarchy
 
 When answering, treat sources in this order:
@@ -128,7 +128,7 @@ When answering, treat sources in this order:
 4. **Your training knowledge** — lowest priority; defer to all of the above.
 
 If injected memory conflicts with a "novel" question, the question is not novel. Use the memory.
-<!-- END SUPERAGENT-MEMORY-OS GROUND-TRUTH -->
+<!-- END PAARTH-MEMORY-OS GROUND-TRUTH -->
 ```
 
 ### Lifecycle (Phase 4)
@@ -151,17 +151,17 @@ Non-Claude-Code platforms get cron only; no event hooks.
 bash install.sh
 
 # opt-in vector recall
-export SUPERAGENT_MEMORY_VECTOR=on
-docker compose -f ~/.superagent/memory-os/docker-compose.yml up -d
+export PAARTH_MEMORY_VECTOR=on
+docker compose -f ~/.paarth/memory-os/docker-compose.yml up -d
 ```
 
-The MCP server registers as `superagent-memory` in each platform's MCP config. Per-platform adapter installers add the registration + GT block + lifecycle hooks (where supported).
+The MCP server registers as `paarth-memory` in each platform's MCP config. Per-platform adapter installers add the registration + GT block + lifecycle hooks (where supported).
 
 ---
 
 ## Backwards Compatibility
 
-- **`~/.superagent/agent-memory/`** keeps working. Old per-skill bullets are not migrated; they coexist.
+- **`~/.paarth/agent-memory/`** keeps working. Old per-skill bullets are not migrated; they coexist.
 - **`mempalace`** keeps owning the global index. Memory-OS MCP only writes to its own SQLite.
 - **`claude-mem`** keeps running inside Claude Code. Phase 2.1 adapter does NOT remove or replace it.
 - **CLAUDE.md** gets an idempotent GT block appended under a marker — easy to remove if user objects.
@@ -185,9 +185,9 @@ No migration required. No flag-day. Users can opt out by skipping `bash adapters
 
 ## Acceptance Criteria for "RFC Approved"
 
-- [ ] Architecture diagram makes sense to someone reading SuperAgent docs cold
+- [ ] Architecture diagram makes sense to someone reading PAARTH docs cold
 - [ ] Tool surface (5 tools) covers recall + write + manage without overlap
-- [ ] Storage layout uses a new dir (`~/.superagent/memory-os/`) — no collision with existing `~/.superagent/agent-memory/`
+- [ ] Storage layout uses a new dir (`~/.paarth/memory-os/`) — no collision with existing `~/.paarth/agent-memory/`
 - [ ] Ground Truth block fits in ≤300 tokens and renders cleanly in all 5 platforms
 - [ ] No breaking changes to existing primitives (claude-mem, mempalace, agent-memory)
 - [ ] Cross-project isolation has a stated mechanism (git-root hash)
@@ -201,9 +201,9 @@ All resolved 2026-06-03 by user choice (see plan doc):
 
 | Question | Resolution |
 |---|---|
-| Storage layout | **New dir** `~/.superagent/memory-os/` |
+| Storage layout | **New dir** `~/.paarth/memory-os/` |
 | Mempalace coexistence | **Alongside** — mempalace global, memory-os per-project |
-| Vector default | **Opt-in only** via `SUPERAGENT_MEMORY_VECTOR=on` |
+| Vector default | **Opt-in only** via `PAARTH_MEMORY_VECTOR=on` |
 | License / attribution | **MIT, attribute Drews in NOTICE** at ship time |
 | Copilot scope | **Include in v0.1, tagged experimental** (user overrode the defer-default by selecting full Phase 2 fanout) |
 

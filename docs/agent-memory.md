@@ -1,4 +1,4 @@
-# SuperAgent — Per-Skill Agent Memory
+# PAARTH — Per-Skill Agent Memory
 
 Convention for per-skill persistent memory. Lets each skill accumulate its own
 domain learnings without polluting the global `mempalace` index.
@@ -6,7 +6,7 @@ domain learnings without polluting the global `mempalace` index.
 ## Layout
 
 ```
-~/.superagent/agent-memory/
+~/.paarth/agent-memory/
 ├── <skill-name>/
 │   ├── MEMORY.md         ← human-readable index (one bullet per fact)
 │   ├── learnings.jsonl   ← append-only structured log
@@ -16,7 +16,7 @@ domain learnings without polluting the global `mempalace` index.
 ## Lifecycle
 
 1. **Read on demand.** When a skill activates, the brain may load
-   `~/.superagent/agent-memory/<skill>/MEMORY.md` (≤4 KB) into context as a
+   `~/.paarth/agent-memory/<skill>/MEMORY.md` (≤4 KB) into context as a
    system reminder. No automatic preload to keep token cost low.
 
 2. **Write on success.** When a skill completes a non-trivial task, it appends
@@ -49,23 +49,23 @@ If a fact would help any future skill in any project, it belongs in
 import json, os
 from pathlib import Path
 
-mem_dir = Path.home() / ".superagent" / "agent-memory" / "<skill-name>"
+mem_dir = Path.home() / ".paarth" / "agent-memory" / "<skill-name>"
 memory = (mem_dir / "MEMORY.md").read_text() if (mem_dir / "MEMORY.md").exists() else ""
 ```
 
 ## Writing from a skill
 
 ```bash
-mkdir -p ~/.superagent/agent-memory/<skill-name>
+mkdir -p ~/.paarth/agent-memory/<skill-name>
 printf '%s\n' "{\"ts\":\"$(date -u +%FT%TZ)\",\"kind\":\"pattern\",\"content\":\"...\"}" \
-  >> ~/.superagent/agent-memory/<skill-name>/learnings.jsonl
+  >> ~/.paarth/agent-memory/<skill-name>/learnings.jsonl
 ```
 
 ## Initialization
 
-`hooks/superagent-state-init.sh` creates the root directory. Skills that opt in
+`hooks/paarth-state-init.sh` creates the root directory. Skills that opt in
 ship a `MEMORY.md.template` alongside `SKILL.md`; the installer copies it to
-`~/.superagent/agent-memory/<skill>/MEMORY.md` if missing.
+`~/.paarth/agent-memory/<skill>/MEMORY.md` if missing.
 
 ---
 
@@ -76,13 +76,13 @@ index*. **Memory-OS** is the third tier: per-project persistent memory served
 over MCP, shared by every tool you code in (Claude Code, Cursor, Gemini CLI;
 Copilot + Antigravity experimental).
 
-- **Server:** `bin/superagent-memory-mcp` — Python, SQLite + FTS5, 5 tools
+- **Server:** `bin/paarth-memory-mcp` — Python, SQLite + FTS5, 5 tools
   (`memory_recall` / `write` / `list` / `pin` / `forget`).
 - **Isolation:** namespace = git-root hash. Recall, decay, and dedup never
   cross projects.
 - **Lifecycle:** weekly decay (90d old + 30d idle, pinned exempt), semantic
   dedup (cosine ≥0.92), local-only `stats` counters.
-- **Hybrid recall (opt-in):** `SUPERAGENT_MEMORY_VECTOR=on` blends FTS/BM25
+- **Hybrid recall (opt-in):** `PAARTH_MEMORY_VECTOR=on` blends FTS/BM25
   with embedding cosine via reciprocal rank fusion. Local-first embeddings
   (Ollama `nomic-embed-text`; OpenRouter only as an explicit fallback).
 - **Hardened:** write sanitization (12 injection-pattern classes), namespace
@@ -90,7 +90,7 @@ Copilot + Antigravity experimental).
 
 ### The measured win
 
-`superagent-memory bench` replays a fixture corpus where every fact gets a
+`paarth-memory bench` replays a fixture corpus where every fact gets a
 keyword probe and a paraphrase probe (top-5 cutoff, deterministic embedder):
 
 | Split | FTS-only | Hybrid | Delta |
@@ -101,7 +101,7 @@ keyword probe and a paraphrase probe (top-5 cutoff, deterministic embedder):
 Paraphrased queries — "login failure signs users out" looking for a stored
 "auth bug in the session middleware" — are exactly how you ask about your own
 past work three weeks later. FTS alone returns nothing; hybrid finds it.
-(Ship gate was ≥30 points. Run `superagent-memory bench --real` to measure
+(Ship gate was ≥30 points. Run `paarth-memory bench --real` to measure
 with live Ollama embeddings instead of the simulated embedder.)
 
 ### Which tier do I want?

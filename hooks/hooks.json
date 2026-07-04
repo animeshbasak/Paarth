@@ -6,7 +6,7 @@
       {
         "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-safety.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-safety.py\""}
         ]
       }
     ],
@@ -14,7 +14,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-session-start.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-session-start.py\""}
         ]
       }
     ],
@@ -22,7 +22,7 @@
       {
         "matcher": "Bash|Edit|Write|MultiEdit|Read|Grep|Glob",
         "hooks": [
-          {"type": "command", "command": "bash \"$HOME/.claude/superagent-tracker.sh\""}
+          {"type": "command", "command": "bash \"$HOME/.claude/paarth-tracker.sh\""}
         ]
       }
     ],
@@ -30,7 +30,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "bash \"$HOME/.claude/superagent-distill.sh\" || true"}
+          {"type": "command", "command": "bash \"$HOME/.claude/paarth-distill.sh\" || true"}
         ]
       }
     ],
@@ -38,7 +38,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-prompt-submit.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-prompt-submit.py\""}
         ]
       }
     ],
@@ -46,7 +46,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-subagent-stop.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-subagent-stop.py\""}
         ]
       }
     ],
@@ -54,7 +54,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-notification.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-notification.py\""}
         ]
       }
     ],
@@ -62,7 +62,7 @@
       {
         "matcher": "Bash",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-permission.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-permission.py\""}
         ]
       }
     ],
@@ -70,7 +70,7 @@
       {
         "matcher": "*",
         "hooks": [
-          {"type": "command", "command": "python3 \"$HOME/.claude/superagent-precompact.py\""}
+          {"type": "command", "command": "python3 \"$HOME/.claude/paarth-precompact.py\""}
         ]
       }
     ]

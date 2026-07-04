@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# test/test-patterns.sh — bin/superagent-patterns scaffolding (list, promote, decay, protect, prune)
+# test/test-patterns.sh — bin/paarth-patterns scaffolding (list, promote, decay, protect, prune)
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PATBIN="$SCRIPT_DIR/../bin/superagent-patterns"
+PATBIN="$SCRIPT_DIR/../bin/paarth-patterns"
 
 TMPHOME=$(mktemp -d)
 trap 'rm -rf "$TMPHOME"' EXIT
-mkdir -p "$TMPHOME/.superagent/brain"
-: > "$TMPHOME/.superagent/brain/patterns.jsonl"
+mkdir -p "$TMPHOME/.paarth/brain"
+: > "$TMPHOME/.paarth/brain/patterns.jsonl"
 
 # 1. list on empty store → 0 records
 OUT=$(HOME="$TMPHOME" "$PATBIN" list --json)

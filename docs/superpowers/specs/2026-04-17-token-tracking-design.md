@@ -4,7 +4,7 @@
 
 ## Overview
 
-Track and display real token savings from superagent's tools (graphify, mempalace). Uses actual compression ratios measured from the user's codebase — not fixed marketing benchmarks. Persistent across sessions and projects, displayed in statusline and via `/token-stats` command.
+Track and display real token savings from paarth's tools (graphify, mempalace). Uses actual compression ratios measured from the user's codebase — not fixed marketing benchmarks. Persistent across sessions and projects, displayed in statusline and via `/token-stats` command.
 
 ---
 
@@ -13,11 +13,11 @@ Track and display real token savings from superagent's tools (graphify, mempalac
 ```
 graphify update
         ↓ parses graphify-out/graph.json for source/graph token counts
-~/.claude/superagent-stats.json  ← per-project compression ratios + lifetime stats
+~/.claude/paarth-stats.json  ← per-project compression ratios + lifetime stats
         ↑
 PostToolUse hook fires on every Bash tool call
         ↓
-~/.claude/superagent-tracker.sh
+~/.claude/paarth-tracker.sh
   → reads stdin JSON: {tool_name, tool_input, tool_response}
   → if tool_name != "Bash" → exit 0 (skip)
   → parse tool_input.command:
@@ -25,7 +25,7 @@ PostToolUse hook fires on every Bash tool call
       contains "mempalace"? → measure response tokens × 19 → log (labeled ~estimate)
       else?                 → exit 0 (no fake numbers)
         ↓
-~/.claude/superagent-stats.json  ← atomic update (tmp + mv), keyed by project path
+~/.claude/paarth-stats.json  ← atomic update (tmp + mv), keyed by project path
         ↑                ↑
 statusline script      /token-stats skill
 [SA: 231k saved]       full breakdown table
@@ -35,7 +35,7 @@ statusline script      /token-stats skill
 
 ## Components
 
-### 1. `~/.claude/superagent-tracker.sh`
+### 1. `~/.claude/paarth-tracker.sh`
 
 **Input:** JSON via stdin (Claude Code hook protocol)
 ```json
@@ -62,11 +62,11 @@ statusline script      /token-stats skill
 8. Generate `tool_use_id` from `date+command hash` → skip if already logged (dedup)
 9. Atomic write: write to tmp → `mv` to stats JSON
 
-**Silent operation:** all errors → `~/.claude/superagent-tracker.log`, never stdout
+**Silent operation:** all errors → `~/.claude/paarth-tracker.log`, never stdout
 
 ---
 
-### 2. `~/.claude/superagent-statusline.sh`
+### 2. `~/.claude/paarth-statusline.sh`
 
 - Reads stats JSON, looks up current project by `$PWD`
 - Format: `[SA: 231k saved | 48x]` (graphify ratio measured, no `~`)
@@ -84,7 +84,7 @@ statusline script      /token-stats skill
 `/token-stats` command prints:
 
 ```
-SuperAgent Token Stats — /path/to/project
+PAARTH Token Stats — /path/to/project
 ─────────────────────────────────────────
 Compression ratio : 48.3x  (your codebase, measured 2026-04-17)
 ─────────────────────────────────────────
@@ -117,7 +117,7 @@ Tip: Re-run `graphify update` after large codebase changes to recalibrate.
 
 **Wired into `install.sh`:** after `graphify update` completes, run:
 ```bash
-superagent-tracker.sh --calibrate "$PWD"
+paarth-tracker.sh --calibrate "$PWD"
 ```
 
 **On recalibration:** updates ratio for `$PWD` key, preserves all existing stats.
@@ -165,7 +165,7 @@ superagent-tracker.sh --calibrate "$PWD"
 **Calibration (once per project, re-runs on `graphify update`):**
 ```
 graphify update completes
-  → superagent-tracker.sh --calibrate $PWD
+  → paarth-tracker.sh --calibrate $PWD
   → reads graphify-out/graph.json
   → computes source_tokens / graph_tokens = ratio
   → upserts projects[$PWD].compression_ratio
@@ -174,7 +174,7 @@ graphify update completes
 
 **Per-query tracking:**
 ```
-Bash tool fires → PostToolUse hook → superagent-tracker.sh (stdin = JSON)
+Bash tool fires → PostToolUse hook → paarth-tracker.sh (stdin = JSON)
   → parse tool_name, command, response
   → detect graphify or mempalace in command
   → dedup check via hash
@@ -196,7 +196,7 @@ Bash tool fires → PostToolUse hook → superagent-tracker.sh (stdin = JSON)
 | Graphify not calibrated for this project | Statusline: `[SA: run graphify update]` |
 | `graphify-out/graph.json` missing at calibration | Log warning, skip calibration silently |
 | Corrupt JSON | Backup to `stats.json.bak`, reinitialize clean |
-| Hook script failure | Silent, logged to `~/.claude/superagent-tracker.log`, never blocks Claude |
+| Hook script failure | Silent, logged to `~/.claude/paarth-tracker.log`, never blocks Claude |
 | Duplicate tool_use_id | Skip silently (dedup ring buffer) |
 | `$PWD` key missing in stats | Tracker creates project entry with ratio=0, logs "not calibrated" |
 
@@ -204,7 +204,7 @@ Bash tool fires → PostToolUse hook → superagent-tracker.sh (stdin = JSON)
 
 ## Testing
 
-- `install.sh` self-test: pipes mock JSON to `superagent-tracker.sh`, checks stats JSON updated
+- `install.sh` self-test: pipes mock JSON to `paarth-tracker.sh`, checks stats JSON updated
 - `/token-stats --test`: prints sample output with synthetic data
 - Calibration test: after `graphify update`, prints `Calibration: 48.3x ratio stored ✓`
 - Dedup test: pipe same mock JSON twice, verify count increments once only

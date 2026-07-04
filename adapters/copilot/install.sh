@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# SuperAgent — GitHub Copilot Installer
-# Installs SuperAgent instructions for GitHub Copilot
+# PAARTH — GitHub Copilot Installer
+# Installs PAARTH instructions for GitHub Copilot
 # Usage: bash adapters/copilot/install.sh [--project <path>]
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -16,11 +16,11 @@ info() { echo -e "${CYAN}→${NC} $*"; }
 TARGET="${PROJECT_DIR:-.}"
 
 echo ""
-echo -e "${CYAN}SuperAgent for GitHub Copilot${NC}"
+echo -e "${CYAN}PAARTH for GitHub Copilot${NC}"
 echo ""
 
 info "Compiling skills for Copilot..."
-python3 "$REPO_ROOT/bin/superagent-compile" --platform copilot \
+python3 "$REPO_ROOT/bin/paarth-compile" --platform copilot \
   --output "$SCRIPT_DIR/templates/copilot-instructions.md" 2>&1 | tail -2
 
 GITHUB_DIR="$TARGET/.github"
@@ -29,5 +29,5 @@ cp "$SCRIPT_DIR/templates/copilot-instructions.md" "$GITHUB_DIR/copilot-instruct
 ok "Installed at $GITHUB_DIR/copilot-instructions.md"
 
 echo ""
-ok "SuperAgent for GitHub Copilot installed!"
+ok "PAARTH for GitHub Copilot installed!"
 echo ""

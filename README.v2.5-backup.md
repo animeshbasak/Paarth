@@ -1,23 +1,23 @@
 <div align="center">
 
-<img src="docs/media/hero-superagent.svg" alt="SuperAgent — the routing brain that lives between your AI and your code" width="900" />
+<img src="docs/media/hero-paarth.svg" alt="PAARTH — the routing brain that lives between your AI and your code" width="900" />
 
 ### Stop paying for tokens your AI burned re-reading your codebase.
 
 **One brain. Seven IDEs. 29 skills. 42/42 routing accuracy. Self-improving. Per-prompt defense. Methodology-gated. Free local fallback.**
 
-<a href="https://github.com/animeshbasak/SuperAgent/raw/main/docs/media/superagent-v2.4-reel.mp4">
-  <img src="docs/media/superagent-v2.2-reel-poster.png" alt="SuperAgent v2.4 — Wave 1 reel (click to play)" width="820" />
+<a href="https://github.com/animeshbasak/Paarth/raw/main/docs/media/paarth-v2.4-reel.mp4">
+  <img src="docs/media/paarth-v2.2-reel-poster.png" alt="PAARTH v2.4 — Wave 1 reel (click to play)" width="820" />
 </a>
 
-<sub>28-second Wave 1 reel · authored with <a href="https://github.com/heygen-com/hyperframes">hyperframes</a> at <code>docs/video/reel-wave1/</code> · render with <code>npx hyperframes render</code> (Node ≥22) · earlier v2.2 reel: <a href="https://github.com/animeshbasak/SuperAgent/raw/main/docs/media/superagent-v2.2-reel.mp4">download MP4 (5.3 MB)</a></sub>
+<sub>28-second Wave 1 reel · authored with <a href="https://github.com/heygen-com/hyperframes">hyperframes</a> at <code>docs/video/reel-wave1/</code> · render with <code>npx hyperframes render</code> (Node ≥22) · earlier v2.2 reel: <a href="https://github.com/animeshbasak/Paarth/raw/main/docs/media/paarth-v2.2-reel.mp4">download MP4 (5.3 MB)</a></sub>
 
 ```bash
-git clone https://github.com/animeshbasak/SuperAgent
-bash SuperAgent/install-universal.sh
+git clone https://github.com/animeshbasak/Paarth
+bash PAARTH/install-universal.sh
 ```
 
-[![Stars](https://img.shields.io/github/stars/animeshbasak/SuperAgent?style=social)](https://github.com/animeshbasak/SuperAgent)
+[![Stars](https://img.shields.io/github/stars/animeshbasak/PAARTH?style=social)](https://github.com/animeshbasak/Paarth)
 [![Platforms](https://img.shields.io/badge/platforms-8-blue)](#works-with-every-ai-coding-tool-you-use)
 [![Bench](https://img.shields.io/badge/bench-31%2F31%20PASS-brightgreen)](#proof)
 [![Skills](https://img.shields.io/badge/skills-23-purple)](#21-skills-auto-routed)
@@ -36,9 +36,9 @@ bash SuperAgent/install-universal.sh
 
 | Pillar | What it does | Where it lives |
 |---|---|---|
-| 🎯 **SPARC** | 5 phases — Spec → Pseudo → Arch → Refine → Complete. Boolean gates (no 0.0-1.0 fake-precision scores). Traceability matrix links every AC to a pseudo line, an arch entry, a test, and a status. Opt-in per feature. | `bin/superagent-sparc`, [skill](skills/sparc/SKILL.md) |
-| 🧪 **Testgen** | Coverage adapter (jest/pytest). Gap detection ranked by `gap × LOC`. `suggest <file>` emits a markdown skeleton with uncovered ranges and named symbols — never writes test bodies. Per-project threshold. | `bin/superagent-testgen`, [skill](skills/testgen/SKILL.md) |
-| 🛡 **Diff-risk** | 7-type classifier + IMPACT_KEYWORDS score + 5 risk factors + CODEOWNERS reviewer recommendation. Pure git+file parsing — no GitHub API. Cached for `ship`/`review`. Renamed from `jujutsu` (legacy alias kept). | `bin/superagent-diff-risk`, [skill](skills/diff-risk/SKILL.md) |
+| 🎯 **SPARC** | 5 phases — Spec → Pseudo → Arch → Refine → Complete. Boolean gates (no 0.0-1.0 fake-precision scores). Traceability matrix links every AC to a pseudo line, an arch entry, a test, and a status. Opt-in per feature. | `bin/paarth-sparc`, [skill](skills/sparc/SKILL.md) |
+| 🧪 **Testgen** | Coverage adapter (jest/pytest). Gap detection ranked by `gap × LOC`. `suggest <file>` emits a markdown skeleton with uncovered ranges and named symbols — never writes test bodies. Per-project threshold. | `bin/paarth-testgen`, [skill](skills/testgen/SKILL.md) |
+| 🛡 **Diff-risk** | 7-type classifier + IMPACT_KEYWORDS score + 5 risk factors + CODEOWNERS reviewer recommendation. Pure git+file parsing — no GitHub API. Cached for `ship`/`review`. Renamed from `jujutsu` (legacy alias kept). | `bin/paarth-diff-risk`, [skill](skills/diff-risk/SKILL.md) |
 
 **Receipts**: 22 sequential tasks, 8 commits on `wave-3-methodology`, 16 new test scripts, 42/42 bench prompts at AVG 1.000, diff-risk corpus 20/20 primary classification.
 
@@ -52,10 +52,10 @@ bash SuperAgent/install-universal.sh
 
 | Pillar | What it does | Where it lives |
 |---|---|---|
-| 🛡 **AIDefence** | 58 shipped regex patterns across 6 attack categories + 8 PII detectors. Wired into `UserPromptSubmit`: critical → deny, high → ask, PII → log. Adaptive EMA via `feedback`. Default off; opt-in. Corpus gate FP<5% TP>85%. | `bin/superagent-aidefence`, `skills/aidefence/patterns.json`, [skill](skills/aidefence/SKILL.md) |
-| 🧑‍💼 **5 specialist agents** | `architect` / `coder` / `reviewer` / `security-architect` / `tester`. Each carries a scoped `PreToolUse` safety hook so the gate survives subagent dispatch. Classifier routes specialist keywords. | `agents/*.md`, [routing rules](skills/superagent/brain/rules.yaml) |
-| 📊 **Observability** | JSONL spans + metrics, no OTel. `superagent-trace <id>` builds parent-child tree with p95 bottleneck flag. `superagent-metrics` aggregates counter/gauge/histogram with p50/p95/p99 + anomaly. Daily rotation + 30d retention. | `bin/superagent-{obs,trace,metrics,obs-rotate}`, [skill](skills/observability/SKILL.md) |
-| 🤖 **Autopilot** | Bounded `/loop` (≤1000 iter, ≤24h). 3-source task discovery + pattern-driven predict at 0.7 confidence. Budget gate pauses at 90% spend. Cache-warm `ScheduleWakeup` at 270s. Default off. | `bin/superagent-autopilot`, [skill](skills/autopilot/SKILL.md) |
+| 🛡 **AIDefence** | 58 shipped regex patterns across 6 attack categories + 8 PII detectors. Wired into `UserPromptSubmit`: critical → deny, high → ask, PII → log. Adaptive EMA via `feedback`. Default off; opt-in. Corpus gate FP<5% TP>85%. | `bin/paarth-aidefence`, `skills/aidefence/patterns.json`, [skill](skills/aidefence/SKILL.md) |
+| 🧑‍💼 **5 specialist agents** | `architect` / `coder` / `reviewer` / `security-architect` / `tester`. Each carries a scoped `PreToolUse` safety hook so the gate survives subagent dispatch. Classifier routes specialist keywords. | `agents/*.md`, [routing rules](skills/paarth/brain/rules.yaml) |
+| 📊 **Observability** | JSONL spans + metrics, no OTel. `paarth-trace <id>` builds parent-child tree with p95 bottleneck flag. `paarth-metrics` aggregates counter/gauge/histogram with p50/p95/p99 + anomaly. Daily rotation + 30d retention. | `bin/paarth-{obs,trace,metrics,obs-rotate}`, [skill](skills/observability/SKILL.md) |
+| 🤖 **Autopilot** | Bounded `/loop` (≤1000 iter, ≤24h). 3-source task discovery + pattern-driven predict at 0.7 confidence. Budget gate pauses at 90% spend. Cache-warm `ScheduleWakeup` at 270s. Default off. | `bin/paarth-autopilot`, [skill](skills/autopilot/SKILL.md) |
 
 **Receipts**: 22 sequential tasks, 5 commits on `wave-2-autonomous`, 16 new test scripts, 37/37 bench prompts at AVG 1.000, AIDefence corpus FP 2% / TP 86%.
 
@@ -67,9 +67,9 @@ bash SuperAgent/install-universal.sh
 
 | Pillar | What it does | Where it lives |
 |---|---|---|
-| 🧠 **Learning loop** | Every `Stop` runs `superagent-patterns promote && decay`. Repeated done-routes (≥3 occurrences) become pattern records. Classifier prepends a matched chain when `successRate ≥ 0.6 AND useCount ≥ 5`. | `~/.superagent/brain/patterns.jsonl`, `bin/superagent-patterns`, [skill](skills/superagent-learn-loop/SKILL.md) |
-| 🪝 **9-event hook lifecycle** | 5 net-new Claude Code hooks: `UserPromptSubmit` (classify+announce), `SubagentStop` (attribute work), `Notification` (filter noise), `PermissionRequest` (allow-list), `PreCompact` (snapshot routes before window collapse). | `hooks/superagent-*.py` |
-| 💸 **Budget alerts + auto-downgrade** | 4-dim Anthropic pricing (input/output/cache_write/cache_read). Tiered alerts at 50 / 75 / 90 / 100 % of daily budget. At 90 % `auto-downgrade.flag` drops; `auto-fallback` skill shifts Opus → Sonnet → Haiku. | `bin/superagent-cost-alerts`, `~/.superagent/cost/budget.json`, [skill](skills/cost-budget/SKILL.md) |
+| 🧠 **Learning loop** | Every `Stop` runs `paarth-patterns promote && decay`. Repeated done-routes (≥3 occurrences) become pattern records. Classifier prepends a matched chain when `successRate ≥ 0.6 AND useCount ≥ 5`. | `~/.paarth/brain/patterns.jsonl`, `bin/paarth-patterns`, [skill](skills/paarth-learn-loop/SKILL.md) |
+| 🪝 **9-event hook lifecycle** | 5 net-new Claude Code hooks: `UserPromptSubmit` (classify+announce), `SubagentStop` (attribute work), `Notification` (filter noise), `PermissionRequest` (allow-list), `PreCompact` (snapshot routes before window collapse). | `hooks/paarth-*.py` |
+| 💸 **Budget alerts + auto-downgrade** | 4-dim Anthropic pricing (input/output/cache_write/cache_read). Tiered alerts at 50 / 75 / 90 / 100 % of daily budget. At 90 % `auto-downgrade.flag` drops; `auto-fallback` skill shifts Opus → Sonnet → Haiku. | `bin/paarth-cost-alerts`, `~/.paarth/cost/budget.json`, [skill](skills/cost-budget/SKILL.md) |
 
 **Receipts**: 21 sequential tasks, 20 commits on `wave-1-foundation`, 19 new test scripts, 31/31 bench prompts at AVG 1.000.
 Migration is automatic: v1 `calls.jsonl` reads transparently as v2; first install backs up the original to `cost/calls.v1.jsonl.bak`. Full notes in [`CHANGELOG.md`](CHANGELOG.md).
@@ -96,7 +96,7 @@ The vendors don't fix these because the bills are the product. So we built the l
 
 ### Act 2 — The system
 
-SuperAgent is the layer between you and the model. You write your task once. The brain reads it, scores it against 26 skills, picks the chain, scans the prompt for injection, dispatches to specialist agents when complexity warrants, gates the risky calls, watches your budget, learns which chains actually worked, observes its own behavior with rotated JSONL, and falls through to a free local model the second your plan starts to bleed.
+PAARTH is the layer between you and the model. You write your task once. The brain reads it, scores it against 26 skills, picks the chain, scans the prompt for injection, dispatches to specialist agents when complexity warrants, gates the risky calls, watches your budget, learns which chains actually worked, observes its own behavior with rotated JSONL, and falls through to a free local model the second your plan starts to bleed.
 
 ```
             ┌──────────────────────────────────────────────┐
@@ -105,7 +105,7 @@ SuperAgent is the layer between you and the model. You write your task once. The
                                  │
                                  ▼
        ┌─────────────────────────────────────────────────────────┐
-       │  ① CLASSIFIER     superagent-classify                   │
+       │  ① CLASSIFIER     paarth-classify                   │
        │     → chain: [systematic-debugging, TDD, verification]  │
        │     → complexity: moderate                              │
        │     → categories: [debugging, ui]                       │
@@ -135,7 +135,7 @@ SuperAgent is the layer between you and the model. You write your task once. The
        └─────────────────────────────────────────────────────────┘
 ```
 
-Each layer is a real, replaceable file. Nothing is magic. Every decision is logged to `~/.superagent/brain/routes.jsonl` so you can audit your own routing later.
+Each layer is a real, replaceable file. Nothing is magic. Every decision is logged to `~/.paarth/brain/routes.jsonl` so you can audit your own routing later.
 
 ---
 
@@ -146,7 +146,7 @@ $ bash bench/run.sh
 PROMPTS 26   PASS 26   FAIL 0   AVG 1.000
 HARD GATE: PASS  (avg >= 0.90, fails <= 2)
 
-$ superagent-oneshot
+$ paarth-oneshot
 total tasks   : 124
 one-shot      : 109
 retried       : 15
@@ -165,11 +165,11 @@ You can paste the badge from `/token-stats --badge` straight into your repo READ
 
 ---
 
-## SuperAgent vs everything else
+## PAARTH vs everything else
 
-The cleanest way to read the table: SuperAgent is the *router*. Cursor / Cline / Aider are *clients*. Copilot is a *model*. claude-mem is *memory*. superpowers is *skills*. We are not a competitor to any of those — we are the layer that ties them together.
+The cleanest way to read the table: PAARTH is the *router*. Cursor / Cline / Aider are *clients*. Copilot is a *model*. claude-mem is *memory*. superpowers is *skills*. We are not a competitor to any of those — we are the layer that ties them together.
 
-| | **SuperAgent** | Cursor | GitHub Copilot | Cline | Aider | Continue.dev | claude-mem | superpowers |
+| | **PAARTH** | Cursor | GitHub Copilot | Cline | Aider | Continue.dev | claude-mem | superpowers |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **Routing brain (auto-classify task → skill chain)** | ✅ | — | — | — | — | — | — | — |
 | **PreToolUse safety gate (rm -rf, force-push, DROP)** | ✅ | — | — | — | — | — | — | — |
@@ -189,12 +189,12 @@ We do not replace your IDE. We do not replace your model. We replace the duct-ta
 
 ## What's new in this release
 
-- **Reversibility-aware safety gate** — Python `PreToolUse` hook (Claude Code) + universal `superagent-safety` skill (other 6 IDEs). Pauses on `rm -rf`, `git push --force`, `--no-verify`, `DROP TABLE`, `--dangerously-skip-permissions`, edits to `.env` / `.ssh` / `.pem` / `/etc/`. Bypass surface: env var, regex allow-list, CLAUDE.md bullets.
+- **Reversibility-aware safety gate** — Python `PreToolUse` hook (Claude Code) + universal `paarth-safety` skill (other 6 IDEs). Pauses on `rm -rf`, `git push --force`, `--no-verify`, `DROP TABLE`, `--dangerously-skip-permissions`, edits to `.env` / `.ssh` / `.pem` / `/etc/`. Bypass surface: env var, regex allow-list, CLAUDE.md bullets.
 - **3-tier router formalized** in `auto-fallback`: T1 local <1ms ($0), T2 Haiku/qwen ~500ms (~$0.0002), T3 Sonnet/Opus 2-5s ($0.003+). No silent fallthrough — every flip is logged.
-- **Per-skill agent memory** at `~/.superagent/agent-memory/<skill>/`. Distinct from the global `mempalace` index. Templates for `ship`, `review`, `investigate`.
+- **Per-skill agent memory** at `~/.paarth/agent-memory/<skill>/`. Distinct from the global `mempalace` index. Templates for `ship`, `review`, `investigate`.
 - **`.mcp.json` baseline**: `playwright`, `context7`, `deepwiki` pinned with `MCP_GROUP` env tags.
 - **13-category multi-label classifier tags**: every task gets `meta.categories: [debugging, ui, …]` for telemetry without changing routing.
-- **`superagent-oneshot`** CLI — measures routing health from `routes.jsonl`.
+- **`paarth-oneshot`** CLI — measures routing health from `routes.jsonl`.
 - **Bench grew 24 → 26** (added two safety prompts) and still passes 100%.
 
 Source provenance for every port: `docs/superpowers/plans/2026-05-04-references-integration.md`.
@@ -204,12 +204,12 @@ Source provenance for every port: `docs/superpowers/plans/2026-05-04-references-
 ## Install in 30 seconds
 
 ```bash
-git clone https://github.com/animeshbasak/SuperAgent
-cd SuperAgent
+git clone https://github.com/animeshbasak/Paarth
+cd PAARTH
 bash install-universal.sh
 ```
 
-That's it. Restart your agent. Type `superagent`.
+That's it. Restart your agent. Type `paarth`.
 
 **Platform-specific:**
 ```bash
@@ -229,13 +229,13 @@ bash install.sh                                # Claude Code (original)
 
 | Tool | Purpose |
 |---|---|
-| `superagent-classify` | Any task → `{chain, complexity, categories}` JSON |
-| `superagent-compile`  | Skills → platform-native instructions (8 formats) |
-| `superagent-switch`   | Hot-swap LLM backend (list/to/back/canary/status/auto) |
-| `superagent-chain`    | Run a YAML skill chain |
-| `superagent-cost`     | Token cost by model, with coach notes |
-| `superagent-oneshot`  | One-shot routing rate from `routes.jsonl` |
-| `superagent-learn`    | Per-project learnings that persist across sessions |
+| `paarth-classify` | Any task → `{chain, complexity, categories}` JSON |
+| `paarth-compile`  | Skills → platform-native instructions (8 formats) |
+| `paarth-switch`   | Hot-swap LLM backend (list/to/back/canary/status/auto) |
+| `paarth-chain`    | Run a YAML skill chain |
+| `paarth-cost`     | Token cost by model, with coach notes |
+| `paarth-oneshot`  | One-shot routing rate from `routes.jsonl` |
+| `paarth-learn`    | Per-project learnings that persist across sessions |
 | `graphify`            | Build and query your codebase knowledge graph |
 | `mempalace`           | Local-first cross-session memory |
 
@@ -243,12 +243,12 @@ bash install.sh                                # Claude Code (original)
 
 | Skill | When it fires |
 |---|---|
-| `superagent` | Master router — classifies, composes chain, picks backend |
-| `superagent-learn-loop` | **v2.4** Self-improving classifier — `patterns.jsonl` learning loop with promote/decay/protect/prune (Stop hook runs every session) |
+| `paarth` | Master router — classifies, composes chain, picks backend |
+| `paarth-learn-loop` | **v2.4** Self-improving classifier — `patterns.jsonl` learning loop with promote/decay/protect/prune (Stop hook runs every session) |
 | `cost-budget` | **v2.4** Per-day budget alerts at 50/75/90/100% + auto-downgrade.flag at 90% spend (4-dim Anthropic pricing) |
-| `superagent-safety` | Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
+| `paarth-safety` | Reversibility doctrine — pauses on risky shell + history-rewrite + sensitive-file edits |
 | `auto-fallback` | Cost-aware switch to local LLM + 3-tier router |
-| `superagent-switch` | Manual model swap with canary preflight |
+| `paarth-switch` | Manual model swap with canary preflight |
 | `free-llm` | Set up free-claude-code proxy + provider routing |
 | `investigate` | "Why did X break?" — reproduce → isolate → explain → verify |
 | `review` | "Is this ready to merge?" — 6-point diff gate |
@@ -286,12 +286,12 @@ Author HTML compositions. Render frame-accurate MP4s. Same router, same savings.
 [SA] Preview at http://localhost:3000/preview ... press enter to render
 [SA] Rendering 30s @ 30fps... done in 4 min 12 sec
 [SA] Output: my-ad.mp4 (28 MB, 30 fps, 1920x1080)
-[SA] Footer: "Rendered by SuperAgent · 4.2 min · $0.83"
+[SA] Footer: "Rendered by PAARTH · 4.2 min · $0.83"
 ```
 
 5 technique domains, 4 production recipes (hello-world, product-ad-30s, data-driven-chart, lower-third-overlay). Distilled from the open-source [hyperframes](https://github.com/heygen-com/hyperframes) framework.
 
-**The reel at the top of this README** was authored and rendered through this pipeline. Source composition: [`docs/video/reel/index.html`](docs/video/reel/index.html). Output: [`docs/media/superagent-v2.2-reel.mp4`](docs/media/superagent-v2.2-reel.mp4) — 1920×1080, 30 fps, 30 s, 5.3 MB.
+**The reel at the top of this README** was authored and rendered through this pipeline. Source composition: [`docs/video/reel/index.html`](docs/video/reel/index.html). Output: [`docs/media/paarth-v2.2-reel.mp4`](docs/media/paarth-v2.2-reel.mp4) — 1920×1080, 30 fps, 30 s, 5.3 MB.
 
 ---
 
@@ -322,7 +322,7 @@ After any session:
 ```
 
 ```
-SuperAgent Token Stats — /your/project
+PAARTH Token Stats — /your/project
 ──────────────────────────────────────────────
 Compression ratio : 48.3x  (your codebase, measured 2026-04-22)
 ──────────────────────────────────────────────
@@ -340,11 +340,11 @@ Lifetime
 ```
 
 ```markdown
-[![SuperAgent saved 229k tokens](https://img.shields.io/badge/SuperAgent-229k_tokens_saved-brightgreen)](https://github.com/animeshbasak/SuperAgent)
-[![SuperAgent: 0 rate-limits](https://img.shields.io/badge/SuperAgent-0_rate--limits_hit-orange)](https://github.com/animeshbasak/SuperAgent)
+[![PAARTH saved 229k tokens](https://img.shields.io/badge/PAARTH-229k_tokens_saved-brightgreen)](https://github.com/animeshbasak/Paarth)
+[![PAARTH: 0 rate-limits](https://img.shields.io/badge/PAARTH-0_rate--limits_hit-orange)](https://github.com/animeshbasak/Paarth)
 ```
 
-For video-craft, every render auto-stamps a footer: `Rendered by SuperAgent · 4.2 min · $0.83`. Add `/render-stats --badge` to your repo README for shareable render economics.
+For video-craft, every render auto-stamps a footer: `Rendered by PAARTH · 4.2 min · $0.83`. Add `/render-stats --badge` to your repo README for shareable render economics.
 
 ---
 
@@ -354,23 +354,23 @@ For video-craft, every render auto-stamps a footer: `Rendered by SuperAgent · 4
 
 **Will my code leak to free LLM providers?** No — by default. Free-LLM mode is **local-only**: Ollama or llama.cpp on your machine. Cloud free-tier providers (NIM, OpenRouter, DeepSeek) are explicit opt-in via `--cloud` flag.
 
-**How does the safety gate know what's risky?** Python regex classifier in `hooks/superagent-safety.py` (Claude Code) + the `superagent-safety` skill (every other IDE). 30+ patterns covering destructive shell, history rewrites, sensitive paths, mass DB mutations, permission-skip flags. Bypass: `SUPERAGENT_SAFETY=off`, `~/.superagent/safety/allow.txt` regex allow-list, or `## SuperAgent Safety Allow` bullets in `~/.claude/CLAUDE.md`.
+**How does the safety gate know what's risky?** Python regex classifier in `hooks/paarth-safety.py` (Claude Code) + the `paarth-safety` skill (every other IDE). 30+ patterns covering destructive shell, history rewrites, sensitive paths, mass DB mutations, permission-skip flags. Bypass: `PAARTH_SAFETY=off`, `~/.paarth/safety/allow.txt` regex allow-list, or `## PAARTH Safety Allow` bullets in `~/.claude/CLAUDE.md`.
 
 **How does context preservation work across model switches?** mempalace, claude-mem, and graphify all inject text into prompts — they're provider-agnostic. When you switch the underlying LLM, the same memory text lands in the same prompts. Different brain, same memory. Your AI walks into the new model already knowing your project.
 
-**Is local LLM quality really good enough?** For trivial tasks (lint, format, rename, simple regex): yes — qwen2.5-coder:7b runs on a laptop. For moderate tasks (single feature): qwen3-coder:next gets close to Sonnet. For complex agentic work: nothing local matches Opus 4.7. SuperAgent's `complexity` classifier won't suggest local for tasks it would fail.
+**Is local LLM quality really good enough?** For trivial tasks (lint, format, rename, simple regex): yes — qwen2.5-coder:7b runs on a laptop. For moderate tasks (single feature): qwen3-coder:next gets close to Sonnet. For complex agentic work: nothing local matches Opus 4.7. PAARTH's `complexity` classifier won't suggest local for tasks it would fail.
 
 **Will I have to change my workflow?** No. Just install. Routing is automatic.
 
 **Does it work with my existing Claude setup?** Additive only. Zero modification to existing files — verified by MD5 on every release.
 
-**I'm on Cursor, not Claude Code. Does it work?** Yes. The compiler turns 26 skills into Cursor `.mdc` rules, Codex `AGENTS.md`, Copilot instructions, Continue rules, etc. — whatever your platform expects. Hooks fire on Claude Code only (full 9-event lifecycle as of v2.4 + AIDefence injection at UserPromptSubmit as of v2.5); on every other platform the agent self-polices via the `superagent-safety` skill.
+**I'm on Cursor, not Claude Code. Does it work?** Yes. The compiler turns 26 skills into Cursor `.mdc` rules, Codex `AGENTS.md`, Copilot instructions, Continue rules, etc. — whatever your platform expects. Hooks fire on Claude Code only (full 9-event lifecycle as of v2.4 + AIDefence injection at UserPromptSubmit as of v2.5); on every other platform the agent self-polices via the `paarth-safety` skill.
 
 **What happens if my local model crashes mid-task?** Canary preflight (3-step Read → Edit → Bash test) refuses to switch if the model fails. Once switched, the auto-fallback policy on canary failure is "freeze + prompt" — you decide whether to retry, pick a different model, or restore Anthropic.
 
 **Cursor has a 12k char rule limit. How?** Compiler auto-compacts. Your Cursor rules stay at ~4.7k chars. Measured on every build.
 
-**Can I add my own skills?** Yes. Drop a `SKILL.md` into `skills/<name>/`. Run `superagent-compile --platform all`. Every platform picks it up.
+**Can I add my own skills?** Yes. Drop a `SKILL.md` into `skills/<name>/`. Run `paarth-compile --platform all`. Every platform picks it up.
 
 **What if I break something?** `install.sh` is MD5-pinned. `test/test-classify.sh` is a hard gate. `bench/run.sh` enforces ≥0.90 routing accuracy. Regressions can't land.
 
@@ -378,7 +378,7 @@ For video-craft, every render auto-stamps a footer: `Rendered by SuperAgent · 4
 
 ## Platform formats
 
-The compiler (`bin/superagent-compile`) is the source of truth. Each platform gets the format it expects:
+The compiler (`bin/paarth-compile`) is the source of truth. Each platform gets the format it expects:
 
 | Platform | Format | Location | Size |
 |---|---|---|---|
@@ -393,7 +393,7 @@ The compiler (`bin/superagent-compile`) is the source of truth. Each platform ge
 
 Recompile any time:
 ```bash
-python3 bin/superagent-compile --platform all
+python3 bin/paarth-compile --platform all
 ```
 
 ---
@@ -401,17 +401,17 @@ python3 bin/superagent-compile --platform all
 ## Project structure
 
 ```
-SuperAgent/
+PAARTH/
 ├── skills/                  26 skills (source of truth)
 ├── agents/                  Claude agent files (with frontmatter hooks)
 ├── bin/                     CLIs (classify, compile, switch, chain, cost,
 │                            learn, oneshot, ship)
 ├── hooks/                   Python + bash hooks
-│   ├── superagent-safety.py        PreToolUse reversibility gate
-│   ├── superagent-session-start.py SessionStart context loader
-│   ├── superagent-tracker.sh       PostToolUse token tracker
-│   ├── superagent-distill.sh       Stop hook → CLAUDE.md proposals
-│   └── superagent-state-init.sh    ~/.superagent/ scaffold
+│   ├── paarth-safety.py        PreToolUse reversibility gate
+│   ├── paarth-session-start.py SessionStart context loader
+│   ├── paarth-tracker.sh       PostToolUse token tracker
+│   ├── paarth-distill.sh       Stop hook → CLAUDE.md proposals
+│   └── paarth-state-init.sh    ~/.paarth/ scaffold
 ├── adapters/                Platform adapters (codex, gemini, cursor,
 │                            windsurf, copilot, continue, aider)
 ├── bundles/                 Optional installers (hyperframes, free-claude-code)
@@ -463,7 +463,7 @@ See [CHANGELOG.md](CHANGELOG.md). Latest: **v2.3.0 — Safety Gate + 3-Tier Rout
 
 ### If this saved you tokens, the least you can do is star it.
 
-**[Star on GitHub](https://github.com/animeshbasak/SuperAgent)** · **[Tweet your `/token-stats` receipt](https://twitter.com/intent/tweet?text=SuperAgent%20just%20saved%20me%20200k%20tokens%20%2B%20zero%20rate-limits%20on%20my%20last%20AI%20coding%20session.%20Works%20with%20Claude%2C%20Cursor%2C%20Copilot%2C%20and%205%20more.%20https%3A%2F%2Fgithub.com%2Fanimeshbasak%2FSuperAgent)** · **[Share on HN](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Fanimeshbasak%2FSuperAgent)**
+**[Star on GitHub](https://github.com/animeshbasak/Paarth)** · **[Tweet your `/token-stats` receipt](https://twitter.com/intent/tweet?text=PAARTH%20just%20saved%20me%20200k%20tokens%20%2B%20zero%20rate-limits%20on%20my%20last%20AI%20coding%20session.%20Works%20with%20Claude%2C%20Cursor%2C%20Copilot%2C%20and%205%20more.%20https%3A%2F%2Fgithub.com%2Fanimeshbasak%2FPAARTH)** · **[Share on HN](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Fanimeshbasak%2FPAARTH)**
 
 Built by devs who got tired of watching their AI burn tokens on re-reads — and run out of them at 4pm.
 

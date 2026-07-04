@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add real token savings tracking to superagent — persistent per-project stats, live statusline badge, and `/token-stats` command using measured compression ratios from `graphify benchmark`.
+**Goal:** Add real token savings tracking to paarth — persistent per-project stats, live statusline badge, and `/token-stats` command using measured compression ratios from `graphify benchmark`.
 
-**Architecture:** A `PostToolUse` hook script reads stdin JSON from Claude Code, detects graphify/mempalace in Bash commands, computes savings using ratios measured via `graphify benchmark`, and atomically updates `~/.claude/superagent-stats.json` keyed by `$PWD`. A statusline script reads the JSON for a live badge. A skill provides the detailed report command.
+**Architecture:** A `PostToolUse` hook script reads stdin JSON from Claude Code, detects graphify/mempalace in Bash commands, computes savings using ratios measured via `graphify benchmark`, and atomically updates `~/.claude/paarth-stats.json` keyed by `$PWD`. A statusline script reads the JSON for a live badge. A skill provides the detailed report command.
 
 **Tech Stack:** bash, jq, graphify CLI (benchmark subcommand), Claude Code hooks (PostToolUse + statusLine)
 
@@ -14,30 +14,30 @@
 
 | Action | Path | Responsibility |
 |--------|------|----------------|
-| Create | `hooks/superagent-tracker.sh` | PostToolUse hook: detect tools, compute savings, atomic write |
-| Create | `hooks/superagent-statusline.sh` | Statusline badge: read stats JSON, format output |
+| Create | `hooks/paarth-tracker.sh` | PostToolUse hook: detect tools, compute savings, atomic write |
+| Create | `hooks/paarth-statusline.sh` | Statusline badge: read stats JSON, format output |
 | Create | `skills/token-stats/SKILL.md` | `/token-stats` skill: print lifetime + session table |
 | Modify | `install.sh` | Copy scripts to `~/.claude/`, wire hook + statusLine in settings.json, run calibration |
 
 ---
 
-## Task 1: Create `hooks/superagent-tracker.sh` — Core Tracker
+## Task 1: Create `hooks/paarth-tracker.sh` — Core Tracker
 
 **Files:**
-- Create: `hooks/superagent-tracker.sh`
+- Create: `hooks/paarth-tracker.sh`
 
 - [ ] **Step 1: Write the tracker script**
 
 ```bash
 #!/usr/bin/env bash
-# superagent-tracker.sh — PostToolUse hook + calibration
+# paarth-tracker.sh — PostToolUse hook + calibration
 # Hook mode: called by Claude Code with JSON payload via stdin
 # Calibration mode: called with --calibrate <project_dir>
 
 set -euo pipefail
 
-STATS="$HOME/.claude/superagent-stats.json"
-LOG="$HOME/.claude/superagent-tracker.log"
+STATS="$HOME/.claude/paarth-stats.json"
+LOG="$HOME/.claude/paarth-tracker.log"
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG" 2>/dev/null || true; }
 
@@ -107,7 +107,7 @@ TOOL_NAME=$(echo "$PAYLOAD" | jq -r '.tool_name // ""' 2>/dev/null)
 COMMAND=$(echo "$PAYLOAD"  | jq -r '.tool_input.command // ""'    2>/dev/null)
 RESPONSE=$(echo "$PAYLOAD" | jq -r '.tool_response.output // ""'  2>/dev/null)
 
-# Detect which superagent tool was used
+# Detect which paarth tool was used
 TOOL_TYPE=""
 echo "$COMMAND" | grep -q "graphify"   && TOOL_TYPE="graphify"
 echo "$COMMAND" | grep -q "mempalace"  && TOOL_TYPE="mempalace"
@@ -199,10 +199,10 @@ exit 0
 - [ ] **Step 2: Make executable**
 
 ```bash
-chmod +x /path/to/superagent/hooks/superagent-tracker.sh
+chmod +x /path/to/paarth/hooks/paarth-tracker.sh
 ```
 
-Expected: `ls -la hooks/superagent-tracker.sh` shows `-rwxr-xr-x`
+Expected: `ls -la hooks/paarth-tracker.sh` shows `-rwxr-xr-x`
 
 - [ ] **Step 3: Test calibration mode with a real graph.json**
 
@@ -215,8 +215,8 @@ graphify update . 2>&1
 
 Then test calibration:
 ```bash
-bash /path/to/superagent/hooks/superagent-tracker.sh --calibrate /tmp/test-cal
-cat ~/.claude/superagent-stats.json | jq '.projects["/tmp/test-cal"]'
+bash /path/to/paarth/hooks/paarth-tracker.sh --calibrate /tmp/test-cal
+cat ~/.claude/paarth-stats.json | jq '.projects["/tmp/test-cal"]'
 ```
 
 Expected output:
@@ -229,9 +229,9 @@ Expected JSON: project entry with `compression_ratio`, `calibrated_at` = today, 
 
 ```bash
 echo '{"tool_name":"Bash","tool_input":{"command":"graphify query \"how does auth work\""},"tool_response":{"output":"Auth uses JWT tokens stored in Redis. The AuthMiddleware validates tokens on every request."}}' \
-  | bash /path/to/superagent/hooks/superagent-tracker.sh
+  | bash /path/to/paarth/hooks/paarth-tracker.sh
 
-cat ~/.claude/superagent-stats.json | jq ".projects[\"$PWD\"].lifetime"
+cat ~/.claude/paarth-stats.json | jq ".projects[\"$PWD\"].lifetime"
 ```
 
 Expected: `graphify_queries` = 1, `graphify_tokens_saved` > 0, `total_saved` > 0.
@@ -240,10 +240,10 @@ Expected: `graphify_queries` = 1, `graphify_tokens_saved` > 0, `total_saved` > 0
 
 ```bash
 PAYLOAD='{"tool_name":"Bash","tool_input":{"command":"graphify query \"dedup test\""},"tool_response":{"output":"test output"}}'
-echo "$PAYLOAD" | bash /path/to/superagent/hooks/superagent-tracker.sh
-echo "$PAYLOAD" | bash /path/to/superagent/hooks/superagent-tracker.sh
+echo "$PAYLOAD" | bash /path/to/paarth/hooks/paarth-tracker.sh
+echo "$PAYLOAD" | bash /path/to/paarth/hooks/paarth-tracker.sh
 
-cat ~/.claude/superagent-stats.json | jq ".projects[\"$PWD\"].lifetime.graphify_queries"
+cat ~/.claude/paarth-stats.json | jq ".projects[\"$PWD\"].lifetime.graphify_queries"
 ```
 
 Expected: `1` (not `2`)
@@ -252,10 +252,10 @@ Expected: `1` (not `2`)
 
 ```bash
 echo '{"tool_name":"Read","tool_input":{"file_path":"/etc/hosts"},"tool_response":{"content":"127.0.0.1 localhost"}}' \
-  | bash /path/to/superagent/hooks/superagent-tracker.sh
+  | bash /path/to/paarth/hooks/paarth-tracker.sh
 
 # Verify no graphify/mempalace counter incremented — only way to confirm is stats unchanged
-cat ~/.claude/superagent-stats.json | jq ".projects[\"$PWD\"].lifetime.graphify_queries"
+cat ~/.claude/paarth-stats.json | jq ".projects[\"$PWD\"].lifetime.graphify_queries"
 ```
 
 Expected: same count as before (no increment)
@@ -263,25 +263,25 @@ Expected: same count as before (no increment)
 - [ ] **Step 7: Commit**
 
 ```bash
-git add hooks/superagent-tracker.sh
-git commit -m "feat: add superagent-tracker.sh — PostToolUse hook with calibration"
+git add hooks/paarth-tracker.sh
+git commit -m "feat: add paarth-tracker.sh — PostToolUse hook with calibration"
 ```
 
 ---
 
-## Task 2: Create `hooks/superagent-statusline.sh` — Live Badge
+## Task 2: Create `hooks/paarth-statusline.sh` — Live Badge
 
 **Files:**
-- Create: `hooks/superagent-statusline.sh`
+- Create: `hooks/paarth-statusline.sh`
 
 - [ ] **Step 1: Write the statusline script**
 
 ```bash
 #!/usr/bin/env bash
-# superagent-statusline.sh — Claude Code statusLine badge
+# paarth-statusline.sh — Claude Code statusLine badge
 # Output: [SA: ~231k saved | 48x]  or a fallback message
 
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 
 # Dependency check
 command -v jq >/dev/null 2>&1 || { echo "[SA: install jq]"; exit 0; }
@@ -324,36 +324,36 @@ echo "[SA: ${PREFIX}${DISPLAY} saved | ${RATIO}x]"
 - [ ] **Step 2: Make executable**
 
 ```bash
-chmod +x /path/to/superagent/hooks/superagent-statusline.sh
+chmod +x /path/to/paarth/hooks/paarth-statusline.sh
 ```
 
 - [ ] **Step 3: Test all fallback paths**
 
 ```bash
 # Fallback 1 — no stats file
-STATS_BACKUP="$HOME/.claude/superagent-stats.json.bak"
-mv ~/.claude/superagent-stats.json "$STATS_BACKUP" 2>/dev/null || true
-bash hooks/superagent-statusline.sh
+STATS_BACKUP="$HOME/.claude/paarth-stats.json.bak"
+mv ~/.claude/paarth-stats.json "$STATS_BACKUP" 2>/dev/null || true
+bash hooks/paarth-statusline.sh
 # Expected: [SA: not calibrated]
 
 # Restore
-mv "$STATS_BACKUP" ~/.claude/superagent-stats.json
+mv "$STATS_BACKUP" ~/.claude/paarth-stats.json
 
 # Fallback 2 — project not in stats (run from a different dir)
-cd /tmp && bash /path/to/superagent/hooks/superagent-statusline.sh
+cd /tmp && bash /path/to/paarth/hooks/paarth-statusline.sh
 # Expected: [SA: run graphify update]
 cd -
 
 # Normal output — run from project dir that has been calibrated and used
-bash hooks/superagent-statusline.sh
+bash hooks/paarth-statusline.sh
 # Expected: [SA: ready | <N>x]  or  [SA: ~Xk saved | Nx]
 ```
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add hooks/superagent-statusline.sh
-git commit -m "feat: add superagent-statusline.sh — statusLine badge with fallbacks"
+git add hooks/paarth-statusline.sh
+git commit -m "feat: add paarth-statusline.sh — statusLine badge with fallbacks"
 ```
 
 ---
@@ -368,11 +368,11 @@ git commit -m "feat: add superagent-statusline.sh — statusLine badge with fall
 ```markdown
 ---
 name: token-stats
-description: Show superagent token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Use when user asks about token savings, how many tokens saved, superagent stats, or runs /token-stats.
+description: Show paarth token savings stats for the current project — lifetime totals, last 5 sessions, compression ratio. Use when user asks about token savings, how many tokens saved, paarth stats, or runs /token-stats.
 argument-hint: "[--test]"
 ---
 
-# SuperAgent Token Stats
+# PAARTH Token Stats
 
 Show token savings for the current project.
 
@@ -384,7 +384,7 @@ Show token savings for the current project.
 
 ```bash
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
 
 if [[ ! -f "$STATS" ]]; then
@@ -416,7 +416,7 @@ fmt() {
 }
 
 echo ""
-echo "SuperAgent Token Stats — $PROJECT"
+echo "PAARTH Token Stats — $PROJECT"
 echo "──────────────────────────────────────────────"
 echo "Compression ratio : ${RATIO}x  (your codebase, measured $CAL_DATE)"
 echo "──────────────────────────────────────────────"
@@ -446,7 +446,7 @@ echo ""
 When `--test` argument is passed, display this hardcoded sample output:
 
 ```
-SuperAgent Token Stats — /your/project (SAMPLE DATA)
+PAARTH Token Stats — /your/project (SAMPLE DATA)
 ──────────────────────────────────────────────
 Compression ratio : 48.3x  (your codebase, measured 2026-04-17)
 ──────────────────────────────────────────────
@@ -474,7 +474,7 @@ Tip: re-run 'graphify update <dir>' after large codebase changes.
 ```bash
 # Simulate what Claude does when skill runs:
 bash -c '
-STATS="$HOME/.claude/superagent-stats.json"
+STATS="$HOME/.claude/paarth-stats.json"
 PROJECT="$PWD"
 PROJECT_DATA=$(jq --arg p "$PROJECT" ".projects[\$p] // empty" "$STATS" 2>/dev/null)
 [[ -z "$PROJECT_DATA" ]] && echo "No data for $PROJECT — calibrate first" && exit 0
@@ -505,14 +505,14 @@ Add after the existing Step 9 block (after `popd >/dev/null`):
 ```bash
 # ── Step 10: Install token savings tracker ────────────────────────────────────
 info "Installing token savings tracker..."
-TRACKER_SRC="$SCRIPT_DIR/hooks/superagent-tracker.sh"
-STATUSLINE_SRC="$SCRIPT_DIR/hooks/superagent-statusline.sh"
+TRACKER_SRC="$SCRIPT_DIR/hooks/paarth-tracker.sh"
+STATUSLINE_SRC="$SCRIPT_DIR/hooks/paarth-statusline.sh"
 
 if [[ -f "$TRACKER_SRC" && -f "$STATUSLINE_SRC" ]]; then
-  cp "$TRACKER_SRC"    "$CLAUDE_DIR/superagent-tracker.sh"
-  cp "$STATUSLINE_SRC" "$CLAUDE_DIR/superagent-statusline.sh"
-  chmod +x "$CLAUDE_DIR/superagent-tracker.sh"
-  chmod +x "$CLAUDE_DIR/superagent-statusline.sh"
+  cp "$TRACKER_SRC"    "$CLAUDE_DIR/paarth-tracker.sh"
+  cp "$STATUSLINE_SRC" "$CLAUDE_DIR/paarth-statusline.sh"
+  chmod +x "$CLAUDE_DIR/paarth-tracker.sh"
+  chmod +x "$CLAUDE_DIR/paarth-statusline.sh"
   ok "Tracker scripts installed to ~/.claude/"
 else
   warn "Hook scripts not found in $SCRIPT_DIR/hooks/ — skipping tracker install"
@@ -526,7 +526,7 @@ Add this node block immediately after the Step 10 copy block:
 
 ```bash
 # ── Wire hook + statusLine in settings.json ───────────────────────────────────
-if [[ -f "$CLAUDE_DIR/superagent-tracker.sh" ]]; then
+if [[ -f "$CLAUDE_DIR/paarth-tracker.sh" ]]; then
   node - <<'JSEOF'
 const fs = require('fs'), path = require('path');
 const file = path.join(process.env.HOME, '.claude', 'settings.json');
@@ -536,9 +536,9 @@ try { cfg = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
 // Wire PostToolUse hook
 cfg.hooks = cfg.hooks || {};
 cfg.hooks.PostToolUse = cfg.hooks.PostToolUse || [];
-const trackerCmd = `bash "${path.join(process.env.HOME, '.claude', 'superagent-tracker.sh')}"`;
+const trackerCmd = `bash "${path.join(process.env.HOME, '.claude', 'paarth-tracker.sh')}"`;
 const alreadyWired = cfg.hooks.PostToolUse.some(h =>
-  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('superagent-tracker'))
+  h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('paarth-tracker'))
 );
 if (!alreadyWired) {
   cfg.hooks.PostToolUse.push({
@@ -548,8 +548,8 @@ if (!alreadyWired) {
 }
 
 // Wire statusLine
-const statusCmd = `bash "${path.join(process.env.HOME, '.claude', 'superagent-statusline.sh')}"`;
-if (!cfg.statusLine || !cfg.statusLine.command || !cfg.statusLine.command.includes('superagent-statusline')) {
+const statusCmd = `bash "${path.join(process.env.HOME, '.claude', 'paarth-statusline.sh')}"`;
+if (!cfg.statusLine || !cfg.statusLine.command || !cfg.statusLine.command.includes('paarth-statusline')) {
   cfg.statusLine = { type: "command", command: statusCmd };
 }
 
@@ -572,7 +572,7 @@ Find this line in Step 9:
 Replace with:
 ```bash
     && ok "graphify graph built (graphify-out/graph.json)" \
-    && { bash "$CLAUDE_DIR/superagent-tracker.sh" --calibrate "$CLAUDE_DIR" 2>/dev/null || true; } \
+    && { bash "$CLAUDE_DIR/paarth-tracker.sh" --calibrate "$CLAUDE_DIR" 2>/dev/null || true; } \
 ```
 
 - [ ] **Step 4: Update the Done banner to mention tracker**
@@ -597,7 +597,7 @@ console.log('statusLine:', JSON.stringify(cfg.statusLine, null, 2));
 "
 ```
 
-Expected: `hooks.PostToolUse` contains entry with `superagent-tracker.sh`, `statusLine.command` contains `superagent-statusline.sh`.
+Expected: `hooks.PostToolUse` contains entry with `paarth-tracker.sh`, `statusLine.command` contains `paarth-statusline.sh`.
 
 - [ ] **Step 6: Commit**
 
@@ -628,8 +628,8 @@ cat ~/.claude/settings.json | jq '{hooks: .hooks.PostToolUse, statusLine: .statu
 Expected:
 ```json
 {
-  "hooks": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "bash ~/.claude/superagent-tracker.sh" }] }],
-  "statusLine": { "type": "command", "command": "bash ~/.claude/superagent-statusline.sh" }
+  "hooks": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "bash ~/.claude/paarth-tracker.sh" }] }],
+  "statusLine": { "type": "command", "command": "bash ~/.claude/paarth-statusline.sh" }
 }
 ```
 
@@ -638,10 +638,10 @@ Expected:
 ```bash
 # Simulate PostToolUse event as Claude Code would
 echo '{"tool_name":"Bash","tool_input":{"command":"graphify query \"what is the main entry point\""},"tool_response":{"output":"The main entry point is install.sh which orchestrates all plugin and tool installations."}}' \
-  | bash ~/.claude/superagent-tracker.sh
+  | bash ~/.claude/paarth-tracker.sh
 
 # Check statusline
-bash ~/.claude/superagent-statusline.sh
+bash ~/.claude/paarth-statusline.sh
 ```
 
 Expected badge: `[SA: <N> saved | <R>x]` with non-zero values
