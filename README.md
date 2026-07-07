@@ -4,11 +4,11 @@
 
 # PAARTH
 
-**Proactive Agentic AI for Routing, Telemetry & Heuristics**
+**Your AI coding assistant, with a memory, a seatbelt, and a budget.**
 
-*The routing brain between your AI and your code.*
+PAARTH is a free, open-source layer that installs under the AI tools you already use — Claude Code, Cursor, Copilot, and six others — and fixes what they all get wrong: forgetting your project between chats, running dangerous commands, burning through your token budget, and making you copy the same setup into every tool.
 
-Pārtha is Arjuna's name in the Mahabharata — the archer who never misses; PAARTH routes every task to the right skill.
+You keep working exactly as before. PAARTH works underneath.
 
 [![Stars](https://img.shields.io/github/stars/animeshbasak/Paarth?style=social)](https://github.com/animeshbasak/Paarth)
 [![Version](https://img.shields.io/badge/v4.0.0-shipped-blueviolet)](https://github.com/animeshbasak/Paarth/releases/tag/v4.0.0)
@@ -27,28 +27,19 @@ bash PAARTH/install.sh
 
 ---
 
-## Capability map
+## What does it actually do?
 
-Every major surface, verified against the tree, one click away.
+Five jobs, all automatic after one install:
 
-| Surface | Count | Section |
-|---|---|---|
-| Skills | 52 | [Skills](#skills) |
-| Income pack | 20 skills | [Income pack](#income-pack) |
-| CLI tools | 27 | [CLI tools](#cli-tools) |
-| Specialist agents | 6 | [Specialist agents](#specialist-agents) |
-| Lifecycle hooks | 9 | [Hooks](#hooks) |
-| Routing rules | 63 | [The routing brain](#the-routing-brain) |
-| Learning loop | — | [The learning loop](#the-learning-loop) |
-| Memory-OS | 9 MCP tools | [Memory-OS](#memory-os) |
-| Injection budget | — | [Injection budget](#injection-budget) |
-| Session auto-capture | — | [Session auto-capture](#session-auto-capture) |
-| Platform adapters | 9 IDEs | [Platform support](#platform-support) |
-| Slash commands | 9 | [Platform support](#platform-support) |
-| Cost guard | — | [Cost guard](#cost-guard) |
-| Org policy | — | [Org policy](#org-policy) |
-| CI matrix | 2 OS | [CI matrix](#ci-matrix) |
-| Why PAARTH | — | [Why PAARTH](#why-paarth) |
+1. **Picks the right playbook for every task.** Type `/paarth fix the dark mode bug` and your AI follows a proven debugging checklist instead of improvising. 53 playbooks ("skills"), chosen for you by a router that learns which ones work.
+2. **Remembers.** Decisions, corrections, and context survive between sessions and between tools. Ask "how do we round billing amounts?" next month and get the answer your team agreed on — not a fresh guess.
+3. **Stops disasters before they run.** A safety gate blocks `rm -rf`, force-pushes, database drops, and `.env` edits *before* they execute.
+4. **Watches your bill.** See your real daily spend, get alerts at your budget, and fall back to a free local model when you hit the 4 PM rate limit.
+5. **One setup, nine tools.** Write your rules once; PAARTH compiles them natively for Claude Code, Cursor, Copilot, Gemini, Windsurf, Codex, Continue, Aider, and Antigravity.
+
+No server. No account. No telemetry. Every capability is a readable file on your machine — nothing is magic.
+
+**Is it for you?** If you use an AI coding tool more than an hour a day, yes. If you're happy re-explaining your project every morning and reviewing every shell command by hand, you don't need this.
 
 ## Table of contents
 
@@ -89,9 +80,9 @@ PAARTH removes all four: one config, one safety gate, one cost tracker, one free
 
 ## Skills
 
-Skills are the source of truth. The classifier composes them into chains; `paarth-compile` ships them to every platform. **52 skills**, grouped:
+Skills are the source of truth. The classifier composes them into chains; `paarth-compile` ships them to every platform. **53 skills**, grouped:
 
-**Routing & meta** — `paarth` (master entrypoint) · `paarth-learn-loop` (pattern promotion/decay) · `paarth-safety` (reversibility gate) · `paarth-switch` (model control) · `dynamic-skills` (hot-reload) · `fanout` (parallel skills)
+**Routing & meta** — `paarth` (master entrypoint) · `paarth-learn-loop` (pattern promotion/decay) · `paarth-safety` (reversibility gate) · `paarth-switch` (model control) · `fable-parity` (top-tier discipline on cheaper models) · `dynamic-skills` (hot-reload) · `fanout` (parallel skills)
 
 **Planning & review** — `autoplan` (product→design→eng) · `plan-ceo-review` · `plan-design-review` · `plan-eng-review` · `review` (6-point gate) · `sparc` (5-phase methodology) · `office-hours` (6 YC questions) · `investigate` (root-cause)
 
@@ -285,7 +276,7 @@ At 90% of budget, `auto-fallback` proposes Opus → Sonnet → Haiku, or hands o
 
 | | Claude Code | Cursor | Codex | Copilot | Continue | Windsurf | Gemini | Aider | Antigravity |
 |---|---|---|---|---|---|---|---|---|---|
-| **Skills routed** | 32 | `.mdc` | `AGENTS.md` | inline | rules | rules | skills | `CONVENTIONS.md` | rules |
+| **Skills routed** | 53 | `.mdc` | `AGENTS.md` | inline | rules | rules | skills | `CONVENTIONS.md` | rules |
 | **Safety** | 9 hooks | self-polices | self-polices | self-polices | self-polices | self-polices | self-polices | self-polices | self-polices |
 | **Learning loop** | ✅ | reads store | reads store | reads store | reads store | reads store | reads store | reads store | reads store |
 | **Cost tracker** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -364,7 +355,7 @@ Every PR runs the shell suite + 196 memory tests on `ubuntu-latest` and `macos-l
 ```
 PAARTH/
 ├── bin/            27 CLI tools + the memory-os MCP server (installed to ~/.local/bin/)
-├── skills/         52 skills (the source of truth)
+├── skills/         53 skills (the source of truth)
 ├── agents/         6 specialist agent personas
 ├── hooks/          9 Claude Code lifecycle hooks (+ 3 helper scripts)
 ├── adapters/       9 IDE rule generators + _shared memory-os lib
@@ -422,7 +413,9 @@ After install:
 
 **Does it change my code without asking?** Only when you ask. AIDefence and Autopilot are default off; SPARC starts only when you run `sparc init`.
 
-**What's the catch?** 52 skills is a lot, and the learning curve is real — start with `paarth-cost today` and the safety gate, add `paarth-diff-risk` before a scary push, add `sparc` for a real feature.
+**What's the catch?** 53 skills is a lot, and the learning curve is real — start with `paarth-cost today` and the safety gate, add `paarth-diff-risk` before a scary push, add `sparc` for a real feature.
+
+**What does the name mean?** Pārtha is Arjuna's name in the Mahabharata — the archer who never misses. The backronym, if you want it: Proactive Agentic AI for Routing, Telemetry & Heuristics.
 
 ---
 
