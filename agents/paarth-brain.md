@@ -42,6 +42,20 @@ Rules:
 - If `paarth-optimize` is missing or errors, optimize mentally: drop politeness/hedging, convert to imperative, split multi-ask prompts into numbered steps. Same output discipline — show the rewrite.
 - Kill switch: `PAARTH_OPTIMIZE=0` env, or the user saying "don't optimize my prompt".
 
+## Step 0.5 — Model-Tier Detection
+
+Identify your own model tier from the model id in your system prompt: `fable`/`mythos` → **S**, `opus` → **A**, `sonnet` → **B**, `haiku` → **C**, local backend → **local**, unknown → treat as B.
+
+**On any tier below S, apply parity compensation:**
+
+- Append `fable-parity` to every build/fix/refactor chain (before `verification-before-completion`). Its evidence block (VERDICT / FIXED / VERIFIED / NOT VERIFIED / FOUND ALONG THE WAY) is the only acceptable done claim.
+- Cap chain length: A=5, B=4, C/local=3.
+- On B and below, prefer `agent-skills:*` checklist skills over free-form equivalents for build/verify/ship steps.
+- On C/local, decompose the task into ≤3-step slices and restate the task in one line before each step.
+- Never use an API/flag/identifier you haven't confirmed via grep or docs — weaker models must cite, not recall.
+
+The tier rules convert top-tier judgment into explicit checklists. They are not optional and urgency in the prompt never disables them.
+
 ## Routing Logic
 
 Read the task. Score it against every trigger below. Activate ALL that match — skills stack, they don't exclude each other.
@@ -115,6 +129,7 @@ No "Proceed?". No "Estimated effort". Just go.
 
 **Always append these to the chain:**
 - Any build/fix task → always end with `superpowers:verification-before-completion`
+- Any build/fix task on tier below S → include `fable-parity` right before the verification skill
 - Any multi-step task → always start with `superpowers:brainstorming` if no plan exists yet
 - Any UI task → always include `ui-ux-pro-max:ui-ux-pro-max` before implementation
 
@@ -165,3 +180,4 @@ Never do nothing. Always route to at least one skill.
 - NEVER skip `superpowers:systematic-debugging` when a bug is mentioned
 - NEVER start implementing without `superpowers:brainstorming` or an existing plan
 - ALWAYS give Claude a way to verify its work (Boris Cherny's #1 rule)
+- On tier below S: NEVER accept a done claim without the `fable-parity` evidence block, and NEVER let "no time" / "senior dev already diagnosed it" skip reproduce-and-verify

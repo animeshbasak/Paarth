@@ -15,12 +15,23 @@ argument-hint: "<task description>"
 
 ## Procedure
 
-**1. Detect backend (always).** First call only:
+**1. Detect backend + model tier (always).** First call only:
 ```bash
 backend=$(paarth-switch status 2>/dev/null | awk '/^mode:/ {print $2}')
 [ -z "$backend" ] && backend="anthropic"
 ```
-If `backend=local`, run in **lite mode**: skip step 2 context load, cap chain at 3 skills, shorter announce format, prefer `agent-skills:*` skills (more deterministic step-by-step) over open-ended ones. Local models handle structured checklists better than free-form reasoning.
+Then determine your **model tier** from your own system prompt's model id (you are told what model you are):
+
+| Model id contains | Tier |
+|---|---|
+| `fable`, `mythos` | S |
+| `opus` | A |
+| `sonnet` | B |
+| `haiku` | C |
+| `backend=local` (any local model) | local |
+| unknown / can't tell | treat as B |
+
+Apply the **Model-tier rules** section below for every tier except S. If `backend=local`, also run in **lite mode**: skip step 2 context load, shorter announce format. Weaker models handle structured checklists better than free-form reasoning — the tier rules exist to convert judgment into checklists.
 
 **2. Load context (cloud only).** Skip on local backend. Otherwise run once per session:
 ```bash
@@ -49,7 +60,7 @@ Output is JSON `{chain: [...], hint: [...|null]}`. **If classifier missing or ch
 ```
 PAARTH routing plan for: "<task>"
 Optimized: <optimized task — only when the optimizer changed it>
-Backend: <anthropic|local:model-name>
+Backend: <anthropic|local:model-name> (tier <S|A|B|C|local>)
 Chain: skill1 → skill2 → skill3
 Rationale: <one line why each skill was selected>
 Estimated effort: <rough>
@@ -72,7 +83,7 @@ fi
 **Force-confirm (override auto, even without `?` prefix):**
 - Task or chain contains a destructive op: `ship`, `deploy`, `push`, `force`, `delete`, `drop`, `rm`, `migrate down`, `revert`, `reset --hard`.
 - Chain includes `cso` or `security-review` (findings should be reviewed first).
-- Local backend AND chain length > 3 (offer to trim or confirm full plan).
+- Chain length exceeds the tier's max (see Model-tier rules) — offer to trim or confirm full plan.
 - Classifier returned empty/`mempalace-wake` only AND keyword-match has no high-confidence single skill.
 
 **7. Execute.** For each skill in the chain, invoke via the Skill tool in order, working from the optimized task. Between skills, summarize the artifact produced in one sentence. If a skill fails or user says "stop", halt and report.
@@ -97,16 +108,34 @@ The roster is organized into namespaces. Pick from any:
 
 When a core skill and an `agent-skills:*` skill overlap (e.g. `simplify` vs `agent-skills:incremental-implementation` for refactor work), the bare-name PAARTH skill wins by default. Prefer the `agent-skills:*` version explicitly when the user wants step-by-step rigor or when running on a local model.
 
-## Local-backend rules (when `backend=local`)
+## Model-tier rules (any tier below S)
 
-Local models (Qwen, Llama, DeepSeek via free-claude-code proxy) need extra discipline:
+The gap between a top-tier model and a weaker one is mostly *discipline*, not knowledge: reproducing before fixing, verifying wider than asked, self-critiquing before claiming done. These rules externalize that discipline so the output quality does not depend on model strength.
 
-- **Cap chains at 3 skills.** Longer chains lose coherence on weaker models.
-- **No mempalace pre-load.** Saves ~4k tokens of context the model can't use well.
-- **Prefer `agent-skills:*`** for build/verify/ship tasks — their explicit checklists translate better than free-form skill prose.
-- **Skip `claude-api` skill** — it's Anthropic-SDK-specific and confuses non-Anthropic backends. Suggest `free-llm` if user wants AI-app guidance.
+**Universal (tiers A, B, C, local) — the parity core:**
+
+- **Load `fable-parity` on every build/fix/refactor chain.** Its five gates (reproduce → confirm diagnosis → full-suite verify → self-critique → evidence block) are mandatory; a done claim without the evidence block is not done.
+- **One extra hypothesis, always.** Before acting on a diagnosis (yours or one handed to you), write down one alternative explanation and say why you ruled it out.
+- **Verify wider than asked.** Scope limits apply to what you change, never to what you check — run the full suite/build even when pointed at one test.
+- **Externalize state.** Keep a running task file or TaskCreate list for anything ≥3 steps; re-read it before each step instead of trusting recall.
+- **Cite before claiming.** Any API/flag/method you are not 100% sure exists: grep the codebase or check docs (`context7`) before using it. Never ship a guessed identifier.
+
+**Per-tier dials:**
+
+| Dial | A (opus) | B (sonnet) | C (haiku) | local |
+|---|---|---|---|---|
+| Max chain length | 5 | 4 | 3 | 3 |
+| Prefer `agent-skills:*` checklists | no | on build/ship | yes | yes |
+| Self-critique passes before done | 1 | 1 | 2 | 2 |
+| mempalace pre-load | yes | yes | head -20 | skip |
+| Decompose task into ≤n-step slices | n=7 | n=5 | n=3 | n=3 |
+
+**C/local extras:**
+
+- **Skip `claude-api` skill** on local — Anthropic-SDK-specific; suggest `free-llm` instead.
 - **Single-skill route by default** for trivial questions — don't chain just to chain.
 - **Don't promise tool reliability.** If a skill needs a specific MCP (Chrome DevTools, Notion, etc.), tell the user to verify it's connected before running.
+- **Restate the task in one line before each chain step** — weak models drift; the restatement is the anchor.
 
 ## Fallback — classifier uncertain
 If classifier is missing or returns an empty chain:
@@ -122,4 +151,4 @@ If classifier is missing or returns an empty chain:
 - Backend switch — user runs `/paarth-switch to <model>` or `back`.
 
 ## Verification
-After each skill runs, require the skill's own output. For build/fix chains, the final `verification-before-completion` (or `agent-skills:test-driven-development` Verification block on local backend) must pass before declaring done.
+After each skill runs, require the skill's own output. For build/fix chains, the final `verification-before-completion` (or `agent-skills:test-driven-development` Verification block on local backend) must pass before declaring done. On any tier below S, done additionally means the `fable-parity` evidence block (VERDICT / FIXED / VERIFIED / NOT VERIFIED / FOUND ALONG THE WAY) is present in the final report.
