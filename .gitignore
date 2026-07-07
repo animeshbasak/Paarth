@@ -17,3 +17,13 @@ node_modules/
 marketing/*.mp4
 marketing/*.wav
 marketing/reel/
+
+# macOS/cloud-sync conflict copies
+* 2.*
+* 2
+
+# python build artifacts
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
